@@ -53,7 +53,6 @@ function gogogo(){
 
     load_css(function(){
         var url = url_s2_paper(current_article());
-        console.log(url);
         load_data(url, draw_overlays, 'S2 unavailable');
     });
 }
@@ -113,12 +112,26 @@ function draw_overlays(data){
         return column;
     }
 
+
+    function replace_author_links(authors){
+        var auths = $('div.authors a');
+
+        for (var i=0; i<auths.length; i++){
+            $(auths[i])
+                .attr('href', authors[i].url)
+                .text(authors[i].name);
+        }
+
+    }
+
     var link = data.url;
     $('<div>')
         .insertBefore($('.submission-history'))
         .addClass('mkb-col2')
         .append(create_column(data.references, 'References', link, '#citedPapers'))
         .append(create_column(data.citations, 'Citations', link, '#citingPapers'));
+
+    replace_author_links(data.authors);
 }
 
 gogogo();
