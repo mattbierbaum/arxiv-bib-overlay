@@ -13,7 +13,7 @@ function url_asset(file)    {return URL_ASSESTS+file;}
 
 function current_article(){
     var url = $(location).attr('href');
-    var re_url = new RegExp('^http(?:s)?://arxiv.org/abs/(\\d{4}\\.\\d{4,5})\\?.*$');
+    var re_url = new RegExp('^http(?:s)?://arxiv.org/abs/(\\d{4}\\.\\d{4,5})(?:\\?.*)?$');
     var match = re_url.exec(url);
 
     if (!match)
