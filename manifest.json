@@ -1,0 +1,11 @@
+{
+	"manifest_version": 2,
+	"name": "Semantic Scholar Overlay",
+	"version": "0.1",
+	"content_scripts": [
+		{
+	    	"matches": ["https://arxiv.org/abs/*"],
+	    	"js": ["static/jquery-3.2.1.min.js", "static/s2overlay.js"]
+	  	}
+	]
+}
