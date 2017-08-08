@@ -117,20 +117,6 @@ function draw_overlays(data){
     create_column(cl, data.references, link, '#citedPapers');
     create_column(cr, data.citations, link, '#citingPapers');
 
-    /*var link_element_l = $('<a>').attr('href', link+'#citedPapers').text('...')
-    var link_element_r = $('<a>').attr('href', link+'#citingPapers').text('...')
-
-    // The '...' links going to the main paper page on S2
-    $('<h2>').
-        appendTo(cl)
-        .css('text-align', 'center')
-        .append(link_element_l)
-
-    $('<h2>').
-        appendTo(cr)
-        .css('text-align', 'center')
-        .append(link_element_r)*/
-
     // Add all of the columns just below the submission history
     $('<div>')
         .insertBefore($('.submission-history'))
