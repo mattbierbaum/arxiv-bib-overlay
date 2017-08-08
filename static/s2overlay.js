@@ -1,7 +1,6 @@
 // https://arxiv.org/abs/1705.10311
 
 var gdata;
-gogogo();
 
 var URL_S2_API = 'http://api.semanticscholar.org/v1/';
 var URL_ASSESTS = 'http://127.0.0.1:8000/static/';
@@ -56,13 +55,31 @@ function gogogo(){
 
     load_css(function(){
         var url = url_s2_paper(current_article());
+        console.log(url);
         load_data(url, draw_overlays, 'S2 unavailable');
     });
 }
 
 function draw_overlays(data){
-    function _authors(ref){
-        url_s2_paperId(pref.paperId)
+    gdata = data;
+    function _authors(ref, base){
+        var url = url_s2_paperId(ref.paperId);
+        load_data(url,
+            function(data) {
+                var len = data.authors.length;
+                var elem = $('<div>').addClass('mkb-authors');
+
+                for (var j=0; j<len; j++){
+                    $('<a>')
+                        .appendTo(elem)
+                        .attr('href', data.authors[j].url)
+                        .text(data.authors[j].name);
+                }
+
+                base.append(elem);
+            },
+            'Could not find paper "'+ref.title+'"'
+        );
     }
 
     function _elem(ref){
@@ -75,25 +92,32 @@ function draw_overlays(data){
             );
     }
 
+    function create_column(column, references, anchorbase, anchorlink){
+        var len = references.length;
+        for (var i=0; i<min(5, len); i++){
+            var e = _elem(references[i]);
+            _authors(references[i], e);
+            column.append(e);
+        }
+
+        $('<h2>')
+            .appendTo(column)
+            .css('text-align', 'center')
+            .append(
+                $('<a>').attr('href', link+anchorlink).text('...')
+            )
+    }
+
+    var link = data.url;
     var cl = $('<div>');
     var cr = $('<div>');
     cl.append($("<h2>References</h2>"));
     cr.append($("<h2>Citations</h2>"));
 
-    var set = data.references;
-    var len = set.length;
-    for (var i=0; i<min(5, len); i++){
-        cl.append(_elem(set[i]));
-    }
+    create_column(cl, data.references, link, '#citedPapers');
+    create_column(cr, data.citations, link, '#citingPapers');
 
-    var set = data.citations;
-    var len = set.length;
-    for (var i=0; i<min(5, len); i++){
-        cr.append(_elem(set[i]));
-    }
-
-    var link = data.url;
-    var link_element_l = $('<a>').attr('href', link+'#citedPapers').text('...')
+    /*var link_element_l = $('<a>').attr('href', link+'#citedPapers').text('...')
     var link_element_r = $('<a>').attr('href', link+'#citingPapers').text('...')
 
     // The '...' links going to the main paper page on S2
@@ -105,7 +129,7 @@ function draw_overlays(data){
     $('<h2>').
         appendTo(cr)
         .css('text-align', 'center')
-        .append(link_element_r)
+        .append(link_element_r)*/
 
     // Add all of the columns just below the submission history
     $('<div>')
@@ -115,4 +139,5 @@ function draw_overlays(data){
         .append(cr)
 }
 
+gogogo();
 
