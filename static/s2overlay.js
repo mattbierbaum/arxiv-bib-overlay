@@ -1,7 +1,5 @@
 // https://arxiv.org/abs/1705.10311
 
-var gdata;
-
 var URL_S2_API = 'http://api.semanticscholar.org/v1/';
 var URL_ASSESTS = 'http://127.0.0.1:8000/static/';
 
@@ -24,7 +22,7 @@ function current_article(){
     return match[1];
 }
 
-function is_loaded(){
+function is_overlay_loaded(){
     if (typeof _s2overlayed !== 'undefined')
         return true;
     _s2overlayed = true;
@@ -50,8 +48,8 @@ function load_data(url, callback, failmsg){
 }
 
 function gogogo(){
-    /*if (is_loaded())
-        return;*/
+    if (is_overlay_loaded())
+        return;
 
     load_css(function(){
         var url = url_s2_paper(current_article());
@@ -61,7 +59,6 @@ function gogogo(){
 }
 
 function draw_overlays(data){
-    gdata = data;
     function _authors(ref, base){
         var url = url_s2_paperId(ref.paperId);
         load_data(url,
@@ -82,7 +79,7 @@ function draw_overlays(data){
         );
     }
 
-    function _elem(ref){
+    function _paper(ref){
         return $('<div>')
             .addClass('mkb-paper')
             .append(
@@ -92,10 +89,16 @@ function draw_overlays(data){
             );
     }
 
-    function create_column(column, references, anchorbase, anchorlink){
+    function create_column(references, header, anchorbase, anchorlink){
+        var column = $('<div>');
+
+        $('<h2>')
+            .appendTo(column)
+            .text(header);
+
         var len = references.length;
         for (var i=0; i<min(5, len); i++){
-            var e = _elem(references[i]);
+            var e = _paper(references[i]);
             _authors(references[i], e);
             column.append(e);
         }
@@ -106,23 +109,16 @@ function draw_overlays(data){
             .append(
                 $('<a>').attr('href', link+anchorlink).text('...')
             )
+
+        return column;
     }
 
     var link = data.url;
-    var cl = $('<div>');
-    var cr = $('<div>');
-    cl.append($("<h2>References</h2>"));
-    cr.append($("<h2>Citations</h2>"));
-
-    create_column(cl, data.references, link, '#citedPapers');
-    create_column(cr, data.citations, link, '#citingPapers');
-
-    // Add all of the columns just below the submission history
     $('<div>')
         .insertBefore($('.submission-history'))
         .addClass('mkb-col2')
-        .append(cl)
-        .append(cr)
+        .append(create_column(data.references, 'References', link, '#citedPapers'))
+        .append(create_column(data.citations, 'Citations', link, '#citingPapers'));
 }
 
 gogogo();
