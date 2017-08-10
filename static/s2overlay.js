@@ -1,5 +1,8 @@
 // https://arxiv.org/abs/1705.10311
 
+//var URL_LOGO = 'http://127.0.0.1:8000/static/s2logo.png';
+var URL_LOGO = chrome.extension.getURL('static/s2logo.png');
+var URL_S2_HOME = 'https://semanticscholar.org';
 var URL_S2_API = 'http://api.semanticscholar.org/v1/';
 
 function min(a, b){return (a < b) ? a : b;}
@@ -27,13 +30,32 @@ function is_overlay_loaded(){
     return false;
 }
 
-function load_css(callback){
+function brand(target, before) {
+    if (typeof(before)==='undefined') before = true;
+
+    var height = target.height();
+    var width = Math.floor(55./44. * height);
+
+    var img = $('<img>')
+        .attr('src', URL_LOGO)
+        .width(width)
+        .height(height)
+
+    var link = $('<a>').attr('href', URL_S2_HOME);
+
+    if (before)  link.prependTo(target);
+    if (!before) link.appendTo(target);
+
+    img.appendTo(link);
+}
+
+function load_logo(callback){
     callback();
     return;
     $('<link>')
         .appendTo('head')
         .attr({
-            type: 'text/css', 
+            type: 'text/css',
             rel: 'stylesheet',
             href: url_asset('style.css'),
             onload: callback
@@ -92,15 +114,16 @@ function draw_overlays(data){
             );
     }
 
-    function create_column(references, header, anchorbase, anchorlink){
+    function create_column(references, header, anchorbase, anchorlink, ID){
         var column = $('<div>');
 
         $('<h2>')
             .appendTo(column)
-            .text(header);
+            .text(header)
+            .attr('id', ID);
 
         var len = references.length;
-        for (var i=0; i<min(5, len); i++){
+        for (var i=0; i<min(1, len); i++){
             var e = _paper(references[i]);
             _authors(references[i], e);
             column.append(e);
@@ -129,14 +152,18 @@ function draw_overlays(data){
     }
 
     var link = data.url;
+    var cl = create_column(data.references, 'References', link, '#citedPapers', 'colhl');
+    var cr = create_column(data.citations, 'Citations', link, '#citingPapers', 'colhr');
+
     $('<div>')
         .insertBefore($('.submission-history'))
         .addClass('s2-col2')
-        .append(create_column(data.references, 'References', link, '#citedPapers'))
-        .append(create_column(data.citations, 'Citations', link, '#citingPapers'));
+        .append(cl)
+        .append(cr);
 
+    brand($('#colhl'));
+    brand($('#colhr'));
     replace_author_links(data.authors);
 }
 
 gogogo();
-

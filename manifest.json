@@ -6,8 +6,8 @@
 		{
 	    	"matches": ["https://arxiv.org/abs/*"],
 	    	"js": ["static/jquery-3.2.1.min.js", "static/s2overlay.js"],
-            "web_accessible_resources": ["static/style.css"],
             "css": ["static/style.css"]
 	  	}
-	]
+	],
+    "web_accessible_resources": ["static/s2logo.png"]
 }
