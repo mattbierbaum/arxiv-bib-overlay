@@ -49,19 +49,6 @@ function brand(target, before) {
     img.appendTo(link);
 }
 
-function load_logo(callback){
-    callback();
-    return;
-    $('<link>')
-        .appendTo('head')
-        .attr({
-            type: 'text/css',
-            rel: 'stylesheet',
-            href: url_asset('style.css'),
-            onload: callback
-        });
-}
-
 function load_data(url, callback, failmsg){
     $.get(url, callback)
      .fail(function(err) {
@@ -118,23 +105,29 @@ function draw_overlays(data){
         var column = $('<div>');
 
         $('<h2>')
-            .appendTo(column)
             .text(header)
-            .attr('id', ID);
+            .attr('id', ID)
+            .appendTo(
+                $('<a>')
+                    .attr('href', anchorbase+anchorlink)
+                    .appendTo(column)
+            );
 
         var len = references.length;
-        for (var i=0; i<min(1, len); i++){
+        for (var i=0; i<min(10, len); i++){
             var e = _paper(references[i]);
             _authors(references[i], e);
             column.append(e);
         }
 
-        $('<h2>')
-            .appendTo(column)
-            .css('text-align', 'center')
-            .append(
-                $('<a>').attr('href', link+anchorlink).text('...')
-            )
+        if (len > 10){
+            $('<h2>')
+                .appendTo(column)
+                .css('text-align', 'center')
+                .append(
+                    $('<a>').attr('href', anchorbase+anchorlink).text('...')
+                )
+        }
 
         return column;
     }
