@@ -44,8 +44,8 @@ function brand(target, before) {
 
     var link = $('<a>').attr('href', URL_S2_HOME);
 
-    if (before)  link.prependTo(target);
-    if (!before) link.appendTo(target);
+    if (before)  target.prepend(link);
+    if (!before) target.append(link);
 
     img.appendTo(link);
 }
@@ -129,14 +129,28 @@ function draw_overlays(data){
     function create_column(references, header, anchorbase, anchorlink, ID){
         var column = $('<div>');
 
-        $('<span>')
-            .text(header)
-            .attr('id', ID)
-            .appendTo(
-                $('<a>')
-                    .attr('href', anchorbase+anchorlink)
-                    .appendTo(column)
-            );
+        $('<div>')
+            .addClass('s2-col-header')
+            .append(
+                $('<span>')
+                    .addClass('s2-col-center')
+                    .attr('id', ID)
+                    .append(
+                        $('<a>')
+                            .addClass('s2-col-title')
+                            .attr('href', anchorbase+anchorlink)
+                            .text(header)
+                    )
+            )
+            .append(
+                $('<span>')
+                    .addClass('s2-col-center s2-col-aside')
+                    .append($('<span>').css('color', 'black').text('('))
+                    .append($('<span>').css('color', 'red').text('● '))
+                    .append($('<span>').css('color', 'black').text('influential articles)'))
+            )
+            .appendTo(column)
+
 
         sortedrefs = influential_to_top(references);
         var len = sortedrefs.length;

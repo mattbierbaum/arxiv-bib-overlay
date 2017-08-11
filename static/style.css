@@ -31,6 +31,24 @@
     color: black;
 }
 
+.s2-col-header {
+    margin-bottom: 1em;
+}
+
+.s2-col-aside {
+    font-size: small;
+}
+
+.s2-col-center {
+    display: table;
+    margin: 0 auto;
+}
+
+.s2-col-title {
+    font-size: x-large;
+    font-weight: bold;
+}
+
 .s2-paper {
     color: black;
     margin-bottom: 1.3em;
