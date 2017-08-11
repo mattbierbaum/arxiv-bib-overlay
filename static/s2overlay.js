@@ -61,7 +61,7 @@ function brand(target, before) {
 function load_data(url, callback, failmsg){
     $.get(url, callback)
      .fail(function(err) {
-         myfail(failmsg, false);
+         myfail(failmsg, true);
      });
 }
 
@@ -134,7 +134,7 @@ function draw_overlays(data){
             );
     }
 
-    function create_column(references, header, anchorbase, anchorlink, ID){
+    function create_column(references, header, anchorbase, anchorlink, ID, subtitle){
         var column = $('<div>');
 
         // create the header with the branding and explanation of red dots
@@ -156,7 +156,7 @@ function draw_overlays(data){
                     .addClass('s2-col-center s2-col-aside')
                     .append($('<span>').css('color', 'black').text('('))
                     .append($('<span>').css('color', 'red').text('● '))
-                    .append($('<span>').css('color', 'black').text('influential articles)'))
+                    .append($('<span>').css('color', 'black').text(subtitle+')'))
             )
             .appendTo(column)
 
@@ -196,8 +196,8 @@ function draw_overlays(data){
     }
 
     var link = data.url;
-    var cl = create_column(data.references, 'References', link, '#citedPapers', 'colhl');
-    var cr = create_column(data.citations, 'Citations', link, '#citingPapers', 'colhr');
+    var cl = create_column(data.references, 'References', link, '#citedPapers', 'colhl', 'highly influential references');
+    var cr = create_column(data.citations, 'Citations', link, '#citingPapers', 'colhr', 'highly influenced citations');
 
     $('<div>')
         .insertBefore($('.submission-history'))
