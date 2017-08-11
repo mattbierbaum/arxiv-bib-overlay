@@ -1,22 +1,34 @@
-javascript:(
+(
+	var base = 'http://127.0.0.1:8000/static/';
     function(){
         function loadScript(url, callback){
             var head = document.getElementsByTagName('head')[0];
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = url;
-            script.onreadystatechange = callback;
-            script.onload = callback;
+            script.src = base+'jquery-3.2.1.min.js';
+            script.onreadystatechange = loadcss;
+            script.onload = loadcss;
             head.appendChild(script);
+        }
+        function loadcss(){
+            var head = document.getElementsByTagName('head')[0];
+            var link = document.createElement('link');
+            link.rel  = 'stylesheet';
+            link.type = 'text/css';
+            link.href = base+'style.css';
+            link.media = 'all';
+            link.onreadystatechange = loadOverlay;
+            link.onload = loadOverlay;
+            head.appendChild(link)
+
         }
         function loadOverlay(){
             var head = document.getElementsByTagName('head')[0];
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = 'http://127.0.0.1:8000/static/s2overlay.js';
-            console.log('hello');
+            script.src = base+'s2overlay.js';
             head.appendChild(script)
         };
-        loadScript('http://127.0.0.1:8000/static/jquery-3.2.1.min.js', loadOverlay);
+        loadScript();
     }
 )();

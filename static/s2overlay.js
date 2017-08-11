@@ -13,13 +13,21 @@ function url_s2_paper(id)   {return URL_S2_API+'paper/arXiv:'+id;}
 function url_s2_paperId(id) {return URL_S2_API+'paper/'+id;}
 function url_s2_author(id)  {return URL_S2_API+'author/'+id;}
 
+function myfail(msg, doalert){
+    if (typeof(doalert)==='undefined') doalert = false;
+
+    console.log(msg);
+    if (doalert) alert(msg);
+    throw new Error(msg);
+}
+
 function current_article(){
     var url = $(location).attr('href');
     var re_url = new RegExp('^http(?:s)?://arxiv.org/abs/(\\d{4}\\.\\d{4,5})(?:\\?.*)?$');
     var match = re_url.exec(url);
 
     if (!match)
-        $.fail(function (err) {console.log("Semantic Scholar Overlay: no article ID extracted");});
+        myfail("Semantic Scholar Overlay: no article ID extracted", false);
 
     return match[1];
 }
@@ -53,7 +61,7 @@ function brand(target, before) {
 function load_data(url, callback, failmsg){
     $.get(url, callback)
      .fail(function(err) {
-         alert(failmsg);
+         myfail(failmsg, false);
      });
 }
 
@@ -109,7 +117,7 @@ function draw_overlays(data){
 
                 base.append(elem);
             },
-            'Could not find paper "'+ref.title+'"'
+            'Could not find paper "'+ref.title+'" via S2 API'
         );
     }
 
@@ -129,6 +137,7 @@ function draw_overlays(data){
     function create_column(references, header, anchorbase, anchorlink, ID){
         var column = $('<div>');
 
+        // create the header with the branding and explanation of red dots
         $('<div>')
             .addClass('s2-col-header')
             .append(
@@ -152,6 +161,7 @@ function draw_overlays(data){
             .appendTo(column)
 
 
+        // inject the papers with authors into the column
         sortedrefs = influential_to_top(references);
         var len = sortedrefs.length;
         for (var i=0; i<min(NARTICLES, len); i++){
@@ -160,6 +170,7 @@ function draw_overlays(data){
             column.append(e);
         }
 
+        // if we are missing articles from the list, append a link to the rest
         if (len > NARTICLES){
             $('<h2>')
                 .appendTo(column)
