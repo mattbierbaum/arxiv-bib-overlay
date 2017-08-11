@@ -7,6 +7,7 @@
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
+    margin: 20px;
 }
 
 .s2-col2 h2 {
@@ -40,6 +41,15 @@
 
 .s2-paper a {
     color: #000;
+    position: relative;
+}
+
+.s2-paper .influential::before {
+    left: -17px;
+    position: absolute;
+    width: 0px;
+    content: '● ';
+    color: red;
 }
 
 .s2-authors {
