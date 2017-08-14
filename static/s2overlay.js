@@ -135,7 +135,7 @@ function draw_overlays(data){
     }
 
     function create_column(references, header, anchorbase, anchorlink, ID, subtitle){
-        var column = $('<div>');
+        var column = $('<div>').addClass('s2-col');
 
         // create the header with the branding and explanation of red dots
         $('<div>')
@@ -196,8 +196,14 @@ function draw_overlays(data){
     }
 
     var link = data.url;
-    var cl = create_column(data.references, 'References', link, '#citedPapers', 'colhl', 'highly influential references');
-    var cr = create_column(data.citations, 'Citations', link, '#citingPapers', 'colhr', 'highly influenced citations');
+    var cl = create_column(
+        data.references, 'References', link, '#citedPapers',
+        'colhl', 'highly influential references'
+    );
+    var cr = create_column(
+        data.citations, 'Citations', link, '#citingPapers',
+        'colhr', 'highly influenced citations'
+    );
 
     $('<div>')
         .insertBefore($('.submission-history'))
