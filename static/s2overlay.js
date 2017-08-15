@@ -1,13 +1,10 @@
 // https://arxiv.org/abs/1705.10311
 
-var gdata;
 var cache = {};
 var metaleft, metaright;
 
 // number of papers per page and 
-// number of crumbs on each side of the central page (1 ... 5 6 7 ... 10) = 1
-var PAGE_LENGTH = 3;
-var PAGE_CENTRAL_CRUMBS = 1;
+var PAGE_LENGTH = 10;
 
 //var URL_LOGO = 'http://127.0.0.1:8000/static/s2logo.png';
 var URL_LOGO = chrome.extension.getURL('static/s2logo.png');
@@ -151,17 +148,6 @@ function paper_line(ref){
     return paper;
 }
 
-function paging(name, page){
-    // perform paging, used in the breadcrumbs
-
-}
-
-function range(l, h){
-    arr = [];
-    for (var i=l; i<=h; i++) arr.push(i);
-    return arr;
-}
-
 function page(id, n){
     console.log(id);
     console.log(n);
@@ -264,10 +250,8 @@ function create_column(meta){
 }
 
 function load_overlay(data){
-
     data.references = influential_to_top(data.references);
     data.citations = influential_to_top(data.citations);
-    gdata = data;
 
     metaleft = {
         title: 'References',
