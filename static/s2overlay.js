@@ -1,6 +1,8 @@
 // https://arxiv.org/abs/1705.10311
 
-var NARTICLES = 5;
+var gdata;
+var cache = {};
+var PAGE_LENGTH = 3;
 //var URL_LOGO = 'http://127.0.0.1:8000/static/s2logo.png';
 var URL_LOGO = chrome.extension.getURL('static/s2logo.png');
 var URL_S2_HOME = 'https://semanticscholar.org';
@@ -59,7 +61,13 @@ function brand(target, before) {
 }
 
 function load_data(url, callback, failmsg){
-    $.get(url, callback)
+    if (url in cache)
+        return callback(cache[url]);
+
+    $.get(url, function(data){
+        cache[url] = data;
+        callback(data);
+     })
      .fail(function(err) {
          myfail(failmsg, true);
      });
@@ -80,28 +88,33 @@ function gogogo(){
 }
 
 function influential_to_top(references){
-    var used = [];
     var newlist = [];
 
     for (var i=0; i<references.length; i++){
-        if (references[i].isInfluential){
+        if (references[i].isInfluential)
             newlist.push(references[i]);
-            used.push(i);
-        }
     }
-
     for (var i=0; i<references.length; i++){
-        if (i in used)
-            continue
-
-        newlist.push(references[i]);
+        if (!references[i].isInfluential)
+            newlist.push(references[i]);
     }
 
     return newlist;
 }
 
 function draw_overlays(data){
-    function _authors(ref, base){
+    function paper_line(ref){
+        var classes = ref.isInfluential ? 'influential' : 'notinfluential';
+
+        var paper = $('<div>')
+            .addClass('s2-paper')
+            .append(
+                $('<a>')
+                  .addClass(classes)
+                  .attr('href', ref.url)
+                  .text(ref.title)
+            );
+
         var url = url_s2_paperId(ref.paperId);
         load_data(url,
             function(data) {
@@ -115,40 +128,32 @@ function draw_overlays(data){
                         .text(data.authors[j].name);
                 }
 
-                base.append(elem);
+                paper.append(elem);
             },
             'Could not find paper "'+ref.title+'" via S2 API'
         );
+
+        return paper;
     }
 
-    function _paper(ref){
-        var classes = ref.isInfluential ? 'influential' : 'notinfluential';
-
-        return $('<div>')
-            .addClass('s2-paper')
-            .append(
-                $('<a>')
-                  .addClass(classes)
-                  .attr('href', ref.url)
-                  .text(ref.title)
-            );
-    }
-
-    function create_column(references, header, anchorbase, anchorlink, ID, subtitle){
+    function create_column(meta){
+        var references = meta.data[meta.identifier];
         var column = $('<div>').addClass('s2-col');
 
         // create the header with the branding and explanation of red dots
+        var brandid = Math.random().toString(36).substring(7);
+
         $('<div>')
             .addClass('s2-col-header')
             .append(
                 $('<span>')
                     .addClass('s2-col-center')
-                    .attr('id', ID)
+                    .attr('id', brandid)
                     .append(
                         $('<a>')
                             .addClass('s2-col-title')
-                            .attr('href', anchorbase+anchorlink)
-                            .text(header)
+                            .attr('href', meta.data.url+meta.s2anchor)
+                            .text(meta.title+" ("+references.length+")")
                     )
             )
             .append(
@@ -156,33 +161,30 @@ function draw_overlays(data){
                     .addClass('s2-col-center s2-col-aside')
                     .append($('<span>').css('color', 'black').text('('))
                     .append($('<span>').css('color', 'red').text('● '))
-                    .append($('<span>').css('color', 'black').text(subtitle+')'))
+                    .append($('<span>').css('color', 'black').text(meta.description+')'))
             )
             .appendTo(column)
 
 
         // inject the papers with authors into the column
-        sortedrefs = influential_to_top(references);
-        var len = sortedrefs.length;
-        for (var i=0; i<min(NARTICLES, len); i++){
-            var e = _paper(sortedrefs[i]);
-            _authors(sortedrefs[i], e);
-            column.append(e);
-        }
+        var len = references.length;
+        for (var i=0; i<min(PAGE_LENGTH, len); i++)
+            column.append(paper_line(references[i]));
 
         // if we are missing articles from the list, append a link to the rest
-        if (len > NARTICLES){
+        if (len > PAGE_LENGTH){
             $('<h2>')
                 .appendTo(column)
                 .css('text-align', 'center')
                 .append(
-                    $('<a>').attr('href', anchorbase+anchorlink).text('...')
+                    $('<a>').attr('href', meta.data.url+meta.s2anchor).text('...')
                 )
         }
 
+        $('#'+meta.htmlid).replaceWith(column);
+        brand($('#'+brandid));
         return column;
     }
-
 
     function replace_author_links(authors){
         var auths = $('div.authors a');
@@ -192,27 +194,41 @@ function draw_overlays(data){
                 .attr('href', authors[i].url)
                 .text(authors[i].name);
         }
-
     }
 
-    var link = data.url;
-    var cl = create_column(
-        data.references, 'References', link, '#citedPapers',
-        'colhl', 'highly influential references'
-    );
-    var cr = create_column(
-        data.citations, 'Citations', link, '#citingPapers',
-        'colhr', 'highly influenced citations'
-    );
+    data.references = influential_to_top(data.references);
+    data.citations = influential_to_top(data.citations);
+    gdata = data;
 
-    $('<div>')
+    var metaleft = {
+        title: 'References',
+        identifier: 'references',
+        s2anchor: '#citedPapers',
+        description: 'highly influential references',
+        htmlid: 'col-references',
+        npages: Math.floor(data.references.length / PAGE_LENGTH)+1,
+        page: 0,
+        data: data,
+    };
+    var metaright = {
+        title: 'Citations',
+        identifier: 'citations',
+        s2anchor: '#citingPapers',
+        description: 'highly influenced citations',
+        htmlid: 'col-citations',
+        npages: Math.floor(data.citations.length / PAGE_LENGTH)+1,
+        page: 0,
+        data: data
+    };
+
+    var thediv = $('<div>')
         .insertBefore($('.submission-history'))
         .addClass('s2-col2')
-        .append(cl)
-        .append(cr);
+        .append($('<div>').attr('id', metaleft.htmlid))
+        .append($('<div>').attr('id', metaright.htmlid));
 
-    brand($('#colhl'));
-    brand($('#colhr'));
+    var cl = create_column(metaleft);
+    var cr = create_column(metaright);
     replace_author_links(data.authors);
 }
 
