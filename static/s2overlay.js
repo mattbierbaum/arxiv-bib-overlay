@@ -163,6 +163,8 @@ function range(l, h){
 }
 
 function page(id, n){
+    console.log(id);
+    console.log(n);
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
     meta.page = n;
     return create_column(meta);
@@ -220,7 +222,7 @@ function create_pagination(meta){
 
 function create_column(meta){
     var references = meta.data[meta.identifier];
-    var column = $('<div>').addClass('s2-col');
+    var column = $('<div>').addClass('s2-col').attr('id', meta.htmlid);
 
     // create the header with the branding and explanation of red dots
     var brandid = Math.random().toString(36).substring(7);
