@@ -2,7 +2,13 @@
 
 var gdata;
 var cache = {};
+var metaleft, metaright;
+
+// number of papers per page and 
+// number of crumbs on each side of the central page (1 ... 5 6 7 ... 10) = 1
 var PAGE_LENGTH = 3;
+var PAGE_CENTRAL_CRUMBS = 1;
+
 //var URL_LOGO = 'http://127.0.0.1:8000/static/s2logo.png';
 var URL_LOGO = chrome.extension.getURL('static/s2logo.png');
 var URL_S2_HOME = 'https://semanticscholar.org';
@@ -79,7 +85,7 @@ function gogogo(){
 
     var url = url_s2_paper(current_article());
     load_data(
-        url, draw_overlays,
+        url, load_overlay,
         'S2 unavailable -- click the shield in the '+
         'address bar and allow unathenticated sources '+
         '(load unsafe scripts) due to http requests to '+
@@ -102,105 +108,134 @@ function influential_to_top(references){
     return newlist;
 }
 
-function draw_overlays(data){
-    function paper_line(ref){
-        var classes = ref.isInfluential ? 'influential' : 'notinfluential';
+function replace_author_links(authors){
+    var auths = $('div.authors a');
 
-        var paper = $('<div>')
-            .addClass('s2-paper')
-            .append(
-                $('<a>')
-                  .addClass(classes)
-                  .attr('href', ref.url)
-                  .text(ref.title)
-            );
+    for (var i=0; i<auths.length; i++){
+        $(auths[i])
+            .attr('href', authors[i].url)
+            .text(authors[i].name);
+    }
+}
 
-        var url = url_s2_paperId(ref.paperId);
-        load_data(url,
-            function(data) {
-                var len = data.authors.length;
-                var elem = $('<div>').addClass('s2-authors');
+function paper_line(ref){
+    var classes = ref.isInfluential ? 'influential' : 'notinfluential';
 
-                for (var j=0; j<len; j++){
-                    $('<a>')
-                        .appendTo(elem)
-                        .attr('href', data.authors[j].url)
-                        .text(data.authors[j].name);
-                }
-
-                paper.append(elem);
-            },
-            'Could not find paper "'+ref.title+'" via S2 API'
+    var paper = $('<div>')
+        .addClass('s2-paper')
+        .append(
+            $('<a>')
+              .addClass(classes)
+              .attr('href', ref.url)
+              .text(ref.title)
         );
 
-        return paper;
-    }
+    var url = url_s2_paperId(ref.paperId);
+    load_data(url,
+        function(data) {
+            var len = data.authors.length;
+            var elem = $('<div>').addClass('s2-authors');
 
-    function create_column(meta){
-        var references = meta.data[meta.identifier];
-        var column = $('<div>').addClass('s2-col');
+            for (var j=0; j<len; j++){
+                $('<a>')
+                    .appendTo(elem)
+                    .attr('href', data.authors[j].url)
+                    .text(data.authors[j].name);
+            }
 
-        // create the header with the branding and explanation of red dots
-        var brandid = Math.random().toString(36).substring(7);
+            paper.append(elem);
+        },
+        'Could not find paper "'+ref.title+'" via S2 API'
+    );
 
-        $('<div>')
-            .addClass('s2-col-header')
-            .append(
-                $('<span>')
-                    .addClass('s2-col-center')
-                    .attr('id', brandid)
-                    .append(
-                        $('<a>')
-                            .addClass('s2-col-title')
-                            .attr('href', meta.data.url+meta.s2anchor)
-                            .text(meta.title+" ("+references.length+")")
-                    )
-            )
-            .append(
-                $('<span>')
-                    .addClass('s2-col-center s2-col-aside')
-                    .append($('<span>').css('color', 'black').text('('))
-                    .append($('<span>').css('color', 'red').text('● '))
-                    .append($('<span>').css('color', 'black').text(meta.description+')'))
-            )
-            .appendTo(column)
+    return paper;
+}
 
+function paging(name, page){
+    // perform paging, used in the breadcrumbs
 
-        // inject the papers with authors into the column
-        var len = references.length;
-        for (var i=0; i<min(PAGE_LENGTH, len); i++)
-            column.append(paper_line(references[i]));
+}
 
-        // if we are missing articles from the list, append a link to the rest
-        if (len > PAGE_LENGTH){
-            $('<h2>')
-                .appendTo(column)
-                .css('text-align', 'center')
+function range(l, h){
+    arr = [];
+    for (var i=l; i<=h; i++) arr.push(i);
+    return arr;
+}
+
+function create_pagination(meta){
+    var pages = $('<div>')
+        .addClass('s2-pagination');
+
+    var indices = [];
+
+    var ncrumbs = 2*PAGE_CENTRAL_CRUMBS + 2*2 + 1;
+    var low = max(meta.page - PAGE_CENTRAL_CRUMBS, 0);
+    var high = min(meta.page + PAGE_CENTRAL_CRUMBS, meta.npages-1);
+
+    var indices = range(low, high);
+
+    var remaining = ncrumbs - indices.length;//(high - low) - 1;
+
+    if (high - meta.page
+    var nleft = remaining - (high - meta.page);
+    var nright = remaining - (meta.page - low);
+
+    console.log(remaining);
+    console.log(nleft);
+    console.log(nright);
+
+    console.log(indices);
+}
+
+function create_column(meta){
+    var references = meta.data[meta.identifier];
+    var column = $('<div>').addClass('s2-col');
+
+    // create the header with the branding and explanation of red dots
+    var brandid = Math.random().toString(36).substring(7);
+
+    // header business (title, subtitle, branding)
+    var header = $('<div>')
+        .addClass('s2-col-header')
+        .append(
+            $('<span>')
+                .addClass('s2-col-center')
+                .attr('id', brandid)
                 .append(
-                    $('<a>').attr('href', meta.data.url+meta.s2anchor).text('...')
+                    $('<a>')
+                        .addClass('s2-col-title')
+                        .attr('href', meta.data.url+meta.s2anchor)
+                        .text(meta.title+" ("+references.length+")")
                 )
-        }
+        )
+        .append(
+            $('<span>')
+                .addClass('s2-col-center s2-col-aside')
+                .append($('<span>').css('color', 'black').text('('))
+                .append($('<span>').css('color', 'red').text('● '))
+                .append($('<span>').css('color', 'black').text(meta.description+')'))
+        )
+        .appendTo(column)
 
-        $('#'+meta.htmlid).replaceWith(column);
-        brand($('#'+brandid));
-        return column;
-    }
+    create_pagination(meta)
 
-    function replace_author_links(authors){
-        var auths = $('div.authors a');
+    // inject the papers with authors into the column
+    var len = references.length;
+    for (var i=0; i<min(PAGE_LENGTH, len); i++)
+        column.append(paper_line(references[i]));
 
-        for (var i=0; i<auths.length; i++){
-            $(auths[i])
-                .attr('href', authors[i].url)
-                .text(authors[i].name);
-        }
-    }
+    $('#'+meta.htmlid).replaceWith(column);
+    brand($('#'+brandid));
+    return column;
+}
+
+function load_overlay(data){
 
     data.references = influential_to_top(data.references);
     data.citations = influential_to_top(data.citations);
     gdata = data;
 
-    var metaleft = {
+    metaleft = {
         title: 'References',
         identifier: 'references',
         s2anchor: '#citedPapers',
@@ -210,7 +245,7 @@ function draw_overlays(data){
         page: 0,
         data: data,
     };
-    var metaright = {
+    metaright = {
         title: 'Citations',
         identifier: 'citations',
         s2anchor: '#citingPapers',
@@ -227,8 +262,8 @@ function draw_overlays(data){
         .append($('<div>').attr('id', metaleft.htmlid))
         .append($('<div>').attr('id', metaright.htmlid));
 
-    var cl = create_column(metaleft);
-    var cr = create_column(metaright);
+    create_column(metaleft);
+    create_column(metaright);
     replace_author_links(data.authors);
 }
 
