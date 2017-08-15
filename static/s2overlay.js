@@ -3,7 +3,7 @@
 var cache = {};
 var metaleft, metaright;
 
-// number of papers per page and 
+// number of papers per page
 var PAGE_LENGTH = 10;
 
 //var URL_LOGO = 'http://127.0.0.1:8000/static/s2logo.png';
@@ -165,7 +165,7 @@ function create_pagination(meta){
         classname = typeof classname !== 'undefined' ? classname : 'disabled';
         return $('<li>').append($('<span>').html(txt).addClass(classname));
     }
-        
+
     function _link(txt, n, bold){
         var link = $('<a>')
                     .attr('href', 'javascript:;')
@@ -194,7 +194,7 @@ function create_pagination(meta){
         pages.append(_nolink(dots));
     if (bufferr < meta.npages-(BUFF-1))
         pages.append(_link(meta.npages, meta.npages-1));
-    
+
     if (meta.page >= meta.npages-1)
         pages.append(_nolink(rangle));
     else
