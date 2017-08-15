@@ -162,29 +162,60 @@ function range(l, h){
     return arr;
 }
 
+function page(id, n){
+    var meta = (id == metaleft.identifier) ? metaleft : metaright;
+    meta.page = n;
+    return create_column(meta);
+}
+
 function create_pagination(meta){
-    var pages = $('<div>')
-        .addClass('s2-pagination');
+    var langle = '&laquo;';
+    var rangle = '&raquo;';
+    var dots = '...';
 
-    var indices = [];
+    function _nolink(txt, classname){
+        classname = typeof classname !== 'undefined' ? classname : 'disabled';
+        return $('<li>').append($('<span>').html(txt).addClass(classname));
+    }
+        
+    function _link(txt, n, bold){
+        var link = $('<a>')
+                    .attr('href', 'javascript:;')
+                    .click(function (){ page(meta.identifier, n); })
+                    .html(txt)
+        return $('<li>').append(link);
+    }
 
-    var ncrumbs = 2*PAGE_CENTRAL_CRUMBS + 2*2 + 1;
-    var low = max(meta.page - PAGE_CENTRAL_CRUMBS, 0);
-    var high = min(meta.page + PAGE_CENTRAL_CRUMBS, meta.npages-1);
+    var pages = $('<ul>').addClass('page-list')
 
-    var indices = range(low, high);
+    pages.append((meta.page == 0) ? _nolink(langle) : _link(langle, 0));
 
-    var remaining = ncrumbs - indices.length;//(high - low) - 1;
+    var BUFF = 2;
+    var bufferl = Math.max(0, meta.page-BUFF);
+    var bufferr = Math.min(meta.npages-1, meta.page+BUFF);
 
-    if (high - meta.page
-    var nleft = remaining - (high - meta.page);
-    var nright = remaining - (meta.page - low);
+    if (bufferl >= BUFF-1)
+        pages.append(_link(1, 0));
+    if (bufferl >= BUFF)
+        pages.append(_nolink(dots));
 
-    console.log(remaining);
-    console.log(nleft);
-    console.log(nright);
+    for (var i=bufferl; i<=bufferr; i++)
+        pages.append((i == meta.page) ? _nolink(i+1, 'bold') : _link(i+1, i));
 
-    console.log(indices);
+    if (bufferr < meta.npages-BUFF)
+        pages.append(_nolink(dots));
+    if (bufferr < meta.npages-(BUFF-1))
+        pages.append(_link(meta.npages, meta.npages-1));
+    
+    if (meta.page >= meta.npages-1)
+        pages.append(_nolink(rangle));
+    else
+        pages.append(_link(rangle, meta.npages-1));
+
+    return $('<div>')
+        .addClass('page')
+        .append($('<span>').text("Pages: "))
+        .append(pages);
 }
 
 function create_column(meta){
@@ -215,13 +246,14 @@ function create_column(meta){
                 .append($('<span>').css('color', 'red').text('● '))
                 .append($('<span>').css('color', 'black').text(meta.description+')'))
         )
+        .append(create_pagination(meta))
         .appendTo(column)
 
-    create_pagination(meta)
 
     // inject the papers with authors into the column
     var len = references.length;
-    for (var i=0; i<min(PAGE_LENGTH, len); i++)
+    var start = PAGE_LENGTH * meta.page;
+    for (var i=start; i<min(start+PAGE_LENGTH, len); i++)
         column.append(paper_line(references[i]));
 
     $('#'+meta.htmlid).replaceWith(column);

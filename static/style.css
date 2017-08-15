@@ -87,3 +87,29 @@
     padding-left: 10px;
     padding-right: 10px;
 }
+
+.page {
+    margin-top: 1em;
+    display: table;
+    margin: 0.7em auto;
+}
+
+.page-list {
+    list-style: none;
+    padding: 0;
+    display: inline;
+}
+
+.page-list > li {
+    display: inline;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+.disabled {
+    color: #bbb;
+}
+
+.bold {
+    font-weight: bold;
+}
