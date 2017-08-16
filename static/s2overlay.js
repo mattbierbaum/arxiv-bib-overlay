@@ -169,7 +169,7 @@ function page(id, n){
     console.log(id);
     console.log(n);
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
-    meta.page = n;
+    meta.page = parseInt(n);
     return create_column(meta);
 }
 
@@ -217,10 +217,26 @@ function create_pagination(meta){
     else
         pages.append(_link(rangle, meta.npages-1));
 
+    // create the dropdown as well for ease of navigating large lists
+    var select = $('<select>')
+        .on('change', function (){
+            page(meta.identifier, this.value);
+        });
+
+    for (var i=0; i<meta.npages; i++)
+        select.append(
+            $('<option>')
+                .attr('value', i)
+                .text(i+1)
+        );
+
+    select.val(meta.page);
+
     return $('<div>')
         .addClass('page')
         .append($('<span>').text("Pages: "))
-        .append(pages);
+        .append(pages)
+        .append(select)
 }
 
 function create_column(meta){
