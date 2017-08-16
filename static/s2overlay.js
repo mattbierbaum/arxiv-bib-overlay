@@ -6,8 +6,13 @@ var metaleft, metaright;
 // number of papers per page
 var PAGE_LENGTH = 10;
 
-//var URL_LOGO = 'http://127.0.0.1:8000/static/s2logo.png';
-var URL_LOGO = chrome.extension.getURL('static/s2logo.png');
+var URL_LOGO = 'https://s3.amazonaws.com/public.runat.me/s2overlay/s2logo.png';
+try {
+    URL_LOGO = chrome.extension.getURL('static/s2logo.png');
+} catch(err) {
+    console.log('we are not an extension right now');
+}
+
 var URL_S2_HOME = 'https://semanticscholar.org';
 var URL_S2_API = 'http://api.semanticscholar.org/v1/';
 
@@ -17,6 +22,15 @@ function max(a, b){return (a > b) ? a : b;}
 function url_s2_paper(id)   {return URL_S2_API+'paper/arXiv:'+id;}
 function url_s2_paperId(id) {return URL_S2_API+'paper/'+id;}
 function url_s2_author(id)  {return URL_S2_API+'author/'+id;}
+
+function get_category(){
+    var cat = '';
+    $("#header a").each(function (){
+        if (this.href.indexOf('/list/') > 0)
+            cat = this.text;
+    });
+    return cat;
+}
 
 function myfail(msg, doalert){
     if (typeof(doalert)==='undefined') doalert = false;
@@ -78,6 +92,9 @@ function load_data(url, callback, failmsg){
 
 function gogogo(){
     if (is_overlay_loaded())
+        return;
+
+    if (get_category() != 'cs')
         return;
 
     var url = url_s2_paper(current_article());

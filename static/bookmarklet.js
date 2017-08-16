@@ -1,5 +1,5 @@
 (
-	var base = 'http://127.0.0.1:8000/static/';
+	var base = 'https://s3.amazonaws.com/public.runat.me/s2overlay/';
     function(){
         function loadScript(url, callback){
             var head = document.getElementsByTagName('head')[0];
