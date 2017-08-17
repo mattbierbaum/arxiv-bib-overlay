@@ -191,6 +191,7 @@ function create_pagination(meta){
         return $('<li>').append(link);
     }
 
+    var pages_text = $('<span>').text('Pages: ');
     var pages = $('<ul>').addClass('page-list')
 
     pages.append((meta.page == 0) ? _nolink(langle) : _link(langle, 0));
@@ -232,9 +233,15 @@ function create_pagination(meta){
 
     select.val(meta.page);
 
+    if (meta.npages <= 1){
+        pages_text = $('<span>').text('-');
+        pages = $('<ul>').addClass('page-list');
+        select = $('<span>');
+    }
+
     return $('<div>')
         .addClass('page')
-        .append($('<span>').text("Pages: "))
+        .append(pages_text)
         .append(pages)
         .append(select)
 }

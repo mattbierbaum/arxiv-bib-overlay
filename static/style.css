@@ -80,6 +80,15 @@
     margin-right: 0.5em;
 }
 
+.s2-authors a::after {
+    content: ',';
+    color: #777;
+}
+
+.s2-authors a:last-of-type:after {
+    content: '';
+}
+
 .s2-lbl {
     font-size: 12px;
     color: white;
