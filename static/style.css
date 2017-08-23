@@ -76,7 +76,7 @@
 
 .s2-authors a {
     font-size: 0.9em;
-    color: #777;
+    color: #666;
     margin-right: 0.5em;
 }
 
@@ -121,4 +121,25 @@
 
 .bold {
     font-weight: bold;
+}
+
+h1.lined {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+h1.lined::before {
+    border-top: 2px solid #dfdfdf;
+    content:"";
+    margin: 0 auto;
+    position: absolute;
+    top: 50%; left: 0; right: 0; bottom: 0;
+    width: 95%;
+    z-index: -1;
+}
+
+h1.lined span {
+    background: #fff;
+    padding: 0 15px;
 }

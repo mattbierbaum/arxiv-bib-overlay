@@ -8,7 +8,7 @@ var PAGE_LENGTH = 10;
 
 var URL_LOGO = 'https://s3.amazonaws.com/public.runat.me/s2overlay/s2logo.png';
 try {
-    URL_LOGO = chrome.extension.getURL('static/s2logo.png');
+    URL_LOGO = chrome.extension.getURL('static/s2.png');
 } catch(err) {
     console.log('we are not an extension right now');
 }
@@ -285,7 +285,7 @@ function create_column(meta){
         column.append(paper_line(references[i]));
 
     $('#'+meta.htmlid).replaceWith(column);
-    brand($('#'+brandid));
+    //brand($('#'+brandid));
     return column;
 }
 
@@ -313,6 +313,17 @@ function load_overlay(data){
         page: 0,
         data: data
     };
+
+	var brand = $('<h1>')
+        .insertBefore($('.submission-history'))
+		.addClass('s2 lined')
+	    .append(
+            $('<span>').append(
+                $('<a>').attr('href', 'https://semanticscholar.org').append(
+                    $('<img>').attr('src', URL_LOGO)
+                )
+            )
+        );
 
     var thediv = $('<div>')
         .insertBefore($('.submission-history'))

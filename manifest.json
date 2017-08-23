@@ -9,5 +9,5 @@
             "css": ["static/style.css"]
 	  	}
 	],
-    "web_accessible_resources": ["static/s2logo.png"]
+    "web_accessible_resources": ["static/s2logo.png", "static/s2.png"]
 }
