@@ -10,7 +10,7 @@ var URL_LOGO = 'https://s3.amazonaws.com/public.runat.me/s2overlay/s2.png';
 try {
     URL_LOGO = chrome.extension.getURL('static/s2.png');
 } catch(err) {
-    console.log('we are not an extension right now');
+    console.log('We are not an extension right now.');
 }
 
 var URL_S2_HOME = 'https://semanticscholar.org';
@@ -42,13 +42,19 @@ function myfail(msg, doalert){
 
 function current_article(){
     var url = $(location).attr('href');
-    var re_url = new RegExp('^http(?:s)?://arxiv.org/abs/(\\d{4}\\.\\d{4,5})(?:\\?.*)?$');
+    var re_url = new RegExp(
+        '^http(?:s)?://arxiv.org/abs/'+             // we are on an abs page
+        //'(?:'+                                            // begin OR group
+            '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+        // there is a new-form arxiv id
+        //    '|'+                                          // OR
+        //  '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+  // old-form id (not allowed by S2)
+        //')'+                                              // end OR group
+        '(?:\\?.*)?$'                               // query parameter stuff
+    );
     var match = re_url.exec(url);
 
-    if (!match)
-        myfail("Semantic Scholar Overlay: no article ID extracted", false);
-
-    return match[1];
+    if (!match) return '';
+    return match.filter(function(x){return x;}).pop();
 }
 
 function is_overlay_loaded(){
@@ -86,24 +92,31 @@ function load_data(url, callback, failmsg){
         callback(data);
      })
      .fail(function(err) {
-         myfail(failmsg, true);
+         myfail(failmsg, false);
      });
 }
 
 function gogogo(){
-    if (is_overlay_loaded())
+    if (is_overlay_loaded()){
+        console.log("Overlay has already been loaded once, skipping.");
         return;
+    }
 
-    if (get_category() != 'cs')
+    if (get_category() != 'cs'){
+        console.log("Category does not match 'cs'.");
         return;
+    }
 
-    var url = url_s2_paper(current_article());
+    var articleid = current_article();
+
+    if (!articleid || articleid.length <= 5){
+        console.log("No valid article ID extracted from the browser location.");
+        return;
+    }
+
     load_data(
-        url, load_overlay,
-        'S2 unavailable -- click the shield in the '+
-        'address bar and allow unathenticated sources '+
-        '(load unsafe scripts) due to http requests to '+
-        'Semantic Scholar API'
+        url_s2_paper(articleid), load_overlay,
+        'S2 API -- article could not be found.'
     );
 }
 
