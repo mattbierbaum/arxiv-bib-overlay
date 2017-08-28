@@ -6,7 +6,7 @@ var metaleft, metaright;
 // number of papers per page
 var PAGE_LENGTH = 10;
 
-var URL_LOGO = 'https://s3.amazonaws.com/public.runat.me/s2overlay/s2logo.png';
+var URL_LOGO = 'https://s3.amazonaws.com/public.runat.me/s2overlay/s2.png';
 try {
     URL_LOGO = chrome.extension.getURL('static/s2.png');
 } catch(err) {
@@ -14,7 +14,7 @@ try {
 }
 
 var URL_S2_HOME = 'https://semanticscholar.org';
-var URL_S2_API = 'http://api.semanticscholar.org/v1/';
+var URL_S2_API = 'https://api.semanticscholar.org/v1/';
 
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
@@ -132,6 +132,10 @@ function replace_author_links(authors){
     }
 }
 
+function titlecase(title) {
+    return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
+}
+
 function paper_line(ref){
     var classes = ref.isInfluential ? 'influential' : 'notinfluential';
 
@@ -142,6 +146,11 @@ function paper_line(ref){
               .addClass(classes)
               .attr('href', ref.url)
               .text(ref.title)
+        )
+        .append(
+            $('<div>').addClass('jinfo')
+                .append($('<span>').addClass('venue').text(titlecase(ref.venue)))
+                .append($('<span>').addClass('year').text(ref.year))
         );
 
     var url = url_s2_paperId(ref.paperId);
@@ -194,7 +203,7 @@ function create_pagination(meta){
     var pages_text = $('<span>').text('Pages: ');
     var pages = $('<ul>').addClass('page-list')
 
-    pages.append((meta.page == 0) ? _nolink(langle) : _link(langle, 0));
+    pages.append((meta.page == 0) ? _nolink(langle) : _link(langle, meta.page-1));
 
     var BUFF = 2;
     var bufferl = Math.max(0, meta.page-BUFF);
@@ -216,7 +225,7 @@ function create_pagination(meta){
     if (meta.page >= meta.npages-1)
         pages.append(_nolink(rangle));
     else
-        pages.append(_link(rangle, meta.npages-1));
+        pages.append(_link(rangle, meta.page+1));
 
     // create the dropdown as well for ease of navigating large lists
     var select = $('<select>')
@@ -299,7 +308,7 @@ function load_overlay(data){
         s2anchor: '#citedPapers',
         description: 'highly influential references',
         htmlid: 'col-references',
-        npages: Math.floor(data.references.length / PAGE_LENGTH)+1,
+        npages: Math.floor((data.references.length-1) / PAGE_LENGTH)+1,
         page: 0,
         data: data,
     };

@@ -57,6 +57,30 @@
     overflow: hidden;*/
 }
 
+.s2-paper .jinfo {
+    padding-left: 0.7em;
+    font-size: 0.9em;
+}
+
+.s2-paper .venue {
+    padding-right: 0.5em;
+    text-transform: capitalize;
+    font-style: italic;
+    color: #666;
+}
+
+.s2-paper .venue:empty {
+    display: none;
+}
+
+.s2-paper .year {
+    font-weight: bold;
+}
+
+.s2-paper .year:empty {
+    display: none;
+}
+
 .s2-paper a {
     color: #000;
     position: relative;
