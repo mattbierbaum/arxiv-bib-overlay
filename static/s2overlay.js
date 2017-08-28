@@ -148,7 +148,7 @@ function paper_line(ref){
               .text(ref.title)
         )
         .append(
-            $('<div>').addClass('jinfo')
+            $('<span>').addClass('jinfo')
                 .append($('<span>').addClass('venue').text(titlecase(ref.venue)))
                 .append($('<span>').addClass('year').text(ref.year))
         );

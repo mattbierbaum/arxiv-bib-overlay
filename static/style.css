@@ -66,7 +66,7 @@
     padding-right: 0.5em;
     text-transform: capitalize;
     font-style: italic;
-    color: #666;
+    color: #777;
 }
 
 .s2-paper .venue:empty {
@@ -100,13 +100,12 @@
 
 .s2-authors a {
     font-size: 0.9em;
-    color: #666;
+    color: #555;
     margin-right: 0.5em;
 }
 
 .s2-authors a::after {
     content: ',';
-    color: #777;
 }
 
 .s2-authors a:last-of-type:after {
