@@ -187,9 +187,7 @@ function paper_line(ref){
     return paper;
 }
 
-function page(id, n){
-    console.log(id);
-    console.log(n);
+function change_page(id, n){
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
     meta.page = parseInt(n);
     return create_column(meta);
@@ -208,7 +206,7 @@ function create_pagination(meta){
     function _link(txt, n, bold){
         var link = $('<a>')
                     .attr('href', 'javascript:;')
-                    .click(function (){ page(meta.identifier, n); })
+                    .click(function (){ change_page(meta.identifier, n); })
                     .html(txt)
         return $('<li>').append(link);
     }
@@ -243,7 +241,7 @@ function create_pagination(meta){
     // create the dropdown as well for ease of navigating large lists
     var select = $('<select>')
         .on('change', function (){
-            page(meta.identifier, this.value);
+            change_page(meta.identifier, this.value);
         });
 
     for (var i=0; i<meta.npages; i++)
@@ -255,10 +253,34 @@ function create_pagination(meta){
 
     select.val(meta.page);
 
+    var sort_field = $('<select>')
+        .attr('id', 'sort_field')
+        .append($('<option>').attr('value', 'influence').text('Influence'))
+        .append($('<option>').attr('value', 'title').text('Title'))
+        .append($('<option>').attr('value', 'author').text('Author'))
+        .append($('<option>').attr('value', 'year').text('Year'))
+        .append($('<option>').attr('value', 'citations').text('Citations'))
+        .on('change', function (){
+            change_sort(meta.identifier, this.value, $('#sort_order').value)
+        });
+
+    var sort_order = $('<select>')
+        .attr('id', 'sort_order')
+        .append($('<option>').attr('value', 'up').text('▲'))
+        .append($('<option>').attr('value', 'down').text('▼'));
+
+    var filters = $('<span>').text('Sort: ')
+        .append(sort_field)
+        .append(sort_order)
+
     if (meta.npages <= 1){
-        pages_text = $('<span>').text('-');
+        pages_text = $('<span>').text('');
         pages = $('<ul>').addClass('page-list');
         select = $('<span>');
+    }
+    if (meta.length <= 0){
+        pages_text = $('<span>').text('-');
+        filters = $('<span>');
     }
 
     return $('<div>')
@@ -266,10 +288,33 @@ function create_pagination(meta){
         .append(pages_text)
         .append(pages)
         .append(select)
+        .append(filters)
+}
+
+function change_sort(id, sortfield, sortorder){
+    var meta = (id == metaleft.identifier) ? metaleft : metaright;
+    meta.sort_field = sortfield;
+    meta.sort_order = sortfield;
+    return create_column(meta);
+}
+
+function sortfield(refs, sortfield, sortorder){
+    var sort_funcs = {
+        'influence': function (d) {return influential_to_top(d);},
+        'title': function (d) {return d.title;},
+        'author': function (d) {return d.authors[0];},
+        'year': function (d) {return d.year;},
+        'citations': function(d) {return d.citations.length;}
+    }
+
+    output = sort_funcs[sortfield](refs);
+    return output;
 }
 
 function create_column(meta){
     var references = meta.data[meta.identifier];
+    references = sortfield(references, meta.sort_field, meta.sort_order);
+
     var column = $('<div>').addClass('s2-col').attr('id', meta.htmlid);
 
     // create the header with the branding and explanation of red dots
@@ -312,9 +357,6 @@ function create_column(meta){
 }
 
 function load_overlay(data){
-    data.references = influential_to_top(data.references);
-    data.citations = influential_to_top(data.citations);
-
     metaleft = {
         title: 'References',
         identifier: 'references',
@@ -324,6 +366,9 @@ function load_overlay(data){
         npages: Math.floor((data.references.length-1) / PAGE_LENGTH)+1,
         page: 0,
         data: data,
+        length: data.references.length,
+        sort_field: 'influence',
+        sort_order: 'up'
     };
     metaright = {
         title: 'Citations',
@@ -333,7 +378,10 @@ function load_overlay(data){
         htmlid: 'col-citations',
         npages: Math.floor(data.citations.length / PAGE_LENGTH)+1,
         page: 0,
-        data: data
+        data: data,
+        length: data.citations.length,
+        sort_field: 'influence',
+        sort_order: 'up'
     };
 
 	var brand = $('<h1>')
