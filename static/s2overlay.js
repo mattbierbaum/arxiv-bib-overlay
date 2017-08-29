@@ -64,25 +64,6 @@ function is_overlay_loaded(){
     return false;
 }
 
-function brand(target, before) {
-    if (typeof(before)==='undefined') before = true;
-
-    var height = target.height();
-    var width = Math.floor(55./44. * height);
-
-    var img = $('<img>')
-        .attr('src', URL_LOGO)
-        .width(width)
-        .height(height)
-
-    var link = $('<a>').attr('href', URL_S2_HOME);
-
-    if (before)  target.prepend(link);
-    if (!before) target.append(link);
-
-    img.appendTo(link);
-}
-
 function load_data(url, callback, failmsg){
     if (url in cache)
         return callback(cache[url]);
@@ -118,21 +99,6 @@ function gogogo(){
         url_s2_paper(articleid), load_overlay,
         'S2 API -- article could not be found.'
     );
-}
-
-function influential_to_top(references){
-    var newlist = [];
-
-    for (var i=0; i<references.length; i++){
-        if (references[i].isInfluential)
-            newlist.push(references[i]);
-    }
-    for (var i=0; i<references.length; i++){
-        if (!references[i].isInfluential)
-            newlist.push(references[i]);
-    }
-
-    return newlist;
 }
 
 function replace_author_links(authors){
@@ -253,21 +219,31 @@ function create_pagination(meta){
 
     select.val(meta.page);
 
+    var sort_changer = function() {
+        var elm = $('#'+meta.htmlid);
+        change_sort(
+            meta.identifier,
+            elm.find('#sort_field')[0].value,
+            elm.find('#sort_order')[0].value
+        );
+    };
+
     var sort_field = $('<select>')
         .attr('id', 'sort_field')
         .append($('<option>').attr('value', 'influence').text('Influence'))
         .append($('<option>').attr('value', 'title').text('Title'))
-        .append($('<option>').attr('value', 'author').text('Author'))
+        //.append($('<option>').attr('value', 'author').text('Author'))
         .append($('<option>').attr('value', 'year').text('Year'))
-        .append($('<option>').attr('value', 'citations').text('Citations'))
-        .on('change', function (){
-            change_sort(meta.identifier, this.value, $('#sort_order').value)
-        });
+        //.append($('<option>').attr('value', 'citations').text('Citations'))
+        .on('change', sort_changer)
+        .val(meta.sort_field);
 
     var sort_order = $('<select>')
         .attr('id', 'sort_order')
         .append($('<option>').attr('value', 'up').text('▲'))
-        .append($('<option>').attr('value', 'down').text('▼'));
+        .append($('<option>').attr('value', 'down').text('▼'))
+        .on('change', sort_changer)
+        .val(meta.sort_order);
 
     var filters = $('<span>').text('Sort: ')
         .append(sort_field)
@@ -283,6 +259,8 @@ function create_pagination(meta){
         filters = $('<span>');
     }
 
+    filters = $('<div>').append(filters);
+
     return $('<div>')
         .addClass('page')
         .append(pages_text)
@@ -294,20 +272,43 @@ function create_pagination(meta){
 function change_sort(id, sortfield, sortorder){
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
     meta.sort_field = sortfield;
-    meta.sort_order = sortfield;
+    meta.sort_order = sortorder;
     return create_column(meta);
+}
+
+function sorter(arr, field){
+    return arr.sort(function (a,b) {
+        return (field(a) > field(b)) ? -1 : ((field(a) < field(b)) ? 1 : 0);
+    });
+}
+
+function influential_to_top(references){
+    var newlist = [];
+
+    for (var i=0; i<references.length; i++){
+        if (references[i].isInfluential)
+            newlist.push(references[i]);
+    }
+    for (var i=0; i<references.length; i++){
+        if (!references[i].isInfluential)
+            newlist.push(references[i]);
+    }
+
+    return newlist;
 }
 
 function sortfield(refs, sortfield, sortorder){
     var sort_funcs = {
-        'influence': function (d) {return influential_to_top(d);},
-        'title': function (d) {return d.title;},
-        'author': function (d) {return d.authors[0];},
-        'year': function (d) {return d.year;},
-        'citations': function(d) {return d.citations.length;}
+        'influence': function (d) {return influential_to_top(d).reverse();},
+        'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
+        'author': function (d) {return sorter(d, function(i){return i.authors[0].name || '';});},
+        'year': function (d) {return sorter(d, function(i){return i.year;});},
+        'citations': function (d) {return sorter(d, function(i){return i.citations.length;});}
     }
 
     output = sort_funcs[sortfield](refs);
+    if (sortorder == 'up')
+        return output.reverse();
     return output;
 }
 
@@ -352,7 +353,6 @@ function create_column(meta){
         column.append(paper_line(references[i]));
 
     $('#'+meta.htmlid).replaceWith(column);
-    //brand($('#'+brandid));
     return column;
 }
 
