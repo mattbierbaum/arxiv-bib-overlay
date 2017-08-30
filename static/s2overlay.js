@@ -228,16 +228,14 @@ function change_sort(id, sortfield, sortorder){
 }
 
 function create_sorter(meta){
-    var sort_field_changer = function(dir) {
-        var elm = $('#'+meta.htmlid);
-        change_sort(meta.identifier, elm.find('#sort_field')[0].value, meta.sort_order);
+    var sort_field_changer = function() {
+        change_sort(meta.identifier, this.value, meta.sort_order);
     };
 
-    var sort_order_changer = function(dir) {
-        change_sort(meta.identifier, meta.sort_field, dir);
+    var sort_order_toggle = function() {
+        var order = (meta.sort_order == 'up') ? 'down' : 'up';
+        change_sort(meta.identifier, meta.sort_field, order);
     };
-    var sort_order_up = function() {sort_order_changer('up');};
-    var sort_order_dn = function() {sort_order_changer('down');};
 
     var sort_field = $('<select>')
         .attr('id', 'sort_field')
@@ -247,26 +245,25 @@ function create_sorter(meta){
         .on('change', sort_field_changer)
         .val(meta.sort_field);
 
+    var up = meta.sort_order == 'up';
     var sort_order = $('<span>')
         .addClass('sort-arrow')
         .addClass('sort-label')
         .append(
-            (
-             (meta.sort_order == 'up') ?
-                $('<span>').addClass('disabled') :
-                $('<a>').on('click', sort_order_up)
+            $('<a>')
+            .on('click', sort_order_toggle)
+            .append(
+                $('<span>')
+                    .addClass(up ? 'disabled' : '')
+                    .attr('title', 'Sort ascending')
+                    .text('▲')
             )
-            .text('▲')
-            .attr('title', 'Sort ascending')
-        )
-        .append(
-            (
-             (meta.sort_order == 'down') ?
-                $('<span>').addClass('disabled') :
-                $('<a>').on('click', sort_order_dn)
+            .append(
+                $('<span>')
+                    .addClass(up ? '' : 'disabled')
+                    .attr('title', 'Sort descending')
+                    .text('▼')
             )
-            .text('▼')
-            .attr('title', 'Sort descending')
         );
 
     var filters = $('<span>')
@@ -275,8 +272,7 @@ function create_sorter(meta){
         .append(sort_order)
 
     if (meta.length <= 0)
-        filters = $('<span>');
-
+        return $('<span>');
     return $('<span>').append(filters);
 }
 
