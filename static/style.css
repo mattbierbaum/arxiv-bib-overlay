@@ -153,9 +153,18 @@
     margin-right: 0.5em;
 }
 
-.sortlabel {
+.sort-label {
     margin-left: 1em;
     margin-right: 0.7em;
+}
+
+.sort-arrow a {
+    text-decoration: none;
+}
+
+.sort-arrow a:hover {
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .disabled {
@@ -187,11 +196,4 @@ h1.lined span {
     padding: 0 15px;
 }
 
-.sort-arrow a {
-    text-decoration: none;
-}
 
-.sort-arrow a:hover {
-    text-decoration: none;
-    cursor: pointer;
-}

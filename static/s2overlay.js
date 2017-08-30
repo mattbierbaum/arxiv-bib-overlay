@@ -215,44 +215,6 @@ function create_pagination(meta){
 
     select.val(meta.page);
 
-    var sort_field_changer = function(dir) {
-        var elm = $('#'+meta.htmlid);
-        change_sort(meta.identifier, elm.find('#sort_field')[0].value, meta.sort_order);
-    };
-
-    var sort_order_changer = function(dir) {
-        change_sort(meta.identifier, meta.sort_field, dir);
-    };
-
-    var sort_field = $('<select>')
-        .attr('id', 'sort_field')
-        .append($('<option>').attr('value', 'influence').text('Influence'))
-        .append($('<option>').attr('value', 'title').text('Title'))
-        //.append($('<option>').attr('value', 'author').text('Author'))
-        .append($('<option>').attr('value', 'year').text('Year'))
-        //.append($('<option>').attr('value', 'citations').text('Citations'))
-        .on('change', sort_field_changer)
-        .val(meta.sort_field);
-
-    var sort_order = $('<span>')
-        .addClass('sort-arrow')
-        .append(
-            (meta.sort_order == 'up') ?
-                $('<span>').text('▲').addClass('disabled') :
-                $('<a>').text('▲').on('click', function() {sort_order_changer('up');})
-        ) 
-        .append(
-            (meta.sort_order == 'down') ?
-                $('<span>').text('▼').addClass('disabled') :
-                $('<a>').text('▼').on('click', function() {sort_order_changer('down');})
-        );
-
-    var filters = $('<span>')
-        .append($('<span>').text('Sort by: ').addClass('sortlabel'))
-        .append(sort_field)
-        .append($('<span>').text('Order: ').addClass('sortlabel'))
-        .append(sort_order)
-
     if (meta.npages <= 1){
         pages_text = $('<span>').text('');
         pages = $('<ul>').addClass('page-list');
@@ -260,17 +222,12 @@ function create_pagination(meta){
     }
     if (meta.length <= 0){
         pages_text = $('<span>').text('-');
-        filters = $('<span>');
     }
 
-    filters = $('<div>').append(filters);
-
-    return $('<div>')
-        .addClass('page')
+    return $('<span>')
         .append(pages_text)
         .append(pages)
-        .append(select)
-        .append(filters)
+        .append(select);
 }
 
 function change_sort(id, sortfield, sortorder){
@@ -280,28 +237,88 @@ function change_sort(id, sortfield, sortorder){
     return create_column(meta);
 }
 
-function sorter(arr, field){
-    return arr.sort(function (a,b) {
-        return (field(a) > field(b)) ? -1 : ((field(a) < field(b)) ? 1 : 0);
-    });
+function create_sorter(meta){
+    var sort_field_changer = function(dir) {
+        var elm = $('#'+meta.htmlid);
+        change_sort(meta.identifier, elm.find('#sort_field')[0].value, meta.sort_order);
+    };
+
+    var sort_order_changer = function(dir) {
+        change_sort(meta.identifier, meta.sort_field, dir);
+    };
+    var sort_order_up = function() {sort_order_changer('up');};
+    var sort_order_dn = function() {sort_order_changer('down');};
+
+    var sort_field = $('<select>')
+        .attr('id', 'sort_field')
+        .append($('<option>').attr('value', 'influence').text('Influence'))
+        .append($('<option>').attr('value', 'title').text('Title'))
+        .append($('<option>').attr('value', 'year').text('Year'))
+        .on('change', sort_field_changer)
+        .val(meta.sort_field);
+
+    var sort_order = $('<span>')
+        .addClass('sort-arrow')
+        .addClass('sort-label')
+        .append(
+            (
+             (meta.sort_order == 'up') ?
+                $('<span>').addClass('disabled') :
+                $('<a>').on('click', sort_order_up)
+            )
+            .text('▲')
+            .attr('title', 'Sort ascending')
+        )
+        .append(
+            (
+             (meta.sort_order == 'down') ?
+                $('<span>').addClass('disabled') :
+                $('<a>').on('click', sort_order_dn)
+            )
+            .text('▼')
+            .attr('title', 'Sort descending')
+        );
+
+    var filters = $('<span>')
+        .append($('<span>').text('Sort by: ').addClass('sort-label'))
+        .append(sort_field)
+        .append(sort_order)
+
+    if (meta.length <= 0)
+        filters = $('<span>');
+
+    return $('<span>').append(filters);
 }
 
-function influential_to_top(references){
-    var newlist = [];
-
-    for (var i=0; i<references.length; i++){
-        if (references[i].isInfluential)
-            newlist.push(references[i]);
-    }
-    for (var i=0; i<references.length; i++){
-        if (!references[i].isInfluential)
-            newlist.push(references[i]);
-    }
-
-    return newlist;
+function create_utilities(meta){
+    return $('<div>')
+        .addClass('page')
+        .append($('<div>').append(create_pagination(meta)))
+        .append($('<div>').append(create_sorter(meta)))
 }
 
 function sortfield(refs, sortfield, sortorder){
+    var influential_to_top = function(references){
+        var newlist = [];
+
+        for (var i=0; i<references.length; i++){
+            if (references[i].isInfluential)
+                newlist.push(references[i]);
+        }
+        for (var i=0; i<references.length; i++){
+            if (!references[i].isInfluential)
+                newlist.push(references[i]);
+        }
+
+        return newlist;
+    }
+
+    var sorter = function(arr, field){
+        return arr.sort(function (a,b) {
+            return (field(a) > field(b)) ? -1 : ((field(a) < field(b)) ? 1 : 0);
+        });
+    }
+
     var sort_funcs = {
         'influence': function (d) {return influential_to_top(d).reverse();},
         'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
@@ -346,7 +363,7 @@ function create_column(meta){
                 .append($('<span>').css('color', 'red').text('● '))
                 .append($('<span>').css('color', 'black').text(meta.description+')'))
         )
-        .append(create_pagination(meta))
+        .append(create_utilities(meta))
         .appendTo(column)
 
 
