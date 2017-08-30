@@ -101,21 +101,11 @@ function gogogo(){
     );
 }
 
-function replace_author_links(authors){
-    var auths = $('div.authors a');
-
-    for (var i=0; i<auths.length; i++){
-        $(auths[i])
-            .attr('href', authors[i].url)
-            .text(authors[i].name);
-    }
-}
-
-function titlecase(title) {
-    return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
-}
-
 function paper_line(ref){
+    function titlecase(title) {
+        return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
+    }
+
     var classes = ref.isInfluential ? 'influential' : 'notinfluential';
 
     var paper = $('<div>')
@@ -375,6 +365,16 @@ function create_column(meta){
 
     $('#'+meta.htmlid).replaceWith(column);
     return column;
+}
+
+function replace_author_links(authors){
+    var auths = $('div.authors a');
+
+    for (var i=0; i<auths.length; i++){
+        $(auths[i])
+            .attr('href', authors[i].url)
+            .text(authors[i].name);
+    }
 }
 
 function load_overlay(data){
