@@ -1,3 +1,18 @@
+.arrow {
+  width: 0; 
+  height: 0; 
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+}
+
+.arrow .up {
+  border-bottom: 8px solid black;
+}
+
+.arrow .down {
+  border-top: 8px solid black;
+}
+
 .authors a {
     color: black;
     text-decoration: none;
@@ -138,6 +153,11 @@
     margin-right: 0.5em;
 }
 
+.sortlabel {
+    margin-left: 1em;
+    margin-right: 0.7em;
+}
+
 .disabled {
     color: #bbb;
 }
@@ -165,4 +185,13 @@ h1.lined::before {
 h1.lined span {
     background: #fff;
     padding: 0 15px;
+}
+
+.sort-arrow a {
+    text-decoration: none;
+}
+
+.sort-arrow a:hover {
+    text-decoration: none;
+    cursor: pointer;
 }

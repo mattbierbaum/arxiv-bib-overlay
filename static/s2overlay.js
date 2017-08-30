@@ -186,18 +186,14 @@ function create_pagination(meta){
     var bufferl = Math.max(0, meta.page-BUFF);
     var bufferr = Math.min(meta.npages-1, meta.page+BUFF);
 
-    if (bufferl >= BUFF-1)
-        pages.append(_link(1, 0));
-    if (bufferl >= BUFF)
-        pages.append(_nolink(dots));
+    if (bufferl >= BUFF-1) pages.append(_link(1, 0));
+    if (bufferl >= BUFF)   pages.append(_nolink(dots));
 
     for (var i=bufferl; i<=bufferr; i++)
         pages.append((i == meta.page) ? _nolink(i+1, 'bold') : _link(i+1, i));
 
-    if (bufferr < meta.npages-BUFF)
-        pages.append(_nolink(dots));
-    if (bufferr < meta.npages-(BUFF-1))
-        pages.append(_link(meta.npages, meta.npages-1));
+    if (bufferr < meta.npages-BUFF)      pages.append(_nolink(dots));
+    if (bufferr < meta.npages-(BUFF-1))  pages.append(_link(meta.npages, meta.npages-1));
 
     if (meta.page >= meta.npages-1)
         pages.append(_nolink(rangle));
@@ -219,13 +215,13 @@ function create_pagination(meta){
 
     select.val(meta.page);
 
-    var sort_changer = function() {
+    var sort_field_changer = function(dir) {
         var elm = $('#'+meta.htmlid);
-        change_sort(
-            meta.identifier,
-            elm.find('#sort_field')[0].value,
-            elm.find('#sort_order')[0].value
-        );
+        change_sort(meta.identifier, elm.find('#sort_field')[0].value, meta.sort_order);
+    };
+
+    var sort_order_changer = function(dir) {
+        change_sort(meta.identifier, meta.sort_field, dir);
     };
 
     var sort_field = $('<select>')
@@ -235,18 +231,26 @@ function create_pagination(meta){
         //.append($('<option>').attr('value', 'author').text('Author'))
         .append($('<option>').attr('value', 'year').text('Year'))
         //.append($('<option>').attr('value', 'citations').text('Citations'))
-        .on('change', sort_changer)
+        .on('change', sort_field_changer)
         .val(meta.sort_field);
 
-    var sort_order = $('<select>')
-        .attr('id', 'sort_order')
-        .append($('<option>').attr('value', 'up').text('▲'))
-        .append($('<option>').attr('value', 'down').text('▼'))
-        .on('change', sort_changer)
-        .val(meta.sort_order);
+    var sort_order = $('<span>')
+        .addClass('sort-arrow')
+        .append(
+            (meta.sort_order == 'up') ?
+                $('<span>').text('▲').addClass('disabled') :
+                $('<a>').text('▲').on('click', function() {sort_order_changer('up');})
+        ) 
+        .append(
+            (meta.sort_order == 'down') ?
+                $('<span>').text('▼').addClass('disabled') :
+                $('<a>').text('▼').on('click', function() {sort_order_changer('down');})
+        );
 
-    var filters = $('<span>').text('Sort: ')
+    var filters = $('<span>')
+        .append($('<span>').text('Sort by: ').addClass('sortlabel'))
         .append(sort_field)
+        .append($('<span>').text('Order: ').addClass('sortlabel'))
         .append(sort_order)
 
     if (meta.npages <= 1){
