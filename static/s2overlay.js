@@ -64,25 +64,6 @@ function is_overlay_loaded(){
     return false;
 }
 
-function brand(target, before) {
-    if (typeof(before)==='undefined') before = true;
-
-    var height = target.height();
-    var width = Math.floor(55./44. * height);
-
-    var img = $('<img>')
-        .attr('src', URL_LOGO)
-        .width(width)
-        .height(height)
-
-    var link = $('<a>').attr('href', URL_S2_HOME);
-
-    if (before)  target.prepend(link);
-    if (!before) target.append(link);
-
-    img.appendTo(link);
-}
-
 function load_data(url, callback, failmsg){
     if (url in cache)
         return callback(cache[url]);
@@ -120,36 +101,11 @@ function gogogo(){
     );
 }
 
-function influential_to_top(references){
-    var newlist = [];
-
-    for (var i=0; i<references.length; i++){
-        if (references[i].isInfluential)
-            newlist.push(references[i]);
-    }
-    for (var i=0; i<references.length; i++){
-        if (!references[i].isInfluential)
-            newlist.push(references[i]);
-    }
-
-    return newlist;
-}
-
-function replace_author_links(authors){
-    var auths = $('div.authors a');
-
-    for (var i=0; i<auths.length; i++){
-        $(auths[i])
-            .attr('href', authors[i].url)
-            .text(authors[i].name);
-    }
-}
-
-function titlecase(title) {
-    return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
-}
-
 function paper_line(ref){
+    function titlecase(title) {
+        return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
+    }
+
     var classes = ref.isInfluential ? 'influential' : 'notinfluential';
 
     var paper = $('<div>')
@@ -187,9 +143,7 @@ function paper_line(ref){
     return paper;
 }
 
-function page(id, n){
-    console.log(id);
-    console.log(n);
+function change_page(id, n){
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
     meta.page = parseInt(n);
     return create_column(meta);
@@ -202,74 +156,207 @@ function create_pagination(meta){
 
     function _nolink(txt, classname){
         classname = typeof classname !== 'undefined' ? classname : 'disabled';
-        return $('<li>').append($('<span>').html(txt).addClass(classname));
+        return $('<li>').append(
+            $('<span>').html(txt).addClass(classname)
+        );
     }
 
-    function _link(txt, n, bold){
-        var link = $('<a>')
-                    .attr('href', 'javascript:;')
-                    .click(function (){ page(meta.identifier, n); })
-                    .html(txt)
-        return $('<li>').append(link);
+    function _link(n, txt){
+        if (txt === undefined) txt = n;
+        return $('<li>')
+            .addClass('page-num')
+            .append($('<a>')
+                .html(txt)
+                .attr('href', 'javascript:;')
+                .click(function (){ change_page(meta.identifier, n); })
+            );
     }
 
     var pages_text = $('<span>').text('Pages: ');
     var pages = $('<ul>').addClass('page-list')
 
-    pages.append((meta.page == 0) ? _nolink(langle) : _link(langle, meta.page-1));
+    var BUFF = 1;
+    var SLOTS = 2*BUFF + 2*2 + 1;
 
-    var BUFF = 2;
-    var bufferl = Math.max(0, meta.page-BUFF);
-    var bufferr = Math.min(meta.npages-1, meta.page+BUFF);
+    pages.append(
+        (meta.page == 1) ?
+            _nolink(langle) :
+            _link(meta.page-1, langle)
+    );
 
-    if (bufferl >= BUFF-1)
-        pages.append(_link(1, 0));
-    if (bufferl >= BUFF)
-        pages.append(_nolink(dots));
+    if (meta.npages <= SLOTS){
+        for (var i=1; i<=meta.npages; i++)
+            pages.append((i == meta.page) ? _nolink(i, 'bold') : _link(i));
+    } else {
+        var P = meta.page;
+        var B = BUFF;
+        var L = meta.npages;
+        var S = 2*BUFF + 2 + 1;
 
-    for (var i=bufferl; i<=bufferr; i++)
-        pages.append((i == meta.page) ? _nolink(i+1, 'bold') : _link(i+1, i));
+        var slots = Array.from('x'.repeat(S));
 
-    if (bufferr < meta.npages-BUFF)
-        pages.append(_nolink(dots));
-    if (bufferr < meta.npages-(BUFF-1))
-        pages.append(_link(meta.npages, meta.npages-1));
+        // the first number (1) and dots if list too long
+        slots[0] = (P == 1) ? _nolink(1, 'bold') : _link(1);
+        slots[1] = (P == 2) ? _nolink(2, 'bold') : (P > B+3) ? _nolink(dots) : _link(2);
 
-    if (meta.page >= meta.npages-1)
-        pages.append(_nolink(rangle));
-    else
-        pages.append(_link(rangle, meta.page+1));
+        var i0 = P - B;
+        var i1 = P + B;
+        if (i0 <= 3){
+            i0 = 3;
+            i1 = 3 + 2*B;
+        }
+        if (i1 >= L-2){
+            i0 = L-2 - 2*B;
+            i1 = L-2;
+        }
+
+        for (var i=i0; i<=i1; i++)
+            slots[2+i-i0] = (P == i) ? _nolink(i, 'bold') : _link(i);
+
+        // the last number (-1) and dots if list too long
+        slots[SLOTS-2] = (P == L-2) ? _nolink(L-1, 'bold') : (P < L-2-B) ? _nolink(dots) : _link(L-1);
+        slots[SLOTS-1] = (P == L-1) ? _nolink(L-0, 'bold') : _link(L-0);
+
+        for (var i=0; i<slots.length; i++)
+            pages.append(slots[i]);
+    }
+
+    pages.append(
+        (meta.page >= meta.npages) ?
+            _nolink(rangle) :
+            _link(meta.page+1, rangle)
+    );
 
     // create the dropdown as well for ease of navigating large lists
-    var select = $('<select>')
-        .on('change', function (){
-            page(meta.identifier, this.value);
-        });
+    var pager = function(){ change_page(meta.identifier, this.value); };
 
-    for (var i=0; i<meta.npages; i++)
+    var select = $('<select>').on('change', pager);
+    for (var i=1; i<=meta.npages; i++)
         select.append(
             $('<option>')
                 .attr('value', i)
-                .text(i+1)
+                .text(i)
         );
-
     select.val(meta.page);
 
     if (meta.npages <= 1){
-        pages_text = $('<span>').text('-');
+        pages_text = $('<span>').text('');
         pages = $('<ul>').addClass('page-list');
         select = $('<span>');
     }
+    if (meta.length <= 0){
+        pages_text = $('<span>').text('-');
+    }
 
-    return $('<div>')
-        .addClass('page')
+    return $('<span>')
         .append(pages_text)
         .append(pages)
-        .append(select)
+        .append(select);
+}
+
+function change_sort(id, sortfield, sortorder){
+    var meta = (id == metaleft.identifier) ? metaleft : metaright;
+    meta.sort_field = sortfield;
+    meta.sort_order = sortorder;
+    return create_column(meta);
+}
+
+function create_sorter(meta){
+    var sort_field_changer = function() {
+        change_sort(meta.identifier, this.value, meta.sort_order);
+    };
+
+    var sort_order_toggle = function() {
+        var order = (meta.sort_order == 'up') ? 'down' : 'up';
+        change_sort(meta.identifier, meta.sort_field, order);
+    };
+
+    var sort_field = $('<select>')
+        .attr('id', 'sort_field')
+        .append($('<option>').attr('value', 'influence').text('Influence'))
+        .append($('<option>').attr('value', 'title').text('Title'))
+        .append($('<option>').attr('value', 'year').text('Year'))
+        .on('change', sort_field_changer)
+        .val(meta.sort_field);
+
+    var up = meta.sort_order == 'up';
+    var sort_order = $('<span>')
+        .addClass('sort-arrow')
+        .addClass('sort-label')
+        .append(
+            $('<a>')
+            .on('click', sort_order_toggle)
+            .append(
+                $('<span>')
+                    .addClass(up ? 'disabled' : '')
+                    .attr('title', 'Sort ascending')
+                    .text('▲')
+            )
+            .append(
+                $('<span>')
+                    .addClass(up ? '' : 'disabled')
+                    .attr('title', 'Sort descending')
+                    .text('▼')
+            )
+        );
+
+    var filters = $('<span>')
+        .append($('<span>').text('Sort by: ').addClass('sort-label'))
+        .append(sort_field)
+        .append(sort_order)
+
+    if (meta.length <= 0)
+        return $('<span>');
+    return $('<span>').append(filters);
+}
+
+function create_utilities(meta){
+    return $('<div>')
+        .addClass('page')
+        .append($('<div>').addClass('center').append(create_pagination(meta)))
+        .append($('<div>').addClass('center').append(create_sorter(meta)))
+}
+
+function sortfield(refs, sortfield, sortorder){
+    var influential_to_top = function(references){
+        var newlist = [];
+
+        for (var i=0; i<references.length; i++){
+            if (references[i].isInfluential)
+                newlist.push(references[i]);
+        }
+        for (var i=0; i<references.length; i++){
+            if (!references[i].isInfluential)
+                newlist.push(references[i]);
+        }
+
+        return newlist;
+    }
+
+    var sorter = function(arr, field){
+        return arr.sort(function (a,b) {
+            return (field(a) > field(b)) ? -1 : ((field(a) < field(b)) ? 1 : 0);
+        });
+    }
+
+    var sort_funcs = {
+        'influence': function (d) {return influential_to_top(d).reverse();},
+        'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
+        'author': function (d) {return sorter(d, function(i){return i.authors[0].name || '';});},
+        'year': function (d) {return sorter(d, function(i){return i.year;});},
+        'citations': function (d) {return sorter(d, function(i){return i.citations.length;});}
+    }
+
+    output = sort_funcs[sortfield](refs);
+    if (sortorder == 'up')
+        return output.reverse();
+    return output;
 }
 
 function create_column(meta){
     var references = meta.data[meta.identifier];
+    references = sortfield(references, meta.sort_field, meta.sort_order);
+
     var column = $('<div>').addClass('s2-col').attr('id', meta.htmlid);
 
     // create the header with the branding and explanation of red dots
@@ -296,25 +383,31 @@ function create_column(meta){
                 .append($('<span>').css('color', 'red').text('● '))
                 .append($('<span>').css('color', 'black').text(meta.description+')'))
         )
-        .append(create_pagination(meta))
+        .append(create_utilities(meta))
         .appendTo(column)
 
 
     // inject the papers with authors into the column
     var len = references.length;
-    var start = PAGE_LENGTH * meta.page;
+    var start = PAGE_LENGTH * (meta.page-1);
     for (var i=start; i<min(start+PAGE_LENGTH, len); i++)
         column.append(paper_line(references[i]));
 
     $('#'+meta.htmlid).replaceWith(column);
-    //brand($('#'+brandid));
     return column;
 }
 
-function load_overlay(data){
-    data.references = influential_to_top(data.references);
-    data.citations = influential_to_top(data.citations);
+function replace_author_links(authors){
+    var auths = $('div.authors a');
 
+    for (var i=0; i<auths.length; i++){
+        $(auths[i])
+            .attr('href', authors[i].url)
+            .text(authors[i].name);
+    }
+}
+
+function load_overlay(data){
     metaleft = {
         title: 'References',
         identifier: 'references',
@@ -322,8 +415,11 @@ function load_overlay(data){
         description: 'highly influential references',
         htmlid: 'col-references',
         npages: Math.floor((data.references.length-1) / PAGE_LENGTH)+1,
-        page: 0,
+        page: 1,
         data: data,
+        length: data.references.length,
+        sort_field: 'influence',
+        sort_order: 'up'
     };
     metaright = {
         title: 'Citations',
@@ -332,8 +428,11 @@ function load_overlay(data){
         description: 'highly influenced citations',
         htmlid: 'col-citations',
         npages: Math.floor(data.citations.length / PAGE_LENGTH)+1,
-        page: 0,
-        data: data
+        page: 1,
+        data: data,
+        length: data.citations.length,
+        sort_field: 'influence',
+        sort_order: 'up'
     };
 
 	var brand = $('<h1>')

@@ -1,3 +1,18 @@
+.arrow {
+  width: 0; 
+  height: 0; 
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+}
+
+.arrow .up {
+  border-bottom: 8px solid black;
+}
+
+.arrow .down {
+  border-top: 8px solid black;
+}
+
 .authors a {
     color: black;
     text-decoration: none;
@@ -120,6 +135,12 @@
     padding-right: 10px;
 }
 
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .page {
     margin-top: 1em;
     display: table;
@@ -133,9 +154,25 @@
 }
 
 .page-list > li {
-    display: inline;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+    display: inline-block;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    min-width: 1.2em;
+    text-align: center;
+}
+
+.sort-label {
+    margin-left: 1em;
+    margin-right: 0.7em;
+}
+
+.sort-arrow a {
+    text-decoration: none;
+}
+
+.sort-arrow a:hover {
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .disabled {
@@ -166,3 +203,5 @@ h1.lined span {
     background: #fff;
     padding: 0 15px;
 }
+
+
