@@ -188,10 +188,10 @@ function create_pagination(meta){
         for (var i=1; i<=meta.npages; i++)
             pages.append((i == meta.page) ? _nolink(i, 'bold') : _link(i));
     } else {
-        var P = meta.page;
         var B = BUFF;
-        var L = meta.npages;
         var S = 2*BUFF + 2 + 1;
+        var P = meta.page;
+        var L = meta.npages;
 
         var slots = Array.from('x'.repeat(S));
 
@@ -214,8 +214,8 @@ function create_pagination(meta){
             slots[2+i-i0] = (P == i) ? _nolink(i, 'bold') : _link(i);
 
         // the last number (-1) and dots if list too long
-        slots[SLOTS-2] = (P == L-2) ? _nolink(L-1, 'bold') : (P < L-2-B) ? _nolink(dots) : _link(L-1);
-        slots[SLOTS-1] = (P == L-1) ? _nolink(L-0, 'bold') : _link(L-0);
+        slots[SLOTS-2] = (P == L-1) ? _nolink(L-1, 'bold') : (P < L-2-B) ? _nolink(dots) : _link(L-1);
+        slots[SLOTS-1] = (P == L-0) ? _nolink(L-0, 'bold') : _link(L-0);
 
         for (var i=0; i<slots.length; i++)
             pages.append(slots[i]);
