@@ -153,6 +153,10 @@
     margin-right: 0.5em;
 }
 
+.page-num {
+    width: 2em;
+}
+
 .sort-label {
     margin-left: 1em;
     margin-right: 0.7em;

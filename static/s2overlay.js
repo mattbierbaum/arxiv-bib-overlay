@@ -156,53 +156,87 @@ function create_pagination(meta){
 
     function _nolink(txt, classname){
         classname = typeof classname !== 'undefined' ? classname : 'disabled';
-        return $('<li>').append($('<span>').html(txt).addClass(classname));
+        return $('<li>').append(
+            $('<span>').html(txt).addClass(classname)
+        );
     }
 
-    function _link(txt, n, bold){
-        var link = $('<a>')
-                    .attr('href', 'javascript:;')
-                    .click(function (){ change_page(meta.identifier, n); })
-                    .html(txt)
-        return $('<li>').append(link);
+    function _link(n, txt){
+        if (txt === undefined) txt = n;
+        return $('<li>')
+            .addClass('page-num')
+            .append($('<a>')
+                .html(txt)
+                .attr('href', 'javascript:;')
+                .click(function (){ change_page(meta.identifier, n); })
+            );
     }
 
     var pages_text = $('<span>').text('Pages: ');
     var pages = $('<ul>').addClass('page-list')
 
-    pages.append((meta.page == 0) ? _nolink(langle) : _link(langle, meta.page-1));
-
     var BUFF = 2;
-    var bufferl = Math.max(0, meta.page-BUFF);
-    var bufferr = Math.min(meta.npages-1, meta.page+BUFF);
+    var SLOTS = 2*BUFF + 2*2 + 1;
 
-    if (bufferl >= BUFF-1) pages.append(_link(1, 0));
-    if (bufferl >= BUFF)   pages.append(_nolink(dots));
+    pages.append(
+        (meta.page == 1) ?
+            _nolink(langle) :
+            _link(meta.page-1, langle)
+    );
 
-    for (var i=bufferl; i<=bufferr; i++)
-        pages.append((i == meta.page) ? _nolink(i+1, 'bold') : _link(i+1, i));
+    if (meta.npages <= SLOTS){
+        for (var i=1; i<=meta.npages; i++)
+            pages.append((i == meta.page) ? _nolink(i, 'bold') : _link(i));
+    } else {
+        var P = meta.page;
+        var B = BUFF;
+        var L = meta.npages;
+        var S = 2*BUFF + 2 + 1;
 
-    if (bufferr < meta.npages-BUFF)      pages.append(_nolink(dots));
-    if (bufferr < meta.npages-(BUFF-1))  pages.append(_link(meta.npages, meta.npages-1));
+        var slots = Array.from('x'.repeat(S));
 
-    if (meta.page >= meta.npages-1)
-        pages.append(_nolink(rangle));
-    else
-        pages.append(_link(rangle, meta.page+1));
+        // the first number (1) and dots if list too long
+        slots[0] = (P == 1) ? _nolink(1, 'bold') : _link(1);
+        slots[1] = (P == 2) ? _nolink(2, 'bold') : (P > B+3) ? _nolink(dots) : _link(2);
+
+        var i0 = P - B;
+        var i1 = P + B;
+        if (i0 <= 3){
+            i0 = 3;
+            i1 = 3 + 2*B;
+        }
+        if (i1 >= L-2){
+            i0 = L-2 - 2*B;
+            i1 = L-2;
+        }
+
+        for (var i=i0; i<=i1; i++)
+            slots[2+i-i0] = (P == i) ? _nolink(i, 'bold') : _link(i);
+
+        // the last number (-1) and dots if list too long
+        slots[SLOTS-2] = (P == L-2) ? _nolink(L-1, 'bold') : (P < L-2-B) ? _nolink(dots) : _link(L-1);
+        slots[SLOTS-1] = (P == L-1) ? _nolink(L-0, 'bold') : _link(L-0);
+
+        for (var i=0; i<slots.length; i++)
+            pages.append(slots[i]);
+    }
+
+    pages.append(
+        (meta.page >= meta.npages) ?
+            _nolink(rangle) :
+            _link(meta.page+1, rangle)
+    );
 
     // create the dropdown as well for ease of navigating large lists
-    var select = $('<select>')
-        .on('change', function (){
-            change_page(meta.identifier, this.value);
-        });
+    var pager = function(){ change_page(meta.identifier, this.value); };
 
-    for (var i=0; i<meta.npages; i++)
+    var select = $('<select>').on('change', pager);
+    for (var i=1; i<=meta.npages; i++)
         select.append(
             $('<option>')
                 .attr('value', i)
-                .text(i+1)
+                .text(i)
         );
-
     select.val(meta.page);
 
     if (meta.npages <= 1){
@@ -355,7 +389,7 @@ function create_column(meta){
 
     // inject the papers with authors into the column
     var len = references.length;
-    var start = PAGE_LENGTH * meta.page;
+    var start = PAGE_LENGTH * (meta.page-1);
     for (var i=start; i<min(start+PAGE_LENGTH, len); i++)
         column.append(paper_line(references[i]));
 
@@ -381,7 +415,7 @@ function load_overlay(data){
         description: 'highly influential references',
         htmlid: 'col-references',
         npages: Math.floor((data.references.length-1) / PAGE_LENGTH)+1,
-        page: 0,
+        page: 1,
         data: data,
         length: data.references.length,
         sort_field: 'influence',
@@ -394,7 +428,7 @@ function load_overlay(data){
         description: 'highly influenced citations',
         htmlid: 'col-citations',
         npages: Math.floor(data.citations.length / PAGE_LENGTH)+1,
-        page: 0,
+        page: 1,
         data: data,
         length: data.citations.length,
         sort_field: 'influence',
