@@ -313,8 +313,8 @@ function create_sorter(meta){
 function create_utilities(meta){
     return $('<div>')
         .addClass('page')
-        .append($('<div>').append(create_pagination(meta)))
-        .append($('<div>').append(create_sorter(meta)))
+        .append($('<div>').addClass('center').append(create_pagination(meta)))
+        .append($('<div>').addClass('center').append(create_sorter(meta)))
 }
 
 function sortfield(refs, sortfield, sortorder){

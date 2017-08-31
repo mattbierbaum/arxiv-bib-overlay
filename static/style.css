@@ -135,6 +135,12 @@
     padding-right: 10px;
 }
 
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .page {
     margin-top: 1em;
     display: table;
