@@ -148,13 +148,11 @@
 }
 
 .page-list > li {
-    display: inline;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-}
-
-.page-num {
-    width: 2em;
+    display: inline-block;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    min-width: 1.2em;
+    text-align: center;
 }
 
 .sort-label {

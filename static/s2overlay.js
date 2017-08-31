@@ -175,7 +175,7 @@ function create_pagination(meta){
     var pages_text = $('<span>').text('Pages: ');
     var pages = $('<ul>').addClass('page-list')
 
-    var BUFF = 2;
+    var BUFF = 1;
     var SLOTS = 2*BUFF + 2*2 + 1;
 
     pages.append(
