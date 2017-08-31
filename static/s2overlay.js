@@ -239,7 +239,7 @@ function create_pagination(meta){
         );
     select.val(meta.page);
 
-    if (meta.npages <= 1){
+    if (meta.npages <= 2){
         pages_text = $('<span>').text('');
         pages = $('<ul>').addClass('page-list');
         select = $('<span>');
