@@ -23,13 +23,17 @@ function url_s2_paper(id)   {return URL_S2_API+'paper/arXiv:'+id;}
 function url_s2_paperId(id) {return URL_S2_API+'paper/'+id;}
 function url_s2_author(id)  {return URL_S2_API+'author/'+id;}
 
-function get_category(){
-    var cat = '';
-    $("#header a").each(function (){
-        if (this.href.indexOf('/list/') > 0)
-            cat = this.text;
-    });
-    return cat;
+function get_categories(){
+    var txt = $('.metatable').find('.subjects').text();
+    var re = new RegExp(/\(([a-z\-]+)\.[a-zA-Z\-]+\)/g);
+
+    var matches = new Set();
+    var match = re.exec(txt);
+    while (match != null){
+        matches.add(match[1]);
+        match = re.exec(txt);
+    }
+    return matches;
 }
 
 function myfail(msg, doalert){
@@ -83,7 +87,7 @@ function gogogo(){
         return;
     }
 
-    if (get_category() != 'cs'){
+    if (!get_categories().has('cs')){
         console.log("Category does not match 'cs'.");
         return;
     }
