@@ -101,6 +101,11 @@
     position: relative;
 }
 
+.s2-paper span {
+    color: #000;
+    position: relative;
+}
+
 .s2-paper .influential::before {
     left: -17px;
     position: absolute;
@@ -108,6 +113,15 @@
     content: '● ';
     color: red;
 }
+
+/*.s2-paper .unknown::before {
+    left: -17px;
+    position: absolute;
+    width: 0px;
+    content: '● ';
+    color: #ccc;
+    font-size: 0.85em;
+}*/
 
 .s2-authors {
     margin-left: 0.7em;

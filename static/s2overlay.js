@@ -15,15 +15,16 @@ try {
 
 var URL_S2_HOME = 'https://semanticscholar.org';
 var URL_S2_API = 'https://api.semanticscholar.org/v1/';
-
+var URL_PARAMS = 'include_unknown_references=true'
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
 
-function url_s2_paper(id)   {return URL_S2_API+'paper/arXiv:'+id;}
-function url_s2_paperId(id) {return URL_S2_API+'paper/'+id;}
+function url_s2_paper(id)   {return URL_S2_API+'paper/arXiv:'+id+'?'+URL_PARAMS;}
+function url_s2_paperId(id) {return URL_S2_API+'paper/'+id+'?'+URL_PARAMS;}
 function url_s2_author(id)  {return URL_S2_API+'author/'+id;}
 
 function get_categories(){
+    // find the entries in the table which look like (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     var txt = $('.metatable').find('.subjects').text();
     var re = new RegExp(/\(([a-z\-]+)\.[a-zA-Z\-]+\)/g);
 
@@ -36,23 +37,16 @@ function get_categories(){
     return matches;
 }
 
-function myfail(msg, doalert){
-    if (typeof(doalert)==='undefined') doalert = false;
-
-    console.log(msg);
-    if (doalert) alert(msg);
-    throw new Error(msg);
-}
-
-function current_article(){
+function get_current_article(){
     var url = $(location).attr('href');
     var re_url = new RegExp(
         '^http(?:s)?://arxiv.org/abs/'+             // we are on an abs page
-        //'(?:'+                                            // begin OR group
-            '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+        // there is a new-form arxiv id
-        //    '|'+                                          // OR
-        //  '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+  // old-form id (not allowed by S2)
-        //')'+                                              // end OR group
+        '(?:'+                                           // begin OR group
+          '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+       // there is a new-form arxiv id
+            '|'+                                            // OR
+          '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+ // old-form id (not allowed by S2)
+        ')'+                                             // end OR group
+        '(?:#.*)?'+                                 // anchor links on page
         '(?:\\?.*)?$'                               // query parameter stuff
     );
     var match = re_url.exec(url);
@@ -77,7 +71,7 @@ function load_data(url, callback, failmsg){
         callback(data);
      })
      .fail(function(err) {
-         myfail(failmsg, false);
+         console.log(failmsg);
      });
 }
 
@@ -92,7 +86,7 @@ function gogogo(){
         return;
     }
 
-    var articleid = current_article();
+    var articleid = get_current_article();
 
     if (!articleid || articleid.length <= 5){
         console.log("No valid article ID extracted from the browser location.");
@@ -105,48 +99,6 @@ function gogogo(){
     );
 }
 
-function paper_line(ref){
-    function titlecase(title) {
-        return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
-    }
-
-    var classes = ref.isInfluential ? 'influential' : 'notinfluential';
-
-    var paper = $('<div>')
-        .addClass('s2-paper')
-        .append(
-            $('<a>')
-              .addClass(classes)
-              .attr('href', ref.url)
-              .text(ref.title)
-        )
-        .append(
-            $('<span>').addClass('jinfo')
-                .append($('<span>').addClass('venue').text(titlecase(ref.venue)))
-                .append($('<span>').addClass('year').text(ref.year))
-        );
-
-    var url = url_s2_paperId(ref.paperId);
-    load_data(url,
-        function(data) {
-            var len = data.authors.length;
-            var elem = $('<div>').addClass('s2-authors');
-
-            for (var j=0; j<len; j++){
-                $('<a>')
-                    .appendTo(elem)
-                    .attr('href', data.authors[j].url)
-                    .text(data.authors[j].name);
-            }
-
-            paper.append(elem);
-        },
-        'Could not find paper "'+ref.title+'" via S2 API'
-    );
-
-    return paper;
-}
-
 function change_page(id, n){
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
     meta.page = parseInt(n);
@@ -154,8 +106,8 @@ function change_page(id, n){
 }
 
 function create_pagination(meta){
-    var langle = '&laquo;';
-    var rangle = '&raquo;';
+    var langle = '◀'; //'&laquo;';
+    var rangle = '▶'; //'&raquo;';
     var dots = '...';
 
     function _nolink(txt, classname){
@@ -188,6 +140,15 @@ function create_pagination(meta){
             _link(meta.page-1, langle)
     );
 
+    /* This is a bit of a mess, but it basically ensures that the page list
+     * looks visually uniform independent of the current page number. We want
+     *   - always the same number of elements
+     *   - always first / last pages, and prev / next
+     *        < 1 . 4 5 6 . 9 >
+     *        < 1 2 3 4 5 . 9 >
+     *        < 1 . 5 6 7 8 9 >
+     * This makes the numbers easier to navigate and more visually appealing
+    */
     if (meta.npages <= SLOTS){
         for (var i=1; i<=meta.npages; i++)
             pages.append((i == meta.page) ? _nolink(i, 'bold') : _link(i));
@@ -321,6 +282,7 @@ function create_utilities(meta){
         .append($('<div>').addClass('center').append(create_sorter(meta)))
 }
 
+/* ------------------------------------------------------------------------- */
 function sortfield(refs, sortfield, sortorder){
     var influential_to_top = function(references){
         var newlist = [];
@@ -355,6 +317,51 @@ function sortfield(refs, sortfield, sortorder){
     if (sortorder == 'up')
         return output.reverse();
     return output;
+}
+
+function paper_line(ref){
+    function titlecase(title) {
+        return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
+    }
+
+    var known = (ref.paperId.length > 1);
+    var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
+
+    var paper = $('<div>')
+        .addClass('s2-paper')
+        .append(
+            (known ? $('<a>') : $('<span>'))
+              .addClass(classes)
+              .attr('href', ref.url)
+              .text(ref.title)
+        )
+        .append(
+            $('<span>').addClass('jinfo')
+                .append($('<span>').addClass('venue').text(titlecase(ref.venue)))
+                .append($('<span>').addClass('year').text(ref.year))
+        );
+
+    if (known) {
+        var url = url_s2_paperId(ref.paperId);
+        load_data(url,
+            function(data) {
+                var len = data.authors.length;
+                var elem = $('<div>').addClass('s2-authors');
+
+                for (var j=0; j<len; j++){
+                    $('<a>')
+                        .appendTo(elem)
+                        .attr('href', data.authors[j].url)
+                        .text(data.authors[j].name);
+                }
+
+                paper.append(elem);
+            },
+            'Could not find paper "'+ref.title+'" via S2 API'
+        );
+    }
+
+    return paper;
 }
 
 function create_column(meta){
