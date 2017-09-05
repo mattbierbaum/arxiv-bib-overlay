@@ -6,7 +6,7 @@ var metaleft, metaright;
 // number of papers per page
 var PAGE_LENGTH = 10;
 
-var URL_LOGO = 'https://s3.amazonaws.com/public.runat.me/s2overlay/s2.png';
+var URL_LOGO = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-overlay/static/s2.png';
 try {
     URL_LOGO = chrome.extension.getURL('static/s2.png');
 } catch(err) {
