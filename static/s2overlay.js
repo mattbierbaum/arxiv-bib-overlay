@@ -106,6 +106,9 @@ function change_page(id, n){
 }
 
 function create_pagination(meta){
+    if (meta.length <= 0)
+        return $('<span>').text('-')
+
     var langle = '◀'; //'&laquo;';
     var rangle = '▶'; //'&raquo;';
     var dots = '...';
@@ -128,17 +131,13 @@ function create_pagination(meta){
             );
     }
 
+    function _pagelink(n, p, active){
+        active = (active === undefined) ? true : active;
+        return !active ? _nolink(dots) : ((n == p) ? _nolink(n, 'bold') : _link(n));
+    }
+
     var pages_text = $('<span>').text('Pages: ');
     var pages = $('<ul>').addClass('page-list')
-
-    var BUFF = 1;
-    var SLOTS = 2*BUFF + 2*2 + 1;
-
-    pages.append(
-        (meta.page == 1) ?
-            _nolink(langle) :
-            _link(meta.page-1, langle)
-    );
 
     /* This is a bit of a mess, but it basically ensures that the page list
      * looks visually uniform independent of the current page number. We want
@@ -149,68 +148,50 @@ function create_pagination(meta){
      *        < 1 . 5 6 7 8 9 >
      * This makes the numbers easier to navigate and more visually appealing
     */
-    if (meta.npages <= SLOTS){
-        for (var i=1; i<=meta.npages; i++)
-            pages.append((i == meta.page) ? _nolink(i, 'bold') : _link(i));
+    var B = 1;              /* number of buffer pages on each side of current */
+    var P = meta.page;      /* shortcut to current page */ 
+    var L = meta.npages;    /* shortcut to total pages */
+    var S = 2*B + 2*2 + 1;  /* number of total links in the pages sections:
+                               2*buffer + 2*(first number + dots) + current */
+
+    pages.append((P == 1) ? _nolink(langle) : _link(P-1, langle));
+
+    if (L <= S){
+        // just show all numbers if the number of pages is less than the slots
+        for (var i=1; i<=L; i++)
+            pages.append(_pagelink(i, P));
     } else {
-        var B = BUFF;
-        var S = 2*BUFF + 2 + 1;
-        var P = meta.page;
-        var L = meta.npages;
-
-        var slots = Array.from('x'.repeat(S));
-
         // the first number (1) and dots if list too long
-        slots[0] = (P == 1) ? _nolink(1, 'bold') : _link(1);
-        slots[1] = (P == 2) ? _nolink(2, 'bold') : (P > B+3) ? _nolink(dots) : _link(2);
+        pages.append(_pagelink(1, P));
+        pages.append(_pagelink(2, P, P <= 1+2+B));
 
-        var i0 = P - B;
-        var i1 = P + B;
-        if (i0 <= 3){
-            i0 = 3;
-            i1 = 3 + 2*B;
-        }
-        if (i1 >= L-2){
-            i0 = L-2 - 2*B;
-            i1 = L-2;
-        }
+        // limit the beginning and end numbers to be appropriate ranges
+        var i0 = min(L-2 - 2*B, max(1+2, P-B));
+        var i1 = max(1+2 + 2*B, min(L-2, P+B));
 
         for (var i=i0; i<=i1; i++)
-            slots[2+i-i0] = (P == i) ? _nolink(i, 'bold') : _link(i);
+            pages.append(_pagelink(i, P));
 
         // the last number (-1) and dots if list too long
-        slots[SLOTS-2] = (P == L-1) ? _nolink(L-1, 'bold') : (P < L-2-B) ? _nolink(dots) : _link(L-1);
-        slots[SLOTS-1] = (P == L-0) ? _nolink(L-0, 'bold') : _link(L-0);
-
-        for (var i=0; i<slots.length; i++)
-            pages.append(slots[i]);
+        pages.append(_pagelink(L-1, P, P >= L-2-B));
+        pages.append(_pagelink(L-0, P));
     }
 
-    pages.append(
-        (meta.page >= meta.npages) ?
-            _nolink(rangle) :
-            _link(meta.page+1, rangle)
-    );
+    pages.append((P >= L) ? _nolink(rangle) : _link(P+1, rangle));
 
     // create the dropdown as well for ease of navigating large lists
     var pager = function(){ change_page(meta.identifier, this.value); };
 
     var select = $('<select>').on('change', pager);
     for (var i=1; i<=meta.npages; i++)
-        select.append(
-            $('<option>')
-                .attr('value', i)
-                .text(i)
-        );
+        select.append($('<option>').attr('value', i).text(i));
     select.val(meta.page);
 
-    if (meta.npages <= 2){
+    // finally decide if we should be showing nothing at all
+    if (meta.npages <= 1){
         pages_text = $('<span>').text('');
         pages = $('<ul>').addClass('page-list');
         select = $('<span>');
-    }
-    if (meta.length <= 0){
-        pages_text = $('<span>').text('-');
     }
 
     return $('<span>')
