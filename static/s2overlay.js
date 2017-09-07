@@ -1,5 +1,3 @@
-// https://arxiv.org/abs/1705.10311
-
 var cache = {};
 var metaleft, metaright;
 
@@ -24,7 +22,8 @@ function url_s2_paperId(id) {return URL_S2_API+'paper/'+id+'?'+URL_PARAMS;}
 function url_s2_author(id)  {return URL_S2_API+'author/'+id;}
 
 function get_categories(){
-    // find the entries in the table which look like (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
+    // find the entries in the table which look like
+    // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     var txt = $('.metatable').find('.subjects').text();
     var re = new RegExp(/\(([a-z\-]+)\.[a-zA-Z\-]+\)/g);
 
@@ -106,46 +105,15 @@ function change_page(id, n){
 }
 
 function create_pagination(meta){
-    if (meta.length <= 0)
-        return $('<span>').text('-')
-
-    var langle = '◀'; //'&laquo;';
-    var rangle = '▶'; //'&raquo;';
-    var dots = '...';
-
-    function _nolink(txt, classname){
-        classname = typeof classname !== 'undefined' ? classname : 'disabled';
-        return $('<li>').append(
-            $('<span>').html(txt).addClass(classname)
-        );
-    }
-
-    function _link(n, txt){
-        if (txt === undefined) txt = n;
-        return $('<li>')
-            .addClass('page-num')
-            .append($('<a>')
-                .html(txt)
-                .attr('href', 'javascript:;')
-                .click(function (){ change_page(meta.identifier, n); })
-            );
-    }
-
-    function _pagelink(n, p, active){
-        active = (active === undefined) ? true : active;
-        return !active ? _nolink(dots) : ((n == p) ? _nolink(n, 'bold') : _link(n));
-    }
-
-    var pages_text = $('<span>').text('Pages: ');
-    var pages = $('<ul>').addClass('page-list')
-
     /* This is a bit of a mess, but it basically ensures that the page list
      * looks visually uniform independent of the current page number. We want
      *   - always the same number of elements
      *   - always first / last pages, and prev / next
-     *        < 1 . 4 5 6 . 9 >
-     *        < 1 2 3 4 5 . 9 >
-     *        < 1 . 5 6 7 8 9 >
+     *        < 1̲ 2 3 4 5 . 9 >
+     *        < 1 2 3̲ 4 5 . 9 >
+     *        < 1 2 3 4̲ 5 . 9 >
+     *        < 1 . 4 5̲ 6 . 9 >
+     *        < 1 . 5 6̲ 7 8 9 >
      * This makes the numbers easier to navigate and more visually appealing
     */
     var B = 1;              /* number of buffer pages on each side of current */
@@ -154,30 +122,70 @@ function create_pagination(meta){
     var S = 2*B + 2*2 + 1;  /* number of total links in the pages sections:
                                2*buffer + 2*(first number + dots) + current */
 
-    pages.append((P == 1) ? _nolink(langle) : _link(P-1, langle));
+    if (meta.length <= 0)
+        return $('<span>').text('-')
+
+    var langle = '◀';
+    var rangle = '▶';
+    var dots = '...';
+
+    function _nolink(txt, classname){
+        classname = (classname === undefined) ? 'disabled' : classname;
+        return $('<li>')
+            .append(
+                $('<span>').html(txt).addClass(classname)
+            );
+    }
+
+    function _link(n, txt){
+        txt = (txt === undefined) ? n : txt;
+        return $('<li>')
+            .append($('<a>')
+                .html(txt)
+                .attr('href', 'javascript:;')
+                .click(function (){ change_page(meta.identifier, n); })
+            );
+    }
+
+    function _inclink(dir){
+        /* << >> links, args: direction (-1, +1) */
+        var txt = (dir < 0) ? langle : rangle;
+        return ((P + dir < 1) || (P + dir > L)) ? _nolink(txt) : _link(P + dir, txt);
+    }
+
+    function _pagelink(n, active){
+        /* num links, args: page number, whether to show dots */
+        var active = (active === undefined) ? true : active;
+        return !active ? _nolink(dots) : ((n == P) ? _nolink(n, 'bold') : _link(n));
+    }
+
+    var pages_text = $('<span>').text('Pages: ');
+    var pages = $('<ul>').addClass('page-list')
+
+    pages.append(_inclink(-1));
 
     if (L <= S){
         // just show all numbers if the number of pages is less than the slots
         for (var i=1; i<=L; i++)
-            pages.append(_pagelink(i, P));
+            pages.append(_pagelink(i));
     } else {
         // the first number (1) and dots if list too long
-        pages.append(_pagelink(1, P));
-        pages.append(_pagelink(2, P, P <= 1+2+B));
+        pages.append(_pagelink(1));
+        pages.append(_pagelink(2, P <= 1+2+B));
 
         // limit the beginning and end numbers to be appropriate ranges
         var i0 = min(L-2 - 2*B, max(1+2, P-B));
         var i1 = max(1+2 + 2*B, min(L-2, P+B));
 
         for (var i=i0; i<=i1; i++)
-            pages.append(_pagelink(i, P));
+            pages.append(_pagelink(i));
 
         // the last number (-1) and dots if list too long
-        pages.append(_pagelink(L-1, P, P >= L-2-B));
-        pages.append(_pagelink(L-0, P));
+        pages.append(_pagelink(L-1, P >= L-2-B));
+        pages.append(_pagelink(L-0));
     }
 
-    pages.append((P >= L) ? _nolink(rangle) : _link(P+1, rangle));
+    pages.append(_inclink(+1));
 
     // create the dropdown as well for ease of navigating large lists
     var pager = function(){ change_page(meta.identifier, this.value); };
