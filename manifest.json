@@ -9,5 +9,7 @@
             "css": ["static/style.css"]
 	  	}
 	],
-    "web_accessible_resources": ["static/s2logo.png", "static/s2.png"]
+    "web_accessible_resources": ["static/s2logo.png", "static/s2.png"],
+    "icons": {"48": "static/s2logo-48.png"},
+    "browser_action": {"default_icon": "static/s2logo-48.png"}
 }
