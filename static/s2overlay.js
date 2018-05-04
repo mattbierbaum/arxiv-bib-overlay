@@ -407,6 +407,32 @@ function replace_author_links(authors){
     }
 }
 
+function add_title_link(div, title, url){
+    var title = $('<h2>')
+        .addClass('s2title')
+	    .append(
+            $('<span>').append(
+                $('<a>')
+                    .attr('href', url)
+                    .text(title)
+            )
+        );
+    div.append(title);
+}
+
+function add_author_links(div, authors){
+    var auths = $('<div>').addClass('s2auth');
+
+    for (var i=0; i<authors.length; i++){
+        auths.append(
+            $('<a>')
+                .attr('href', authors[i].url)
+                .text(authors[i].name)
+        );
+    }
+    div.append(auths);
+}
+
 function load_overlay(data){
     metaleft = {
         title: 'References',
@@ -446,15 +472,23 @@ function load_overlay(data){
             )
         );
 
-    var thediv = $('<div>')
-        .insertBefore($('.submission-history'))
+    var header = $('<div>').addClass('s2-col');
+
+    var columns = $('<div>')
         .addClass('s2-col2')
         .append($('<div>').attr('id', metaleft.htmlid))
         .append($('<div>').attr('id', metaright.htmlid));
 
+    var thediv = $('<div>')
+        .insertBefore($('.submission-history'))
+        .append(header)
+        .append(columns);
+
     create_column(metaleft);
     create_column(metaright);
-    replace_author_links(data.authors);
+    //replace_author_links(data.authors);
+    add_title_link(header, data.title, data.url);
+    add_author_links(header, data.authors);
 }
 
 gogogo();

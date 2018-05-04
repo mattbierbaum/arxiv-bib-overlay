@@ -13,9 +13,35 @@
   border-top: 8px solid black;
 }
 
-.authors a {
+/*.authors a {
     color: black;
     text-decoration: none;
+}*/
+
+.s2-col {
+    margin: 20px;
+}
+
+.s2title a {
+    color: black;
+    text-decoration: none;
+}
+
+.s2auth {
+    line-height: 150%;
+}
+
+.s2auth a {
+    color: black;
+    padding-right: 0.3em;
+}
+
+.s2auth a::after {
+    content: ",";
+}
+
+.s2auth a:last-child:after {
+    content: "";
 }
 
 .s2-col2 {
