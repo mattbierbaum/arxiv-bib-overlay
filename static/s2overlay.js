@@ -1,12 +1,16 @@
 var cache = {};
 var metaleft, metaright;
 
+//var DATA_SOURCE = 's2';
+var DATA_SOURCE = 's2';
+
 // number of papers per page
 var PAGE_LENGTH = 10;
 
-var URL_LOGO = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-overlay/static/s2.png';
+var URL_LOGO_S2 = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-overlay/static/s2.png';
 try {
-    URL_LOGO = chrome.extension.getURL('static/s2.png');
+    URL_LOGO_S2 = chrome.extension.getURL('static/s2.png');
+    URL_LOGO_ADS = chrome.extension.getURL('static/ads.png');
 } catch(err) {
     console.log('We are not an extension right now.');
 }
@@ -21,6 +25,128 @@ function url_s2_paper(id)   {return URL_S2_API+'paper/arXiv:'+id+'?'+URL_PARAMS;
 function url_s2_paperId(id) {return URL_S2_API+'paper/'+id+'?'+URL_PARAMS;}
 function url_s2_author(id)  {return URL_S2_API+'author/'+id;}
 
+//============================================================================
+// ADS specific transformations
+//============================================================================
+var ADS_URL = 'https://api.adsabs.harvard.edu/v1/search/query';
+
+var ADS_PARAMS = {
+    'fl': [
+        'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
+        'year', 'doi', 'citation_count', 'read_count'
+    ],
+    'rows': 600
+};
+
+var ADS_QUERY_PAPER = {'q': 'arXiv:1603.04467'};
+var ADS_QUERY_CITATIONS = {'q': 'citations(arXiv:1603.04467)'};
+var ADS_QUERY_REFERENCES = {'q': 'references(arXiv:1603.04467)'};
+
+var adsdata = {};
+
+function encodeQueryData(data) {
+    var ret = [];
+    for (var d in data){
+        key = d;
+        val = data[d];
+
+        if (!Array.isArray(val))
+            val = [val]
+
+        for (var i=0; i<val.length; i++)
+            ret.push(
+                encodeURIComponent(key) + '=' +
+                encodeURIComponent(val[i])
+            );
+    }
+    return ret.join('&');
+}
+
+function ads_done(){
+    url_ui = 'https://ui.adsabs.harvard.edu/#search/';
+    function url_part(field, value){
+        return url_ui + encodeQueryData({'q': field+':"'+value+'"'});
+    }
+
+    function url_author(name){return url_part('author', name);}
+    function url_title(name) {return url_part('title', name);}
+    function url_bibcode(bib){return url_part('bibcode', bib);}
+
+    function reverse_author(name){
+        return name.split(', ').reverse().join(' ');
+    }
+
+    function reformat_authors(auths){
+        var output = []
+        for (var i=0; i<auths.length; i++)
+            output.push({
+                'name': reverse_author(auths[i]),
+                'url': url_author(auths[i])
+            });
+        return output;
+    }
+
+    function reformat_document(doc){
+        return {
+            'title': doc.title[0],
+            'authors': reformat_authors(doc.author),
+            'url': url_bibcode(doc.bibcode),
+            'paperId': doc.bibcode,
+            'year': doc.year,
+            'venue': doc.pub
+        };
+    }
+
+    if ('base' in adsdata && 'citations' in adsdata && 'references' in adsdata){
+        var output = reformat_document(adsdata.base.docs[0]);
+        output.citations = [];
+        output.references = [];
+
+        var papers = adsdata.citations.docs;
+        for (var i=0; i<papers.length; i++){
+            var d = reformat_document(papers[i]);
+            cache[d.url] = d;
+            output.citations.push(d);
+        }
+
+        var papers = adsdata.references.docs;
+        for (var i=0; i<papers.length; i++){
+            var d = reformat_document(papers[i]);
+            cache[d.url] = d;
+            output.references.push(d);
+        }
+
+        console.log(output);
+        load_overlay(output);
+    }
+}
+
+function ads_get_data(){
+    function ads_data(query, obj){
+        ADS_PARAMS['q'] = query;
+    
+        $.ajax({
+            type: 'GET',
+            url: ADS_URL+'?'+encodeQueryData(ADS_PARAMS),
+            beforeSend: function(xhr){
+                xhr.setRequestHeader('Authorization', ADS_KEY);
+            },
+            success: function(data){
+                adsdata[obj] = data.response;
+                ads_done();
+            }
+        });
+    }
+
+    var aid = get_current_article();
+    ads_data('arXiv:'+aid, 'base');
+    ads_data('citations(arXiv:'+aid+')', 'citations');
+    ads_data('references(arXiv:'+aid+')', 'references');
+}
+
+//============================================================================
+// origin S2 functionality
+//============================================================================
 function get_categories(){
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
@@ -74,14 +200,17 @@ function load_data(url, callback, failmsg){
      });
 }
 
+function s2_get_data(){
+    articleid = get_current_article();
+    load_data(
+        url_s2_paper(articleid), load_overlay,
+        'S2 API -- article could not be found.'
+    );
+}
+
 function gogogo(){
     if (is_overlay_loaded()){
         console.log("Overlay has already been loaded once, skipping.");
-        return;
-    }
-
-    if (!get_categories().has('cs')){
-        console.log("Category does not match 'cs'.");
         return;
     }
 
@@ -92,10 +221,8 @@ function gogogo(){
         return;
     }
 
-    load_data(
-        url_s2_paper(articleid), load_overlay,
-        'S2 API -- article could not be found.'
-    );
+    if (DATA_SOURCE == 's2')  s2_get_data();
+    if (DATA_SOURCE == 'ads') ads_get_data();
 }
 
 function change_page(id, n){
@@ -208,10 +335,10 @@ function create_pagination(meta){
         .append(select);
 }
 
-function change_sort(id, sortfield, sortorder){
+function change_sort(id, field, order){
     var meta = (id == metaleft.identifier) ? metaleft : metaright;
-    meta.sort_field = sortfield;
-    meta.sort_order = sortorder;
+    meta.sort_field = field;
+    meta.sort_order = order;
     return create_column(meta);
 }
 
@@ -225,13 +352,22 @@ function create_sorter(meta){
         change_sort(meta.identifier, meta.sort_field, order);
     };
 
-    var sort_field = $('<select>')
+    var sort_field_s2 = $('<select>')
         .attr('id', 'sort_field')
         .append($('<option>').attr('value', 'influence').text('Influence'))
         .append($('<option>').attr('value', 'title').text('Title'))
         .append($('<option>').attr('value', 'year').text('Year'))
         .on('change', sort_field_changer)
         .val(meta.sort_field);
+    var sort_field_ads = $('<select>')
+        .attr('id', 'sort_field')
+        .append($('<option>').attr('value', 'citations').text('Citations'))
+        .append($('<option>').attr('value', 'popularity').text('Popularity'))
+        .append($('<option>').attr('value', 'title').text('Title'))
+        .append($('<option>').attr('value', 'year').text('Year'))
+        .on('change', sort_field_changer)
+        .val(meta.sort_field);
+    var sort_field = (DATA_SOURCE == 's2') ? sort_field_s2 : sort_field_ads;
 
     var up = meta.sort_order == 'up';
     var sort_order = $('<span>')
@@ -272,7 +408,7 @@ function create_utilities(meta){
 }
 
 /* ------------------------------------------------------------------------- */
-function sortfield(refs, sortfield, sortorder){
+function sortfield(refs, field, order){
     var influential_to_top = function(references){
         var newlist = [];
 
@@ -294,7 +430,7 @@ function sortfield(refs, sortfield, sortorder){
         });
     }
 
-    var sort_funcs = {
+    var sort_funcs_s2 = {
         'influence': function (d) {return influential_to_top(d).reverse();},
         'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
         'author': function (d) {return sorter(d, function(i){return i.authors[0].name || '';});},
@@ -302,8 +438,18 @@ function sortfield(refs, sortfield, sortorder){
         'citations': function (d) {return sorter(d, function(i){return i.citations.length;});}
     }
 
-    output = sort_funcs[sortfield](refs);
-    if (sortorder == 'up')
+    var sort_funcs_ads = {
+        'citations': function (d) {return sorter(d, function(i){return i.citation_count;});},
+        'popularity': function (d) {return sorter(d, function(i){return i.read_count;});},
+        'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
+        'author': function (d) {return sorter(d, function(i){return i.authors[0].name || '';});},
+        'year': function (d) {return sorter(d, function(i){return i.year;});}
+    }
+
+    sort_funcs = (DATA_SOURCE == 'ads') ? sort_funcs_ads : sort_funcs_s2;
+
+    output = sort_funcs[field](refs);
+    if (order == 'up')
         return output.reverse();
     return output;
 }
@@ -331,8 +477,7 @@ function paper_line(ref){
         );
 
     if (known) {
-        var url = url_s2_paperId(ref.paperId);
-        load_data(url,
+        load_data(ref.url,
             function(data) {
                 var len = data.authors.length;
                 var elem = $('<div>').addClass('s2-authors');
@@ -433,6 +578,17 @@ function add_author_links(div, authors){
     div.append(auths);
 }
 
+function toggle_data_source(source){
+    if (DATA_SOURCE == source)
+        return;
+
+    DATA_SOURCE = source;
+    $('.overlay').remove();
+
+    if (DATA_SOURCE == 's2')  s2_get_data();
+    if (DATA_SOURCE == 'ads') ads_get_data();
+}
+
 function load_overlay(data){
     metaleft = {
         title: 'References',
@@ -461,13 +617,29 @@ function load_overlay(data){
         sort_order: 'up'
     };
 
+    var BS2 = (DATA_SOURCE == 's2');
+    var BADS = (DATA_SOURCE == 'ads');
+
 	var brand = $('<h1>')
-        .insertBefore($('.submission-history'))
 		.addClass('s2 lined')
 	    .append(
-            $('<span>').append(
-                $('<a>').attr('href', 'https://semanticscholar.org').append(
-                    $('<img>').attr('src', URL_LOGO)
+            $('<span>')
+            .append(
+                $('<a>')
+                .on('click', function(){if (BADS) toggle_data_source('s2');})
+                .append(
+                    $('<img>')
+                        .attr('src', URL_LOGO_S2)
+                        .addClass(BS2 ? 's2-selected' : 's2-unselected')
+                )
+            )
+            .append(
+                $('<a>')
+                .on('click', function(){if (BS2) toggle_data_source('ads');})
+                .append(
+                    $('<img>')
+                        .attr('src', URL_LOGO_ADS)
+                        .addClass(BADS ? 's2-selected' : 's2-unselected')
                 )
             )
         );
@@ -480,7 +652,9 @@ function load_overlay(data){
         .append($('<div>').attr('id', metaright.htmlid));
 
     var thediv = $('<div>')
+        .addClass('overlay')
         .insertBefore($('.submission-history'))
+        .append(brand)
         .append(header)
         .append(columns);
 

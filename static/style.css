@@ -244,4 +244,22 @@ h1.lined span {
     padding: 0 15px;
 }
 
+.s2-selected {
+    border: 2px solid #d8d8d8;
+    border-radius: 20px;
+}
 
+.s2-selected:hover {
+    border: 2px solid #d8d8d8;
+    border-radius: 20px;
+}
+
+.s2-unselected {
+    border: 2px solid white;
+    border-radius: 20px;
+}
+
+.s2-unselected:hover {
+    border: 2px solid black;
+    border-radius: 20px;
+}

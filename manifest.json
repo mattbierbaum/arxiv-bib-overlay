@@ -14,6 +14,6 @@
             "css": ["static/style.css"]
         }
     ],
-    "permissions": ["https://api.semanticscholar.org/*"],
-    "web_accessible_resources": ["static/s2.png"]
+    "permissions": ["https://api.semanticscholar.org/*", "https://api.adsabs.harvard.edu/*"],
+    "web_accessible_resources": ["static/s2.png", "static/ads.png"]
 }
