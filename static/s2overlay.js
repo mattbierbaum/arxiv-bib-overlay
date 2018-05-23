@@ -1,8 +1,9 @@
 var cache = {};
+var gdata = {};
 var metaleft, metaright;
 
 //var DATA_SOURCE = 's2';
-var DATA_SOURCE = 's2';
+var DATA_SOURCE = 'ads';
 
 // number of papers per page
 var PAGE_LENGTH = 10;
@@ -43,6 +44,7 @@ var ADS_QUERY_CITATIONS = {'q': 'citations(arXiv:1603.04467)'};
 var ADS_QUERY_REFERENCES = {'q': 'references(arXiv:1603.04467)'};
 
 var adsdata = {};
+var adsdatavote = {};
 
 function encodeQueryData(data) {
     var ret = [];
@@ -63,14 +65,14 @@ function encodeQueryData(data) {
 }
 
 function ads_done(){
-    url_ui = 'https://ui.adsabs.harvard.edu/#search/';
-    function url_part(field, value){
-        return url_ui + encodeQueryData({'q': field+':"'+value+'"'});
+    ads_url_ui = 'https://ui.adsabs.harvard.edu/#search/';
+    function ads_url_part(field, value){
+        return ads_url_ui + encodeQueryData({'q': field+':"'+value+'"'});
     }
 
-    function url_author(name){return url_part('author', name);}
-    function url_title(name) {return url_part('title', name);}
-    function url_bibcode(bib){return url_part('bibcode', bib);}
+    function ads_url_author(name){return ads_url_part('author', name);}
+    function ads_url_title(name) {return ads_url_part('title', name);}
+    function ads_url_bibcode(bib){return ads_url_part('bibcode', bib);}
 
     function reverse_author(name){
         return name.split(', ').reverse().join(' ');
@@ -81,7 +83,7 @@ function ads_done(){
         for (var i=0; i<auths.length; i++)
             output.push({
                 'name': reverse_author(auths[i]),
-                'url': url_author(auths[i])
+                'url': ads_url_author(auths[i])
             });
         return output;
     }
@@ -90,14 +92,19 @@ function ads_done(){
         return {
             'title': doc.title[0],
             'authors': reformat_authors(doc.author),
-            'url': url_bibcode(doc.bibcode),
+            'api': ads_url_bibcode(doc.bibcode),
+            'url': ads_url_bibcode(doc.bibcode),
             'paperId': doc.bibcode,
             'year': doc.year,
-            'venue': doc.pub
+            'venue': doc.pub,
+            'citation_count': doc.citation_count,
+            'read_count': doc.read_count
         };
     }
 
-    if ('base' in adsdata && 'citations' in adsdata && 'references' in adsdata){
+    if ('base' in adsdatavote &&
+        'citations' in adsdatavote &&
+        'references' in adsdatavote){
         var output = reformat_document(adsdata.base.docs[0]);
         output.citations = [];
         output.references = [];
@@ -116,7 +123,7 @@ function ads_done(){
             output.references.push(d);
         }
 
-        console.log(output);
+        gdata = output;
         load_overlay(output);
     }
 }
@@ -124,6 +131,12 @@ function ads_done(){
 function ads_get_data(){
     function ads_data(query, obj){
         ADS_PARAMS['q'] = query;
+
+        if (obj in adsdata){
+           adsdatavote[obj] = 1; 
+           ads_done();
+           return;
+        }
     
         $.ajax({
             type: 'GET',
@@ -133,11 +146,13 @@ function ads_get_data(){
             },
             success: function(data){
                 adsdata[obj] = data.response;
+                adsdatavote[obj] = 1;
                 ads_done();
             }
         });
     }
 
+    adsdatavote = {}
     var aid = get_current_article();
     ads_data('arXiv:'+aid, 'base');
     ads_data('citations(arXiv:'+aid+')', 'citations');
@@ -180,18 +195,28 @@ function get_current_article(){
     return match.filter(function(x){return x;}).pop();
 }
 
-function is_overlay_loaded(){
-    if (typeof _s2overlayed !== 'undefined')
-        return true;
-    _s2overlayed = true;
-    return false;
+function s2_transform_result(data){
+    function add_api_url(d){
+        if ('paperId' in d)
+            d['api'] = url_s2_paperId(d['paperId']);
+    }
+
+    add_api_url(data);
+
+    for (var ind in data.citations)
+        add_api_url(data.citations[ind]);
+    for (var ind in data.references)
+        add_api_url(data.references[ind]);
+
+    return data;
 }
 
-function load_data(url, callback, failmsg){
+function s2_load_paper(url, callback, failmsg){
     if (url in cache)
         return callback(cache[url]);
 
     $.get(url, function(data){
+        data = s2_transform_result(data);
         cache[url] = data;
         callback(data);
      })
@@ -202,25 +227,31 @@ function load_data(url, callback, failmsg){
 
 function s2_get_data(){
     articleid = get_current_article();
-    load_data(
-        url_s2_paper(articleid), load_overlay,
-        'S2 API -- article could not be found.'
-    );
+    url = url_s2_paper(articleid);
+
+    if (url in cache)
+        return load_overlay(cache[url]);
+
+    $.get(url, function(data){
+        data = s2_transform_result(data);
+        cache[url] = data;
+        load_overlay(data);
+     });
 }
 
-function gogogo(){
-    if (is_overlay_loaded()){
-        console.log("Overlay has already been loaded once, skipping.");
-        return;
-    }
+//============================================================================
+// both at once now
+//============================================================================
+function gogogo(source){
+    DATA_SOURCE = source;
 
     var articleid = get_current_article();
-
     if (!articleid || articleid.length <= 5){
         console.log("No valid article ID extracted from the browser location.");
         return;
     }
 
+    $('.overlay').remove();
     if (DATA_SOURCE == 's2')  s2_get_data();
     if (DATA_SOURCE == 'ads') ads_get_data();
 }
@@ -362,7 +393,7 @@ function create_sorter(meta){
     var sort_field_ads = $('<select>')
         .attr('id', 'sort_field')
         .append($('<option>').attr('value', 'citations').text('Citations'))
-        .append($('<option>').attr('value', 'popularity').text('Popularity'))
+        .append($('<option>').attr('value', 'influence').text('Popularity'))
         .append($('<option>').attr('value', 'title').text('Title'))
         .append($('<option>').attr('value', 'year').text('Year'))
         .on('change', sort_field_changer)
@@ -409,48 +440,33 @@ function create_utilities(meta){
 
 /* ------------------------------------------------------------------------- */
 function sortfield(refs, field, order){
-    var influential_to_top = function(references){
-        var newlist = [];
-
-        for (var i=0; i<references.length; i++){
-            if (references[i].isInfluential)
-                newlist.push(references[i]);
-        }
-        for (var i=0; i<references.length; i++){
-            if (!references[i].isInfluential)
-                newlist.push(references[i]);
-        }
-
-        return newlist;
-    }
-
-    var sorter = function(arr, field){
+    var sorter = function(arr, field, ord){
+        sign = (ord == 'up') ? 1 : -1;
         return arr.sort(function (a,b) {
-            return (field(a) > field(b)) ? -1 : ((field(a) < field(b)) ? 1 : 0);
+            if (field(a) > field(b)) return -1*sign;
+            if (field(a) < field(b)) return +1*sign;
+            if (a.title  > b.title)  return +1;
+            if (a.title  < b.title)  return -1;
+            return 0;
         });
     }
 
     var sort_funcs_s2 = {
-        'influence': function (d) {return influential_to_top(d).reverse();},
-        'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
-        'author': function (d) {return sorter(d, function(i){return i.authors[0].name || '';});},
-        'year': function (d) {return sorter(d, function(i){return i.year;});},
-        'citations': function (d) {return sorter(d, function(i){return i.citations.length;});}
+        'influence': function(i){return i.isInfluential;},
+        'title': function(i){return i.title.toLowerCase();},
+        'year': function(i){return i.year;},
     }
 
     var sort_funcs_ads = {
-        'citations': function (d) {return sorter(d, function(i){return i.citation_count;});},
-        'popularity': function (d) {return sorter(d, function(i){return i.read_count;});},
-        'title': function (d) {return sorter(d, function(i){return i.title.toLowerCase();});},
-        'author': function (d) {return sorter(d, function(i){return i.authors[0].name || '';});},
-        'year': function (d) {return sorter(d, function(i){return i.year;});}
+        'citations': function(i){return i.citation_count;},
+        'influence': function(i){return i.read_count;},
+        'title': function(i){return i.title.toLowerCase();},
+        'author': function(i){return i.authors[0].name || '';},
+        'year': function(i){return i.year;}
     }
 
     sort_funcs = (DATA_SOURCE == 'ads') ? sort_funcs_ads : sort_funcs_s2;
-
-    output = sort_funcs[field](refs);
-    if (order == 'up')
-        return output.reverse();
+    output = sorter(refs, sort_funcs[field], order);
     return output;
 }
 
@@ -477,7 +493,7 @@ function paper_line(ref){
         );
 
     if (known) {
-        load_data(ref.url,
+        s2_load_paper(ref.api,
             function(data) {
                 var len = data.authors.length;
                 var elem = $('<div>').addClass('s2-authors');
@@ -578,17 +594,6 @@ function add_author_links(div, authors){
     div.append(auths);
 }
 
-function toggle_data_source(source){
-    if (DATA_SOURCE == source)
-        return;
-
-    DATA_SOURCE = source;
-    $('.overlay').remove();
-
-    if (DATA_SOURCE == 's2')  s2_get_data();
-    if (DATA_SOURCE == 'ads') ads_get_data();
-}
-
 function load_overlay(data){
     metaleft = {
         title: 'References',
@@ -600,7 +605,7 @@ function load_overlay(data){
         page: 1,
         data: data,
         length: data.references.length,
-        sort_field: 'influence',
+        sort_field: (DATA_SOURCE == 's2') ? 'influence' : 'citations',
         sort_order: 'up'
     };
     metaright = {
@@ -613,7 +618,7 @@ function load_overlay(data){
         page: 1,
         data: data,
         length: data.citations.length,
-        sort_field: 'influence',
+        sort_field: (DATA_SOURCE == 's2') ? 'influence' : 'citations',
         sort_order: 'up'
     };
 
@@ -626,7 +631,7 @@ function load_overlay(data){
             $('<span>')
             .append(
                 $('<a>')
-                .on('click', function(){if (BADS) toggle_data_source('s2');})
+                .on('click', function(){if (BADS) gogogo('s2');})
                 .append(
                     $('<img>')
                         .attr('src', URL_LOGO_S2)
@@ -635,7 +640,7 @@ function load_overlay(data){
             )
             .append(
                 $('<a>')
-                .on('click', function(){if (BS2) toggle_data_source('ads');})
+                .on('click', function(){if (BS2) gogogo('ads');})
                 .append(
                     $('<img>')
                         .attr('src', URL_LOGO_ADS)
@@ -665,4 +670,4 @@ function load_overlay(data){
     add_author_links(header, data.authors);
 }
 
-gogogo();
+gogogo(DATA_SOURCE);
