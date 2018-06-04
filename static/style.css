@@ -270,3 +270,12 @@ h1.lined span {
     font-size: 90%;
     border-bottom: medium solid #ddd;
 }
+
+.s2-sidebar-badge {
+    padding: 0.5em 0 0 0;
+}
+
+.s2-sidebar-authors {
+    margin: 0 1em 0 2em;
+    padding: 0 0 0.5em 0;
+}

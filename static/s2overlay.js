@@ -2,8 +2,7 @@ var cache = {};
 var gdata = {};
 var metaleft, metaright;
 
-//var DATA_SOURCE = 's2';
-var DATA_SOURCE = 'ads';
+var DATA_SOURCE = '';
 
 // number of papers per page
 var PAGE_LENGTH = 10;
@@ -247,7 +246,7 @@ function s2_get_data(){
 // both at once now
 //============================================================================
 function gogogo(source){
-    DATA_SOURCE = source;
+    DATA_SOURCE = get_categories().has('cs') ? 's2' : 'ads';
 
     var articleid = get_current_article();
     if (!articleid || articleid.length <= 5){
@@ -562,154 +561,42 @@ function create_column(meta){
     return column;
 }
 
-function add_author_links(div, authors){
-    var auths = $('<div>').addClass('s2auth');
+function create_sidebar(data){
+    var src = (DATA_SOURCE == 's2') ? URL_LOGO_S2 : URL_LOGO_ADS;
 
-    for (var i=0; i<authors.length; i++){
-        auths.append(
-            $('<a>')
-                .attr('href', authors[i].url)
-                .text(authors[i].name)
-        );
-    }
-    div.append(auths);
-}
-
-function replace_author_links(authors){
-    var auths = $('div.authors a');
-
-    for (var i=0; i<auths.length; i++){
-        $(auths[i])
-            .attr('href', authors[i].url)
-            .text(authors[i].name);
-    }
-}
-
-function replace_title_link(url){
-    var title = $('.title');
-
-    var newtitle = $('<h1>')
-        .addClass('title')
-        .addClass('mathjax')
-        .append(
-            $('<a>')
-            .text(title.text())
-            .attr('href', url)
-            .css('color', 'black')
-        )
-
-    title.replaceWith(newtitle);
-}
-
-function add_author_links_icon(authors){
-    var auths = $('div.authors a');
-    var height = $('div.authors a').height();
-    var icon = (DATA_SOURCE == 's2') ? URL_ICON_S2 : URL_ICON_ADS;
-
-    for (var i=0; i<auths.length; i++){
-        $('<a>')
-            .addClass('delete')
-            .attr('href', authors[i].url)
-            .text('')
-            .append(
-                $('<img>')
-                    .attr('src', icon)
-                    .attr('height', height)
-                    .attr('width', 'auto')
-            )
-            .insertAfter(auths[i]);
-    }
-}
-
-function add_title_link(div, title, url){
-    var title = $('<h2>')
-        .addClass('s2title')
-	    .append(
-            $('<span>').append(
-                $('<a>')
-                    .attr('href', url)
-                    .text(title)
-            )
-        );
-    div.append(title);
-}
-
-function add_title_link_icon(url){
-    var title = $('.title');
-    var icon = (DATA_SOURCE == 's2') ? URL_ICON_S2 : URL_ICON_ADS;
-
-    title.css('display', 'inline-block');
-
-    $('<a>')
-        .addClass('delete')
-        .attr('href', url)
+    var badge = $('<a>')
         .text('')
-        .append(
-            $('<img>')
-                .attr('src', icon)
-                .attr('height', title.height())
-                .attr('width', 'auto')
+        .attr('href', data.url)
+        .append($('<img>')
+            .addClass('s2-sidebar-badge')
+            .css('height', '38')
+            .css('width', 'auto')
+            .attr('src', src)
+        );
+
+    var authorlist = $('<ul>').addClass('s2-sidebar-authors');
+
+    for (var i=0; i<min(data.authors.length, 10); i++){
+        authorlist.append(
+            $('<li>').append(
+                $('<a>')
+                .attr('href', data.authors[i].url)
+                .text(data.authors[i].name)
+            )
         )
-        .insertAfter(title)
-}
+    }
 
-function branding_fold(){
-    var BS2 = (DATA_SOURCE == 's2');
-    var BADS = (DATA_SOURCE == 'ads');
-
-    var badge_s2 = $('<a>')
-        .on('click', function(){if (BADS) gogogo('s2');})
-        .append(
-            $('<img>')
-                .attr('src', URL_LOGO_S2)
-                .addClass(BS2 ? 's2-selected' : 's2-unselected')
-        );
-
-     var badge_ads = $('<a>')
-        .on('click', function(){if (BS2) gogogo('ads');})
-        .append(
-            $('<img>')
-                .attr('src', URL_LOGO_ADS)
-                .addClass(BADS ? 's2-selected' : 's2-unselected')
-        );
-
-    var badge_none = $('<a>');
-
-	var brand = $('<h1>')
-		.addClass('s2 lined')
-	    .append(
-            $('<span>')
-            .append(get_categories().has('cs') ? badge_s2 : badge_none)
-            .append(badge_ads)
-        );
-
-    return brand;
-}
-
-function create_sidebar(elm, data){
-    var badge_s2 = $('<img>')
-        .attr('src', URL_LOGO_S2)
-        .css('height', '17')
-        .css('width', 'auto');
-
-     var badge_ads = $('<img>')
-        .attr('src', URL_LOGO_ADS)
-        .css('height', '17')
-        .css('width', 'auto');
-
-    var badge = (DATA_SOURCE == 's2') ? badge_s2 : badge_ads;
-
-    if (get_categories().has('cs'))
-        list.append($('<li>').append(badge_s2));
-    list.append($('<li>').append(badge_ads));
+    if (data.authors.length > 10)
+        authorlist.append($('<li>').append(
+            $('<a>').text('...').attr('href', data.url)
+        ));
 
     $('<div>')
         .addClass('delete')
-        .addClass('browse')
-        .append($('<h3>').text("External overlay"))
-        .append(list)
+        .addClass('s2-sidebar')
+        .append(badge)
+        .append(authorlist)
         .insertBefore($('.bookmarks'));
-
 }
 
 function load_overlay(data){
@@ -742,6 +629,13 @@ function load_overlay(data){
 
     var header = $('<div>').addClass('s2-col');
 
+    var src = (DATA_SOURCE == 's2') ? URL_LOGO_S2 : URL_LOGO_ADS;
+    var brand = $('<h1>')
+        .addClass('s2 lined')
+        .append(
+            $('<span>').append($('<img>').attr('src', src))
+        );
+
     var columns = $('<div>')
         .addClass('s2-col2')
         .append($('<div>').attr('id', metaleft.htmlid))
@@ -750,25 +644,18 @@ function load_overlay(data){
     var thediv = $('<div>')
         .addClass('delete')
         .insertBefore($('.submission-history'))
-        .append(branding_fold())
+        .append(brand)
         .append(header)
         .append(columns);
 
-    /*var sidebar = $('<div>')
+    var sidebar = $('<div>')
         .addClass('delete')
         .addClass('s2-sidebar')
-        .insertBefore($('.bookmarks'));*/
+        .insertBefore($('.bookmarks'));
 
     create_column(metaleft);
     create_column(metaright);
-    //create_sidebar(sidebar, data);
-    replace_title_link(data.url);
-    //replace_author_links(data.authors);
-    //add_title_link(header, data.title, data.url);
-    //add_author_links(header, data.authors);
-    //add_title_link_icon(data.url);
-    add_author_links_icon(data.authors);
-    //branding_sidebar();
+    create_sidebar(data);
 }
 
-gogogo(DATA_SOURCE);
+gogogo();
