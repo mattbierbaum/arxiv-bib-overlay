@@ -262,4 +262,11 @@ h1.lined span {
 .s2-unselected:hover {
     border: 2px solid black;
     border-radius: 20px;
+    cursor: pointer;
+}
+
+.s2-sidebar {
+    padding: 0 1em 0 1em;
+    font-size: 90%;
+    border-bottom: medium solid #ddd;
 }
