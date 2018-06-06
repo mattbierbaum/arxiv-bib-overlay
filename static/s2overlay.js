@@ -82,6 +82,14 @@ function encodeQueryData(data) {
     return ret.join('&');
 }
 
+var RE_IDENTIFIER = new RegExp(
+    '(?:'+                                           // begin OR group
+      '(?:arXiv:)?(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
+        '|'+                                             // OR
+      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
+    ')'                                              // end OR group
+);
+
 
 //============================================================================
 // ADS specific transformations
@@ -97,12 +105,13 @@ ADSData.prototype = {
     url_logo: asset_url('static/ads.png'),
     url_icon: asset_url('static/icon-ads.png'),
 
+    homepage: 'https://ui.adsabs.harvard.edu',
     api_url: 'https://api.adsabs.harvard.edu/v1/search/query',
     api_key: '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x',
     api_params: {
         'fl': [
             'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
-            'year', 'doi', 'citation_count', 'read_count'
+            'year', 'doi', 'citation_count', 'read_count', 'identifier'
         ],
         'rows': 1000
     },
@@ -113,7 +122,22 @@ ADSData.prototype = {
     },
     ads_url_author: function(name){return this.ads_url_part('author', name);},
     ads_url_title: function(name) {return this.ads_url_part('title', name);},
-    ads_url_bibcode: function(bib){return this.ads_url_part('bibcode', bib);},
+    ads_url_bibcode_search: function(bib){return this.ads_url_part('bibcode', bib);},
+    ads_url_bibcode: function(bib){
+        var url0 = 'https://ui.adsabs.harvard.edu/#abs/';
+        var url1 = '/abstract';
+        return url0 + bib + url1;
+    },
+    ads_url_arxiv: function(identifiers){
+        if (!identifiers) return;
+
+        for (var i=0; i<identifiers.length; i++){
+            var match = RE_IDENTIFIER.exec(identifiers[i]);
+            if (match) return match[1] || match[2];
+        }
+        return;
+    },
+
 
     reverse_author: function(name){
         return name.split(', ').reverse().join(' ');
@@ -135,33 +159,32 @@ ADSData.prototype = {
             'authors': this.reformat_authors(doc.author),
             'api': this.ads_url_bibcode(doc.bibcode),
             'url': this.ads_url_bibcode(doc.bibcode),
+            'arxiv_url': this.ads_url_arxiv(doc.identifier),
             'paperId': doc.bibcode,
             'year': doc.year,
             'venue': doc.pub,
+            'doi': doc.doi || '',
+            'identifier': doc.identifier || '',
             'citation_count': doc.citation_count,
             'read_count': doc.read_count
         };
     },
 
+    reformat_documents: function(docs){
+        var output = [];
+        for (var i=0; i<docs.length; i++){
+            var d = this.reformat_document(docs[i]);
+            this.cache[d.url] = d;
+            output.push(d);
+        }
+        return output;
+    },
+
     load_data_callback: function(callback) {
         if ('base' in this.rawdata && 'citations' in this.rawdata && 'references' in this.rawdata){
             var output = this.reformat_document(this.rawdata.base.docs[0]);
-            output.citations = [];
-            output.references = [];
-
-            var papers = this.rawdata.citations.docs;
-            for (var i=0; i<papers.length; i++){
-                var d = this.reformat_document(papers[i]);
-                output.citations.push(d);
-                this.cache[d.url] = d;
-            }
-
-            var papers = this.rawdata.references.docs;
-            for (var i=0; i<papers.length; i++){
-                var d = this.reformat_document(papers[i]);
-                output.references.push(d);
-                this.cache[d.url] = d;
-            }
+            output.citations = this.reformat_documents(this.rawdata.citations.docs);
+            output.references = this.reformat_documents(this.rawdata.references.docs);
 
             output.citations.header = 'Citations';
             output.references.header = 'References';
@@ -250,13 +273,31 @@ S2Data.prototype = {
             data['api'] = this.url_paperId(data['paperId']);
     },
 
-    transform_result: function(data){
+    add_arxiv_url: function(data){
+        if (data.venue == 'ArXiv'){
+            var url = 'https://arxiv.org/search/?';
+            var param = {
+                'query': '"'+data.title+'"',
+                'searchtype': 'title'
+            };
+            data['arxiv_url'] = url + encodeQueryData(param);
+        }
+        else
+            data['arxiv_url'] = '';
+    },
+
+    reformat_document: function(data){
         this.add_api_url(data);
+        this.add_arxiv_url(data);
+    },
+
+    transform_result: function(data){
+        this.reformat_document(data);
 
         for (var ind in data.citations)
-            this.add_api_url(data.citations[ind]);
+            this.reformat_document(data.citations[ind]);
         for (var ind in data.references)
-            this.add_api_url(data.references[ind]);
+            this.reformat_document(data.references[ind]);
 
         data.citations.header = 'Citations';
         data.references.header = 'References';
@@ -516,6 +557,26 @@ ColumnView.prototype = {
             return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
         }
 
+        function outbound_links(ref){
+            if (ref.arxiv_url || ref.doi){
+                var urls = $('<div>').addClass('s2-outbound');
+
+                if (ref.arxiv_url)
+                    urls.append($('<a>')
+                        .text('↳ arXiv.org')
+                        .attr('href', ref.arxiv_url)
+                    );
+
+                if (ref.doi)
+                    urls.append($('<a>')
+                        .text('↳ DOI.org')
+                        .attr('href', 'https://doi.org/'+ref.doi)
+                    );
+
+                return urls;
+            }
+        }
+
         var known = (ref.paperId.length > 1);
         var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
 
@@ -550,6 +611,7 @@ ColumnView.prototype = {
                         elem.append($('<a>').text('...').attr('href', data.url));
 
                     paper.append(elem);
+                    paper.append(outbound_links(data));
                 },
                 'Could not find paper "'+ref.title+'" via S2 API'
             );
@@ -618,16 +680,25 @@ Overlay.prototype = {
     id_citations: 'col-citations',
 
     create_sidebar: function(ds){
-        var src = ds.url_logo;
+        var src = ds.url_icon;
 
-        var badge = $('<a>')
-            .text('')
-            .attr('href', ds.data.url)
-            .append($('<img>')
-                .addClass('s2-sidebar-badge')
-                .css('height', '38')
-                .css('width', 'auto')
-                .attr('src', src)
+        var badge = $('<span>')
+            .append(
+                $('<a>')
+                .text('')
+                .attr('href', ds.homepage)
+                .append($('<img>')
+                    .addClass('s2-sidebar-badge')
+                    .css('height', '38')
+                    .css('width', 'auto')
+                    .attr('src', src)
+                )
+            )
+            .append(
+                $('<a>')
+                    .addClass('s2-sidebar-title')
+                    .text(ds.data.title.substring(0, 20) + '...')
+                    .attr('href', ds.data.url)
             );
 
         var authorlist = $('<ul>').addClass('s2-sidebar-authors');
@@ -660,7 +731,11 @@ Overlay.prototype = {
 
         var brand = $('<h1>')
             .addClass('s2 lined')
-            .append($('<span>').append($('<img>').attr('src', ds.url_logo)));
+            .append($('<span>').append(
+                $('<a>').text('').attr('href', ds.homepage).append(
+                    $('<img>').attr('src', ds.url_logo)
+                )
+            ));
 
         var columns = $('<div>')
             .addClass('s2-col2')
