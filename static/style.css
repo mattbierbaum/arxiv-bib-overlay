@@ -172,9 +172,8 @@
 }
 
 .s2-outbound a {
-    font-size: 0.9em;
-    color: red;
     font-weight: bold;
+    font-size: 1.0em;
     text-decoration: underline;
     margin-right: 0.5em;
 }
@@ -187,17 +186,37 @@
     padding: 0;
 }
 
-.s2-outbound .arXiv {
+.s2-outbound .arxiv {
     color: #b31b1b;
 }
 
-.s2-outbound .DOI {
+/*.s2-outbound .DOI {
     color: #fcb328;
+    text-shadow:
+        -0.5px -0.5px 0 #444,  
+        0.5px -0.5px 0 #444,
+        -0.5px 0.5px 0 #444,
+        0.5px 0.5px 0 #444;
+}*/
+.s2-outbound .doi {
+    /*color: rgb(158, 111, 22);*/
+    color: #fcb328;
+}
+
+.s2-outbound .ads {
+    color: #2e78e1;
+}
+
+/*.s2-outbound .S2 {
+    color: #fcce4a;
     text-shadow:
         -1px -1px 0 #000,  
         1px -1px 0 #000,
         -1px 1px 0 #000,
         1px 1px 0 #000;
+}*/
+.s2-outbound .s2 {
+    color: #286a8e;
 }
 
 .s2-lbl {

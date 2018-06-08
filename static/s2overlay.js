@@ -105,6 +105,7 @@ ADSData.prototype = {
     url_logo: asset_url('static/ads.png'),
     url_icon: asset_url('static/icon-ads.png'),
 
+    shortname: 'ADS',
     homepage: 'https://ui.adsabs.harvard.edu',
     api_url: 'https://api.adsabs.harvard.edu/v1/search/query',
     api_key: '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x',
@@ -264,6 +265,7 @@ S2Data.prototype = {
     url_logo: asset_url('static/s2.png'),
     url_icon: asset_url('static/icon-s2.png'),
 
+    shortname: 'S2',
     homepage: 'https://semanticscholar.org',
     api_url: 'https://api.semanticscholar.org/v1/',
     api_params: 'include_unknown_references=true',
@@ -561,32 +563,76 @@ ColumnView.prototype = {
             return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
         }
 
-        function outbound_link(name, link){
+        var make_link = {
+            'ads': function(ref){return ref.url;},
+            's2': function(ref){return ref.url;},
+            'arxiv': function(ref){return ref.arxiv_url;},
+            'doi': function(ref){return 'https://doi.org/'+ref.doi;},
+            'scholar': function(ref){
+                return 'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title});
+            },
+        };
+
+        var make_text = {
+            'ads': function(){return $('<span>').text('ADS').addClass('ads');},
+            's2': function(){return $('<span>').text('S2').addClass('s2');},
+            'arxiv': function(){return $('<span>').text('arXiv').addClass('arxiv');},
+            'doi': function(){return $('<span>').text('DOI').addClass('doi');},
+            'scholar': function(){
+                var colors = [
+                    '#4484f4', // b
+                    '#e94637', // r
+                    '#fbbb00', // y
+                    '#4484f4', // b
+                    '#38a654', // g
+                    '#e94637', // r
+                    '#fbbb00', // y
+                ];
+                var chars = 'scholar'.split('');
+                var out = $('<span>');
+
+                for (var i=0; i<chars.length; i++){
+                    out.append(
+                        $('<span>')
+                            .css('color', colors[i])
+                            .text(chars[i])
+                    );
+                }
+                return out;
+            },
+        };
+
+        function outbound_link(ref, style, newtab=true){
             var arrow = $('<span>').addClass('exitarrow').text('↳ ');
-            var out = $('<span>')
+            var link = $('<a>')
+                .addClass(name)
+                .attr('href', make_link[style](ref))
+                .append(make_text[style]());
+
+            if (newtab) link.attr('target', '_blank');
+ 
+            return $('<span>')
                 .append(arrow)
-                .append($('<a>')
-                    .addClass(name)
-                    .text(name)
-                    .attr('href', link)
-                );
-            return out;
+                .append(link);
         }
 
-        function outbound_links(ref){
 
+        function outbound_links(ref){
             if (ref.arxiv_url || ref.doi){
                 var urls = $('<div>').addClass('s2-outbound');
+                urls.append(outbound_link(ref, this.ds.shortname.toLowerCase()));
 
                 if (ref.arxiv_url)
-                    urls.append(outbound_link('arXiv', ref.arxiv_url));
+                    urls.append(outbound_link(ref, 'arxiv', false));
 
                 if (ref.doi)
-                    urls.append(outbound_link('DOI', 'https://doi.org/'+ref.doi));
+                    urls.append(outbound_link(ref, 'doi'));
 
+                urls.append(outbound_link(ref, 'scholar'));
                 return urls;
             }
         }
+        outbound_links = $.proxy(outbound_links, this);
 
         var known = (ref.paperId.length > 1);
         var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
@@ -596,6 +642,7 @@ ColumnView.prototype = {
             .append(
                 (known ? $('<a>') : $('<span>'))
                   .addClass(classes)
+                  .addClass('mathjax')
                   .attr('href', ref.url)
                   .text(ref.title)
             )
@@ -762,10 +809,13 @@ Overlay.prototype = {
         this.column0 = new ColumnView(ds, 'references', this.id_references);
         this.column1 = new ColumnView(ds, 'citations', this.id_citations);
 
-        this.create_header(ds);
-        this.column0.create_column();
-        this.column1.create_column();
         this.create_sidebar(ds);
+
+        if (ds.data.references.length > 0 && ds.data.citations.length > 0){
+            this.create_header(ds);
+            this.column0.create_column();
+            this.column1.create_column();
+        }
     },
 
     load: function(ds){
