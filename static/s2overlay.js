@@ -144,6 +144,8 @@ ADSData.prototype = {
     },
 
     reformat_authors: function(auths){
+        if (!auths) return [];
+
         var output = []
         for (var i=0; i<auths.length; i++)
             output.push({
@@ -171,6 +173,8 @@ ADSData.prototype = {
     },
 
     reformat_documents: function(docs){
+        if (!docs) return [];
+
         var output = [];
         for (var i=0; i<docs.length; i++){
             var d = this.reformat_document(docs[i]);
@@ -557,21 +561,28 @@ ColumnView.prototype = {
             return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
         }
 
+        function outbound_link(name, link){
+            var arrow = $('<span>').addClass('exitarrow').text('↳ ');
+            var out = $('<span>')
+                .append(arrow)
+                .append($('<a>')
+                    .addClass(name)
+                    .text(name)
+                    .attr('href', link)
+                );
+            return out;
+        }
+
         function outbound_links(ref){
+
             if (ref.arxiv_url || ref.doi){
                 var urls = $('<div>').addClass('s2-outbound');
 
                 if (ref.arxiv_url)
-                    urls.append($('<a>')
-                        .text('↳ arXiv.org')
-                        .attr('href', ref.arxiv_url)
-                    );
+                    urls.append(outbound_link('arXiv', ref.arxiv_url));
 
                 if (ref.doi)
-                    urls.append($('<a>')
-                        .text('↳ DOI.org')
-                        .attr('href', 'https://doi.org/'+ref.doi)
-                    );
+                    urls.append(outbound_link('DOI', 'https://doi.org/'+ref.doi));
 
                 return urls;
             }
@@ -684,15 +695,11 @@ Overlay.prototype = {
 
         var badge = $('<span>')
             .append(
-                $('<a>')
-                .text('')
-                .attr('href', ds.homepage)
-                .append($('<img>')
+                $('<img>')
                     .addClass('s2-sidebar-badge')
-                    .css('height', '38')
+                    .css('height', '24')
                     .css('width', 'auto')
                     .attr('src', src)
-                )
             )
             .append(
                 $('<a>')
@@ -767,7 +774,14 @@ Overlay.prototype = {
 };
 
 function gogogo(){
-    var ds = (get_categories().has('cs')) ? new S2Data() : new ADSData();
+    var ds;
+    var cats = get_categories();
+
+    if (cats.has('cs'))
+        ds = new S2Data();
+    else if (!cats.has('math'))
+        ds = new ADSData();
+
     var ui = new Overlay();
     ui.load(ds);
     D = ui;

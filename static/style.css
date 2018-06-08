@@ -173,8 +173,31 @@
 
 .s2-outbound a {
     font-size: 0.9em;
-    color: black;
+    color: red;
+    font-weight: bold;
+    text-decoration: underline;
     margin-right: 0.5em;
+}
+
+.s2-outbound .exitarrow {
+    color: black;
+    font-weight: bold;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.s2-outbound .arXiv {
+    color: #b31b1b;
+}
+
+.s2-outbound .DOI {
+    color: #fcb328;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
 }
 
 .s2-lbl {
@@ -287,11 +310,13 @@ h1.lined span {
 
 .s2-sidebar-title {
     position: relative;
-    top: -15px;
+    top: -6px;
     color: black;
+    font-size: 14px;
+    padding-left: 0.3em;
 }
 
 .s2-sidebar-authors {
     margin: 0 1em 0 2em;
-    padding: 0 0 0.5em 0;
+    padding: 0 0 0.5em 1em;
 }
