@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Semantic Scholar arXiv Overlay",
     "description": "Displays reference and citation data from Semantic Scholar on arXiv abstract pages, with links to more in-depth information.",
-    "version": "0.1.1",
+    "version": "0.1.2",
 
     "icons": {"48": "static/s2logo-48.png"},
     "browser_action": {"default_icon": "static/s2logo-48.png"},
@@ -15,5 +15,13 @@
         }
     ],
     "permissions": ["https://api.semanticscholar.org/*", "https://api.adsabs.harvard.edu/*"],
-    "web_accessible_resources": ["static/s2.png", "static/ads.png", "static/icon-s2.png", "static/icon-ads.png"]
+    "web_accessible_resources": [
+        "static/s2.png",
+        "static/ads.png",
+        "static/icon-s2.png",
+        "static/icon-ads.png",
+        "static/icon-scholar.png",
+        "static/icon-doi.png",
+        "static/icon-arxiv.png"
+    ]
 }

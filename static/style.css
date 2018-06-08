@@ -169,12 +169,13 @@
 
 .s2-outbound {
     margin-left: 0.7em;
+    margin-top: 3px;
 }
 
 .s2-outbound a {
     font-weight: bold;
     font-size: 1.0em;
-    text-decoration: underline;
+    text-decoration: none;
     margin-right: 0.5em;
 }
 
@@ -186,38 +187,25 @@
     padding: 0;
 }
 
-.s2-outbound .arxiv {
-    color: #b31b1b;
+.s2-outbound .movearrow {
+    top: -5px;
 }
 
-/*.s2-outbound .DOI {
-    color: #fcb328;
+.s2-outbound .shadow {
     text-shadow:
         -0.5px -0.5px 0 #444,  
         0.5px -0.5px 0 #444,
         -0.5px 0.5px 0 #444,
         0.5px 0.5px 0 #444;
-}*/
-.s2-outbound .doi {
-    /*color: rgb(158, 111, 22);*/
-    color: #fcb328;
 }
 
-.s2-outbound .ads {
-    color: #2e78e1;
-}
+.s2-outbound .arxiv {color: #b31b1b;}
+.s2-outbound .ads {color: #2e78e1;}
+.s2-outbound .s2 {color: #286a8e;}
+.s2-outbound .doi {color: #fcb328;}
 
-/*.s2-outbound .S2 {
-    color: #fcce4a;
-    text-shadow:
-        -1px -1px 0 #000,  
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000;
-}*/
-.s2-outbound .s2 {
-    color: #286a8e;
-}
+/*.s2-outbound .s2 {color: #fcce4a;}
+.s2-outbound .doi {color: rgb(158, 111, 22);}*/
 
 .s2-lbl {
     font-size: 12px;
@@ -330,7 +318,8 @@ h1.lined span {
 .s2-sidebar-title {
     position: relative;
     top: -6px;
-    color: black;
+    /*color: black;*/
+    font-weight: bold;
     font-size: 14px;
     padding-left: 0.3em;
 }

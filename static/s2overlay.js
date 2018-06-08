@@ -1,5 +1,6 @@
 // number of papers per page
 var D = null;
+var MAX_AUTHORS = 10;
 var PAGE_LENGTH = 10;
 var URL_ASSET_BASE = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-overlay/';
 
@@ -602,6 +603,21 @@ ColumnView.prototype = {
             },
         };
 
+        function _img(n){
+            return $('<img>')
+                .attr('src', asset_url('static/icon-'+n+'.png'))
+                .css('height', '18')
+                .css('width', 'auto')
+        }
+
+        var make_text = {
+            'ads': function(){return _img('ads');},
+            's2': function(){return _img('s2');},
+            'doi': function(){return _img('doi');},
+            'arxiv': function(){return _img('arxiv');},
+            'scholar': function(){return _img('scholar');},
+        };
+
         function outbound_link(ref, style, newtab=true){
             var arrow = $('<span>').addClass('exitarrow').text('↳ ');
             var link = $('<a>')
@@ -612,25 +628,25 @@ ColumnView.prototype = {
             if (newtab) link.attr('target', '_blank');
  
             return $('<span>')
-                .append(arrow)
+                //.append(arrow)
                 .append(link);
         }
 
-
         function outbound_links(ref){
-            if (ref.arxiv_url || ref.doi){
-                var urls = $('<div>').addClass('s2-outbound');
-                urls.append(outbound_link(ref, this.ds.shortname.toLowerCase()));
+            var arrow = $('<span>').addClass('exitarrow movearrow').text('↳ ');
+            var urls = $('<div>').addClass('s2-outbound');
 
-                if (ref.arxiv_url)
-                    urls.append(outbound_link(ref, 'arxiv', false));
+            urls.append(arrow);
+            urls.append(outbound_link(ref, this.ds.shortname.toLowerCase()));
 
-                if (ref.doi)
-                    urls.append(outbound_link(ref, 'doi'));
+            if (ref.arxiv_url)
+                urls.append(outbound_link(ref, 'arxiv', false));
 
-                urls.append(outbound_link(ref, 'scholar'));
-                return urls;
-            }
+            if (ref.doi)
+                urls.append(outbound_link(ref, 'doi'));
+
+            urls.append(outbound_link(ref, 'scholar'));
+            return urls;
         }
         outbound_links = $.proxy(outbound_links, this);
 
@@ -654,8 +670,8 @@ ColumnView.prototype = {
 
         if (known) {
             this.ds.get_paper(ref.api,
-                function(data) {
-                    var len = min(data.authors.length, 20);
+                $.proxy(function(data) {
+                    var len = min(data.authors.length, MAX_AUTHORS);
                     var elem = $('<div>').addClass('s2-authors');
 
                     for (var j=0; j<len; j++){
@@ -665,12 +681,12 @@ ColumnView.prototype = {
                             .text(data.authors[j].name);
                     }
 
-                    if (len == 20)
+                    if (len == MAX_AUTHORS)
                         elem.append($('<a>').text('...').attr('href', data.url));
 
                     paper.append(elem);
                     paper.append(outbound_links(data));
-                },
+                }, paper),
                 'Could not find paper "'+ref.title+'" via S2 API'
             );
         }
@@ -757,7 +773,7 @@ Overlay.prototype = {
 
         var authorlist = $('<ul>').addClass('s2-sidebar-authors');
 
-        for (var i=0; i<min(ds.data.authors.length, 10); i++){
+        for (var i=0; i<min(ds.data.authors.length, MAX_AUTHORS); i++){
             authorlist.append(
                 $('<li>').append(
                     $('<a>')
@@ -767,7 +783,7 @@ Overlay.prototype = {
             )
         }
 
-        if (ds.data.authors.length > 10)
+        if (ds.data.authors.length > MAX_AUTHORS)
             authorlist.append($('<li>').append(
                 $('<a>').text('...').attr('href', ds.data.url)
             ));
