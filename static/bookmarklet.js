@@ -26,7 +26,7 @@
             var head = document.getElementsByTagName('head')[0];
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = base+'s2overlay.js';
+            script.src = base+'bib.js';
             head.appendChild(script)
         };
         loadScript();

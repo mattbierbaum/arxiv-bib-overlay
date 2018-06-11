@@ -104,7 +104,7 @@ function ADSData() {
 }
 
 ADSData.prototype = {
-    url_logo: asset_url('static/ads.png'),
+    url_logo: asset_url('static/source-ads.png'),
     url_icon: asset_url('static/icon-ads.png'),
 
     shortname: 'ADS',
@@ -215,7 +215,7 @@ ADSData.prototype = {
         this.api_params['q'] = query;
 
         if (obj in this.rawdata){
-           this.load_data_callback();
+           this.load_data_callback(callback);
            return;
         }
 
@@ -271,7 +271,7 @@ function S2Data() {
 }
 
 S2Data.prototype = {
-    url_logo: asset_url('static/s2.png'),
+    url_logo: asset_url('static/source-s2.png'),
     url_icon: asset_url('static/icon-s2.png'),
 
     shortname: 'S2',
@@ -862,7 +862,7 @@ Overlay.prototype = {
         this.ds = ds;
         this.create_sidebar(ds);
 
-        if (ds.data.references.length > 0 && ds.data.citations.length > 0){
+        if (ds.data.references.length > 0 || ds.data.citations.length > 0){
             this.create_header(ds);
 
             this.column0 = new ColumnView(ds, 'references', this.id_references);
@@ -875,7 +875,12 @@ Overlay.prototype = {
     create_spinner: function(){
         $('<div>')
             .addClass('bib-pulse-container')
-            .append($('<div>').addClass('bib-pulse'))
+            .append(
+                $('<div>').addClass('bib-pulse')
+                .append($('<div>'))
+                .append($('<div>'))
+                .append($('<div>'))
+            )
             .insertBefore('.submission-history');
     },
 

@@ -307,27 +307,39 @@ h1.bib-header span {
 	justify-content: center;
 }
 
-.bib-pulse {
+.bib-pulse > div {
+    display: inline-block;
     width: 30px;
     height: 30px;
 	background-color: #000;
-    border-radius: 40px;
+    border-radius: 30px;
     opacity: 0;
+    margin-left: 10px;
+    margin-right: 10px;
 
-    animation: pulsate 1s ease-out;
+    animation: pulsate 1.5s ease-out;
     animation-iteration-count: infinite;
 }
+.bib-pulse > div:nth-of-type(2) {
+    -webkit-animation-delay: 0.18s;
+    -moz-animation-delay: 0.18s;
+}
+.bib-pulse > div:nth-of-type(3) {
+    -webkit-animation-delay: 0.36s;
+    -moz-animation-delay: 0.36s;
+}
+
 
 @keyframes pulsate {
     0% {
       transform: scale(.1);
       opacity: 0.0;
     }
-    50% {
+    30% {
       opacity: 1;
     }
-    100% {
-      transform: scale(1.0);
+    60% {
+      transform: scale(0.8);
       opacity: 0;
     }
 }

@@ -1,23 +1,26 @@
 {
     "manifest_version": 2,
-    "name": "Semantic Scholar arXiv Overlay",
-    "description": "Displays reference and citation data from Semantic Scholar on arXiv abstract pages, with links to more in-depth information.",
-    "version": "0.1.2",
+    "name": "arXiv bib overlay",
+    "description": "Displays reference and citation data from NASA ADS and Semantic Scholar on arXiv abstract pages, with links to more information.",
+    "version": "0.1",
 
-    "icons": {"48": "static/s2logo-48.png"},
-    "browser_action": {"default_icon": "static/s2logo-48.png"},
+    "icons": {"48": "static/logo-128.png"},
+    "browser_action": {"default_icon": "static/logo-128.png"},
 
     "content_scripts": [
         {
             "matches": ["https://arxiv.org/abs/*"],
-            "js": ["static/jquery-3.2.1.min.js", "static/s2overlay.js"],
+            "js": ["static/jquery-3.2.1.min.js", "static/bib.js"],
             "css": ["static/style.css"]
         }
     ],
-    "permissions": ["https://api.semanticscholar.org/*", "https://api.adsabs.harvard.edu/*"],
+    "permissions": [
+        "https://api.semanticscholar.org/*",
+        "https://api.adsabs.harvard.edu/*"
+    ],
     "web_accessible_resources": [
-        "static/s2.png",
-        "static/ads.png",
+        "static/source-s2.png",
+        "static/source-ads.png",
         "static/icon-s2.png",
         "static/icon-ads.png",
         "static/icon-scholar.png",
