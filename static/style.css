@@ -1,6 +1,6 @@
 .arrow {
-  width: 0; 
-  height: 0; 
+  width: 0;
+  height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
 }
@@ -13,84 +13,59 @@
   border-top: 8px solid black;
 }
 
-/*.authors a {
-    color: black;
-    text-decoration: none;
-}*/
+.bib-main {}
 
-.s2-col {
-    margin: 20px;
-}
-
-.s2title a {
-    color: black;
-    text-decoration: none;
-}
-
-.s2auth {
-    line-height: 150%;
-}
-
-.s2auth a {
-    color: black;
-    padding-right: 0.3em;
-}
-
-.s2auth a::after {
-    content: ",";
-}
-
-.s2auth a:last-child:after {
-    content: "";
-}
-
-.s2-col2 {
+.bib-col2 {
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
+    justify-content: space-evenly;
     margin: 20px;
 }
 
-.s2-col2 h2 {
+.bib-col2 h2 {
     text-align: center;
 }
 
-.s2-col2 > div {
+.bib-col2 > div {
+}
+
+.bib-col2 a {
+    text-decoration: none;
+    color: black;
+}
+
+.bib-col {
+    margin: 20px;
+    max-width: 450px;
     width: 50%;
     padding: 10px;
 }
 
-.s2-col2 > div:first-child {
-    margin-right: 20px;
-    border-width: 0px 0.35em 0px 0px;
-    /*border-style: solid;*/
-    border-color: #ddd;
+.bib-col-divider {
+    width: 1px;
+    background-color: #dfdfdf;
 }
 
-.s2-col2 a {
-    text-decoration: none;
-    color: black;
-}
-
-.s2-col-header {
+.bib-col-header {
     margin-bottom: 1em;
 }
 
-.s2-col-aside {
+.bib-col-aside {
     font-size: small;
 }
 
-.s2-col-center {
+.bib-col-center {
     display: table;
     margin: 0 auto;
 }
 
-.s2-col-title {
+.bib-col-title {
     font-size: x-large;
     font-weight: bold;
 }
 
-.s2-paper {
+.bib-paper {
     color: black;
     margin-bottom: 1.3em;
     margin-top: 0.3em;
@@ -98,41 +73,41 @@
     overflow: hidden;*/
 }
 
-.s2-paper .jinfo {
+.bib-paper .jinfo {
     padding-left: 0.7em;
     font-size: 0.9em;
 }
 
-.s2-paper .venue {
+.bib-paper .venue {
     padding-right: 0.5em;
     text-transform: capitalize;
     font-style: italic;
     color: #777;
 }
 
-.s2-paper .venue:empty {
+.bib-paper .venue:empty {
     display: none;
 }
 
-.s2-paper .year {
+.bib-paper .year {
     font-weight: bold;
 }
 
-.s2-paper .year:empty {
+.bib-paper .year:empty {
     display: none;
 }
 
-.s2-paper a {
+.bib-paper a {
     color: #000;
     position: relative;
 }
 
-.s2-paper span {
+.bib-paper span {
     color: #000;
     position: relative;
 }
 
-.s2-paper .influential::before {
+.bib-paper .influential::before {
     left: -17px;
     position: absolute;
     width: 0px;
@@ -140,7 +115,7 @@
     color: red;
 }
 
-/*.s2-paper .unknown::before {
+/*.bib-paper .unknown::before {
     left: -17px;
     position: absolute;
     width: 0px;
@@ -149,37 +124,37 @@
     font-size: 0.85em;
 }*/
 
-.s2-authors {
+.bib-authors {
     margin-left: 0.7em;
 }
 
-.s2-authors a {
+.bib-authors a {
     font-size: 0.9em;
     color: #555;
     margin-right: 0.5em;
 }
 
-.s2-authors a::after {
+.bib-authors a::after {
     content: ',';
 }
 
-.s2-authors a:last-of-type:after {
+.bib-authors a:last-of-type:after {
     content: '';
 }
 
-.s2-outbound {
+.bib-outbound {
     margin-left: 0.7em;
     margin-top: 3px;
 }
 
-.s2-outbound a {
+.bib-outbound a {
     font-weight: bold;
     font-size: 1.0em;
     text-decoration: none;
     margin-right: 0.5em;
 }
 
-.s2-outbound .exitarrow {
+.bib-outbound .exitarrow {
     color: black;
     font-weight: bold;
     display: inline;
@@ -187,27 +162,24 @@
     padding: 0;
 }
 
-.s2-outbound .movearrow {
+.bib-outbound .movearrow {
     top: -5px;
 }
 
-.s2-outbound .shadow {
+.bib-outbound .shadow {
     text-shadow:
-        -0.5px -0.5px 0 #444,  
+        -0.5px -0.5px 0 #444,
         0.5px -0.5px 0 #444,
         -0.5px 0.5px 0 #444,
         0.5px 0.5px 0 #444;
 }
 
-.s2-outbound .arxiv {color: #b31b1b;}
-.s2-outbound .ads {color: #2e78e1;}
-.s2-outbound .s2 {color: #286a8e;}
-.s2-outbound .doi {color: #fcb328;}
+.bib-outbound .arxiv {color: #b31b1b;}
+.bib-outbound .ads {color: #2e78e1;}
+.bib-outbound .bib {color: #286a8e;}
+.bib-outbound .doi {color: #fcb328;}
 
-/*.s2-outbound .s2 {color: #fcce4a;}
-.s2-outbound .doi {color: rgb(158, 111, 22);}*/
-
-.s2-lbl {
+.bib-lbl {
     font-size: 12px;
     color: white;
     background-color: black;
@@ -263,13 +235,13 @@
     font-weight: bold;
 }
 
-h1.lined {
+h1.bib-header {
     text-align: center;
     position: relative;
     z-index: 1;
 }
 
-h1.lined::before {
+h1.bib-header::before {
     border-top: 2px solid #dfdfdf;
     content:"";
     margin: 0 auto;
@@ -279,43 +251,43 @@ h1.lined::before {
     z-index: -1;
 }
 
-h1.lined span {
+h1.bib-header span {
     background: #fff;
     padding: 0 15px;
 }
 
-.s2-selected {
+.bib-selected {
     border: 2px solid #d8d8d8;
     border-radius: 20px;
 }
 
-.s2-selected:hover {
+.bib-selected:hover {
     border: 2px solid #d8d8d8;
     border-radius: 20px;
 }
 
-.s2-unselected {
+.bib-unselected {
     border: 2px solid white;
     border-radius: 20px;
 }
 
-.s2-unselected:hover {
+.bib-unselected:hover {
     border: 2px solid black;
     border-radius: 20px;
     cursor: pointer;
 }
 
-.s2-sidebar {
+.bib-sidebar {
     padding: 0 1em 0 1em;
     font-size: 90%;
     border-bottom: medium solid #ddd;
 }
 
-.s2-sidebar-badge {
+.bib-sidebar-badge {
     padding: 0.5em 0 0 0;
 }
 
-.s2-sidebar-title {
+.bib-sidebar-title {
     position: relative;
     top: -6px;
     /*color: black;*/
@@ -324,7 +296,38 @@ h1.lined span {
     padding-left: 0.3em;
 }
 
-.s2-sidebar-authors {
+.bib-sidebar-authors {
     margin: 0 1em 0 2em;
     padding: 0 0 0.5em 1em;
+}
+
+.bib-pulse-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.bib-pulse {
+    width: 30px;
+    height: 30px;
+	background-color: #000;
+    border-radius: 40px;
+    opacity: 0;
+
+    animation: pulsate 1s ease-out;
+    animation-iteration-count: infinite;
+}
+
+@keyframes pulsate {
+    0% {
+      transform: scale(.1);
+      opacity: 0.0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.0);
+      opacity: 0;
+    }
 }

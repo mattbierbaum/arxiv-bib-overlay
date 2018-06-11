@@ -14,13 +14,14 @@ function max(a, b){return (a > b) ? a : b;}
 function get_categories(){
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
+    // also, (hep-th)
     var txt = $('.metatable').find('.subjects').text();
-    var re = new RegExp(/\(([a-z\-]+)\.[a-zA-Z\-]+\)/g);
+    var re = new RegExp(/\(([a-z\-]+)(:?\.[a-zA-Z\-]+)?\)/g);
 
-    var matches = new Set();
+    var matches = []
     var match = re.exec(txt);
     while (match != null){
-        matches.add(match[1]);
+        matches.push(match[1]);
         match = re.exec(txt);
     }
     return matches;
@@ -107,6 +108,11 @@ ADSData.prototype = {
     url_icon: asset_url('static/icon-ads.png'),
 
     shortname: 'ADS',
+    categories: new Set([
+        'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat',
+        'hep-ph', 'hep-th', 'math-ph', 'nlin', 'nucl-ex',
+        'nucl-th', 'physics', 'quant-ph'
+    ]),
     homepage: 'https://ui.adsabs.harvard.edu',
     api_url: 'https://api.adsabs.harvard.edu/v1/search/query',
     api_key: '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x',
@@ -135,7 +141,7 @@ ADSData.prototype = {
 
         for (var i=0; i<identifiers.length; i++){
             var match = RE_IDENTIFIER.exec(identifiers[i]);
-            if (match) return match[1] || match[2];
+            if (match) return 'https://arxiv.org/abs/'+(match[1] || match[2]);
         }
         return;
     },
@@ -157,7 +163,7 @@ ADSData.prototype = {
         return output;
     },
 
-    reformat_document: function(doc){
+    reformat_document: function(doc, index){
         return {
             'title': doc.title[0],
             'authors': this.reformat_authors(doc.author),
@@ -170,7 +176,8 @@ ADSData.prototype = {
             'doi': doc.doi || '',
             'identifier': doc.identifier || '',
             'citation_count': doc.citation_count,
-            'read_count': doc.read_count
+            'read_count': doc.read_count,
+            'index': index,
         };
     },
 
@@ -179,7 +186,7 @@ ADSData.prototype = {
 
         var output = [];
         for (var i=0; i<docs.length; i++){
-            var d = this.reformat_document(docs[i]);
+            var d = this.reformat_document(docs[i], i);
             this.cache[d.url] = d;
             output.push(d);
         }
@@ -242,8 +249,9 @@ ADSData.prototype = {
     },
 
     sorters: {
+        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
         'citations': {'name': 'Citations', 'func': function(i){return i.citation_count;}},
-        'influence': {'name': 'Popularity', 'func': function(i){return i.read_count;}},
+        'influence': {'name': 'ADS read count', 'func': function(i){return i.read_count;}},
         'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
         'author': {'name': 'First author', 'func': function(i){return i.authors[0].name || '';}},
         'year': {'name': 'Year', 'func': function(i){return i.year;}}
@@ -267,6 +275,7 @@ S2Data.prototype = {
     url_icon: asset_url('static/icon-s2.png'),
 
     shortname: 'S2',
+    categories: new Set(['cs']),
     homepage: 'https://semanticscholar.org',
     api_url: 'https://api.semanticscholar.org/v1/',
     api_params: 'include_unknown_references=true',
@@ -293,18 +302,19 @@ S2Data.prototype = {
             data['arxiv_url'] = '';
     },
 
-    reformat_document: function(data){
+    reformat_document: function(data, index){
         this.add_api_url(data);
         this.add_arxiv_url(data);
+        data['index'] = index;
     },
 
     transform_result: function(data){
         this.reformat_document(data);
 
         for (var ind in data.citations)
-            this.reformat_document(data.citations[ind]);
+            this.reformat_document(data.citations[ind], ind);
         for (var ind in data.references)
-            this.reformat_document(data.references[ind]);
+            this.reformat_document(data.references[ind], ind);
 
         data.citations.header = 'Citations';
         data.references.header = 'References';
@@ -345,6 +355,7 @@ S2Data.prototype = {
     },
 
     sorters: {
+        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
         'influence': {'name': 'Influence', 'func': function(i){return i.isInfluential;}},
         'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
         'year': {'name': 'Year', 'func': function(i){return i.year;}},
@@ -357,6 +368,13 @@ S2Data.prototype = {
 //============================================================================
 // both at once now
 //============================================================================
+function external_link(elm){
+    if (elm.tagName.toLowerCase() == 'a'){
+        if (!elm.href.startsWith('https://arxiv.org'))
+            elm.attr('target', '_blank');
+    }
+}
+
 function ColumnView(ds, datakey, htmlid){
     this.ds = ds;
     this.htmlid = htmlid;
@@ -618,15 +636,24 @@ ColumnView.prototype = {
             'scholar': function(){return _img('scholar');},
         };
 
+        var make_hover = {
+            'ads': 'NASA ADS',
+            's2': 'Semantic Scholar',
+            'doi': 'Journal article',
+            'arxiv': 'ArXiv article',
+            'scholar': 'Google Scholar',
+        };
+
         function outbound_link(ref, style, newtab=true){
             var arrow = $('<span>').addClass('exitarrow').text('↳ ');
             var link = $('<a>')
                 .addClass(name)
+                .attr('title', make_hover[style])
                 .attr('href', make_link[style](ref))
                 .append(make_text[style]());
 
             if (newtab) link.attr('target', '_blank');
- 
+
             return $('<span>')
                 //.append(arrow)
                 .append(link);
@@ -634,7 +661,7 @@ ColumnView.prototype = {
 
         function outbound_links(ref){
             var arrow = $('<span>').addClass('exitarrow movearrow').text('↳ ');
-            var urls = $('<div>').addClass('s2-outbound');
+            var urls = $('<div>').addClass('bib-outbound');
 
             urls.append(arrow);
             urls.append(outbound_link(ref, this.ds.shortname.toLowerCase()));
@@ -654,12 +681,13 @@ ColumnView.prototype = {
         var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
 
         var paper = $('<div>')
-            .addClass('s2-paper')
+            .addClass('bib-paper')
             .append(
                 (known ? $('<a>') : $('<span>'))
                   .addClass(classes)
                   .addClass('mathjax')
                   .attr('href', ref.url)
+                  .attr('target', '_blank')
                   .text(ref.title)
             )
             .append(
@@ -672,17 +700,23 @@ ColumnView.prototype = {
             this.ds.get_paper(ref.api,
                 $.proxy(function(data) {
                     var len = min(data.authors.length, MAX_AUTHORS);
-                    var elem = $('<div>').addClass('s2-authors');
+                    var elem = $('<div>').addClass('bib-authors');
 
                     for (var j=0; j<len; j++){
                         $('<a>')
                             .appendTo(elem)
                             .attr('href', data.authors[j].url)
+                            .attr('target', '_blank')
                             .text(data.authors[j].name);
                     }
 
                     if (len == MAX_AUTHORS)
-                        elem.append($('<a>').text('...').attr('href', data.url));
+                        elem.append(
+                            $('<a>')
+                                .text('...')
+                                .attr('href', data.url)
+                                .attr('target', '_blank')
+                        );
 
                     paper.append(elem);
                     paper.append(outbound_links(data));
@@ -704,13 +738,13 @@ ColumnView.prototype = {
     create_column: function(){
         var references = this.sortfield();
 
-        var column = $('<div>').addClass('s2-col').attr('id', this.htmlid);
+        var column = $('<div>').addClass('bib-col').attr('id', this.htmlid);
 
         // create the header with the branding and explanation of red dots
         var brandid = Math.random().toString(36).substring(7);
 
         var desc = $('<span>')
-                    .addClass('s2-col-center s2-col-aside')
+                    .addClass('bib-col-center bib-col-aside')
                     .append($('<span>').css('color', 'black').text('('))
                     .append($('<span>').css('color', 'red').text('● '))
                     .append($('<span>').css('color', 'black').text(this.data.description+')'));
@@ -719,15 +753,16 @@ ColumnView.prototype = {
 
         // header business (title, subtitle, branding)
         var header = $('<div>')
-            .addClass('s2-col-header')
+            .addClass('bib-col-header')
             .append(
                 $('<span>')
-                    .addClass('s2-col-center')
+                    .addClass('bib-col-center')
                     .attr('id', brandid)
                     .append(
                         $('<a>')
-                            .addClass('s2-col-title')
+                            .addClass('bib-col-title')
                             .attr('href', this.data.header_url)
+                            .attr('target', '_blank')
                             .text(this.data.header+" ("+references.length+")")
                     )
             )
@@ -759,25 +794,27 @@ Overlay.prototype = {
         var badge = $('<span>')
             .append(
                 $('<img>')
-                    .addClass('s2-sidebar-badge')
+                    .addClass('bib-sidebar-badge')
                     .css('height', '24')
                     .css('width', 'auto')
                     .attr('src', src)
             )
             .append(
                 $('<a>')
-                    .addClass('s2-sidebar-title')
+                    .addClass('bib-sidebar-title')
                     .text(ds.data.title.substring(0, 20) + '...')
                     .attr('href', ds.data.url)
+                    .attr('target', '_blank')
             );
 
-        var authorlist = $('<ul>').addClass('s2-sidebar-authors');
+        var authorlist = $('<ul>').addClass('bib-sidebar-authors');
 
         for (var i=0; i<min(ds.data.authors.length, MAX_AUTHORS); i++){
             authorlist.append(
                 $('<li>').append(
                     $('<a>')
                     .attr('href', ds.data.authors[i].url)
+                    .attr('target', '_blank')
                     .text(ds.data.authors[i].name)
                 )
             )
@@ -785,72 +822,91 @@ Overlay.prototype = {
 
         if (ds.data.authors.length > MAX_AUTHORS)
             authorlist.append($('<li>').append(
-                $('<a>').text('...').attr('href', ds.data.url)
+                $('<a>').text('...').attr('href', ds.data.url).attr('target', '_blank')
             ));
 
         $('<div>')
             .addClass('delete')
-            .addClass('s2-sidebar')
+            .addClass('bib-sidebar')
             .append(badge)
             .append(authorlist)
             .insertBefore($('.bookmarks'));
     },
 
     create_header: function(ds){
-        var header = $('<div>').addClass('s2-col');
-
         var brand = $('<h1>')
-            .addClass('s2 lined')
+            .addClass('bib-header')
             .append($('<span>').append(
-                $('<a>').text('').attr('href', ds.homepage).append(
+                $('<a>').text('').attr('href', ds.homepage).attr('target', '_blank').append(
                     $('<img>').attr('src', ds.url_logo)
                 )
             ));
 
         var columns = $('<div>')
-            .addClass('s2-col2')
+            .addClass('bib-col2')
             .append($('<div>').attr('id', this.id_references))
+            //.append($('<div>').addClass('bib-col-divider'))
             .append($('<div>').attr('id', this.id_citations));
 
         var thediv = $('<div>')
+			.addClass('bib-main')
             .addClass('delete')
             .append(brand)
-            .append(header)
             .append(columns)
             .insertBefore($('.submission-history'));
     },
 
     create_overlay: function(ds){
-        this.ds = ds;
-        this.column0 = new ColumnView(ds, 'references', this.id_references);
-        this.column1 = new ColumnView(ds, 'citations', this.id_citations);
+        this.destroy_spinner();
 
+        this.ds = ds;
         this.create_sidebar(ds);
 
         if (ds.data.references.length > 0 && ds.data.citations.length > 0){
             this.create_header(ds);
+
+            this.column0 = new ColumnView(ds, 'references', this.id_references);
+            this.column1 = new ColumnView(ds, 'citations', this.id_citations);
             this.column0.create_column();
             this.column1.create_column();
         }
     },
 
+    create_spinner: function(){
+        $('<div>')
+            .addClass('bib-pulse-container')
+            .append($('<div>').addClass('bib-pulse'))
+            .insertBefore('.submission-history');
+    },
+
+    destroy_spinner: function(){
+        $('.bib-pulse-container').remove()
+    },
+
     load: function(ds){
+        this.create_spinner();
         ds.async_load($.proxy(this.create_overlay, this));
     }
 };
 
 function gogogo(){
-    var ds;
+    var ds, ui;
+    var datasets = [new S2Data(), new ADSData()];
+
     var cats = get_categories();
+    if (!cats || cats.length == 0)
+        return;
 
-    if (cats.has('cs'))
-        ds = new S2Data();
-    else if (!cats.has('math'))
-        ds = new ADSData();
+    for (var i=0; i<datasets.length; i++){
+        if (datasets[i].categories.has(cats[0]))
+            ds = datasets[i];
+    }
 
-    var ui = new Overlay();
-    ui.load(ds);
-    D = ui;
+    if (ds){
+        ui = new Overlay();
+        ui.load(ds);
+        D = ui;
+    }
 }
 
 gogogo();
