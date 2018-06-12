@@ -635,12 +635,19 @@ ColumnView.prototype = {
     filterfield: function(data){
         if (this.filter_text.length == 0 || this.filter_text == '') return data;
 
-        output = [];
-        for (var i=0; i<data.length; i++){
-            if (data[i].searchline.includes(this.filter_text))
-                output.push(data[i]);
+        var output = [];
+        var words = this.filter_text.split(' ');
+
+        var output = data;
+        for (var i=0; i<words.length; i++){
+            var newlist = [];
+            for (var j=0; j<output.length; j++){
+                if (output[j].searchline.includes(words[i]))
+                    newlist.push(output[j]);
+            }
+            output = newlist;
         }
-        return output
+        return output;
     },
 
     paper_line: function(ref){
