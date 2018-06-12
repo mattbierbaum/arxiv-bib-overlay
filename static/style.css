@@ -65,6 +65,26 @@
     font-weight: bold;
 }
 
+.bib-sorter {
+    margin-top: 0.25em;
+}
+
+.bib-filter {
+    margin-top: 0.25em;
+}
+
+.bib-filter-label {
+    margin-left: 1em;
+    margin-right: 0.7em;
+}
+
+.bib-fiter-input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
 .bib-paper {
     color: black;
     margin-bottom: 1.3em;

@@ -146,6 +146,13 @@ ADSData.prototype = {
         return;
     },
 
+    searchline: function(doc){
+        var auths = '';
+        for (var i=0; i<doc.authors.length; i++){
+            auths += doc.authors[i].name + ' ';
+        }
+        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase();
+    },
 
     reverse_author: function(name){
         return name.split(', ').reverse().join(' ');
@@ -164,7 +171,7 @@ ADSData.prototype = {
     },
 
     reformat_document: function(doc, index){
-        return {
+        var doc = {
             'title': doc.title[0],
             'authors': this.reformat_authors(doc.author),
             'api': this.ads_url_bibcode(doc.bibcode),
@@ -179,6 +186,8 @@ ADSData.prototype = {
             'read_count': doc.read_count,
             'index': index,
         };
+        doc.searchline = this.searchline(doc);
+        return doc;
     },
 
     reformat_documents: function(docs){
@@ -302,10 +311,15 @@ S2Data.prototype = {
             data['arxiv_url'] = '';
     },
 
+    searchline: function(doc){
+        return [doc.title, doc.venue, doc.year].join(' ').toLowerCase();
+    },
+
     reformat_document: function(data, index){
         this.add_api_url(data);
         this.add_arxiv_url(data);
-        data['index'] = index;
+        data.searchline = this.searchline(data);
+        data.index = index;
     },
 
     transform_result: function(data){
@@ -375,6 +389,14 @@ function external_link(elm){
     }
 }
 
+function makeDelay(callback, ms) {
+    var timer = 0;
+    return function(){
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+}
+
 function ColumnView(ds, datakey, htmlid){
     this.ds = ds;
     this.htmlid = htmlid;
@@ -385,9 +407,41 @@ function ColumnView(ds, datakey, htmlid){
 
     this.sort_field = ds.sorters_default;
     this.sort_order = 'up';
+
+    this.filter_id = btoa(Math.random()).substring(0,12);
+    this.filter_text = '';
 }
 
 ColumnView.prototype = {
+    change_filter: function(){
+        this.filter_text = $('#'+this.filter_id).val();
+        this.create_column();
+        $('#'+this.filter_id).focus();
+    },
+
+    create_filter: function(){
+        var meta = this;
+        var changer = makeDelay($.proxy(meta.change_filter, meta), 250);
+
+        var div = $('<div>')
+            .addClass('bib-filter')
+            .append(
+                $('<span>')
+                    .text('Filter: ')
+                    .addClass('bib-filter-label')
+            )
+            .append(
+                $('<input>')
+                    .attr('type', 'text')
+                    .attr('id', this.filter_id)
+                    .addClass('bib-filter-input')
+                    .keyup(changer)
+                    .val(this.filter_text)
+            );
+
+        return div;
+    },
+
     change_page: function(n){
         this.page = parseInt(n);
         return this.create_column();
@@ -550,7 +604,8 @@ ColumnView.prototype = {
                 )
             );
 
-        var filters = $('<span>')
+        var filters = $('<div>')
+            .addClass('bib-sorter')
             .append($('<span>').text('Sort by: ').addClass('sort-label'))
             .append(sort_field)
             .append(sort_order)
@@ -560,7 +615,7 @@ ColumnView.prototype = {
         return $('<span>').append(filters);
     },
 
-    sortfield: function(){
+    sortfield: function(data){
         var sorter = function(arr, field, ord){
             sign = (ord == 'up') ? 1 : -1;
             return arr.sort(function (a,b) {
@@ -573,8 +628,19 @@ ColumnView.prototype = {
         }
 
         var func = this.ds.sorters[this.sort_field].func;
-        output = sorter(this.data, func, this.sort_order);
+        output = sorter(data, func, this.sort_order);
         return output;
+    },
+
+    filterfield: function(data){
+        if (this.filter_text.length == 0 || this.filter_text == '') return data;
+
+        output = [];
+        for (var i=0; i<data.length; i++){
+            if (data[i].searchline.includes(this.filter_text))
+                output.push(data[i]);
+        }
+        return output
     },
 
     paper_line: function(ref){
@@ -733,11 +799,11 @@ ColumnView.prototype = {
             .addClass('page')
             .append($('<div>').addClass('center').append(this.create_pagination()))
             .append($('<div>').addClass('center').append(this.create_sorter()))
+            .append($('<div>').addClass('center').append(this.create_filter()))
     },
 
     create_column: function(){
-        var references = this.sortfield();
-
+        var references = this.filterfield(this.sortfield(this.data));
         var column = $('<div>').addClass('bib-col').attr('id', this.htmlid);
 
         // create the header with the branding and explanation of red dots
