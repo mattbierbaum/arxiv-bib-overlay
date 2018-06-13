@@ -20,7 +20,7 @@
     display: -webkit-flex;
     display: flex;
     justify-content: space-evenly;
-    margin: 20px;
+    margin: 0px 20px 0px 20px;
 }
 
 .bib-col2 h2 {
@@ -36,7 +36,7 @@
 }
 
 .bib-col {
-    margin: 20px;
+    margin: 0px 20px 20px 20px;
     max-width: 450px;
     width: 50%;
     padding: 10px;
@@ -256,6 +256,8 @@
 }
 
 h1.bib-header {
+    margin-bottom: 0px;
+    margin-top: 0px;
     text-align: center;
     position: relative;
     z-index: 1;

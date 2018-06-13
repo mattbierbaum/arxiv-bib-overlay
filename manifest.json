@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "arXiv bib overlay",
     "description": "Displays reference and citation data from NASA ADS and Semantic Scholar on arXiv abstract pages, with links to more information.",
-    "version": "0.1",
+    "version": "0.1.1",
 
     "icons": {"48": "static/logo-128.png"},
     "browser_action": {"default_icon": "static/logo-128.png"},

@@ -121,7 +121,7 @@ ADSData.prototype = {
             'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
             'year', 'doi', 'citation_count', 'read_count', 'identifier'
         ],
-        'rows': 1000
+        'rows': 10000
     },
 
     ads_url_ui: 'https://ui.adsabs.harvard.edu/#search/',
@@ -932,6 +932,10 @@ ColumnView.prototype = {
 
         $('#'+this.htmlid).replaceWith(column);
         return column;
+    },
+
+    run_mathjax: function(){
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, $(this.htmlid)]);
     },
 };
 
