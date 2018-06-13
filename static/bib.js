@@ -645,7 +645,6 @@ ColumnView.prototype = {
         }
         sort_field.val(this.sort_field);
 
-        console.log(this.sort_order);
         var up = this.sort_order == 'up';
         var sort_order = $('<span>')
             .addClass('sort-arrow')
