@@ -481,8 +481,12 @@ ColumnView.prototype = {
                     .on('keyup', changer250)
             );
 
-        var container = $('<div>').addClass('center').attr('id', this.ids.filter);
-        return div;
+        var container = $('<div>')
+            .addClass('center')
+            .attr('id', this.ids.filter)
+            .append(div);
+
+        return container;
     },
 
     /*=======================================
