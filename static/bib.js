@@ -382,6 +382,10 @@ S2Data.prototype = {
 //============================================================================
 // both at once now
 //============================================================================
+function random_id(){
+    return new String(Math.random()).substring(2,12);
+}
+
 function external_link(elm){
     if (elm.tagName.toLowerCase() == 'a'){
         if (!elm.href.startsWith('https://arxiv.org'))
@@ -401,27 +405,64 @@ function ColumnView(ds, datakey, htmlid){
     this.ds = ds;
     this.htmlid = htmlid;
     this.data = ds.data[datakey];
-
-    this.npages = Math.floor((this.data.length-1) / PAGE_LENGTH) + 1;
-    this.page = 1;
+    this.fdata = this.data;
 
     this.sort_field = ds.sorters_default;
     this.sort_order = 'up';
-
-    this.filter_id = btoa(Math.random()).substring(0,12);
     this.filter_text = '';
+
+    this.ids = {
+        filter: random_id(),
+        sorter: random_id(),
+        header: random_id(),
+        paging: random_id(),
+        papers: random_id(),
+        filter_val: random_id()
+    };
+
+    this.recalculate();
 }
 
 ColumnView.prototype = {
+    recalculate: function(){
+        this.recalculate_data();
+        this.recalculate_pages();
+    },
+
+    recalculate_data: function(){
+        this.fdata = this.filterfield(this.sortfield(this.data));
+    },
+
+    recalculate_pages: function(){
+        this.npages = Math.floor((this.fdata.length-1) / PAGE_LENGTH) + 1;
+        this.page = 1;
+    },
+
+    replace: function(id, element){$('#'+id).replaceWith(element);},
+    replace_filter: function(){this.replace(this.ids.filter, this.create_filter());},
+    replace_sorter: function(){this.replace(this.ids.sorter, this.create_sorter());},
+    replace_paging: function(){this.replace(this.ids.paging, this.create_paging());},
+    replace_papers: function(){this.replace(this.ids.papers, this.create_papers());},
+    replace_header: function(){this.replace(this.ids.header, this.create_header());},
+
+    /*=======================================
+     * filter functions
+     *=======================================*/
     change_filter: function(){
-        this.filter_text = $('#'+this.filter_id).val();
-        this.create_column();
-        $('#'+this.filter_id).focus();
+        this.filter_text = $('#'+this.ids.filter_val).val();
+        this.recalculate();
+        this.replace_header();
+        this.replace_paging();
+        this.replace_papers();
     },
 
     create_filter: function(){
+        if (this.data.length <= 0)
+            return $('<div>').addClass('bib-filter');
+
         var meta = this;
-        var changer = makeDelay($.proxy(meta.change_filter, meta), 250);
+        var changer50 = makeDelay($.proxy(meta.change_filter, meta), 50);
+        var changer250 = makeDelay($.proxy(meta.change_filter, meta), 250);
 
         var div = $('<div>')
             .addClass('bib-filter')
@@ -432,22 +473,28 @@ ColumnView.prototype = {
             )
             .append(
                 $('<input>')
-                    .attr('type', 'text')
-                    .attr('id', this.filter_id)
+                    .attr('type', 'search')
+                    .attr('id', this.ids.filter_val)
                     .addClass('bib-filter-input')
-                    .keyup(changer)
                     .val(this.filter_text)
+                    .on('search', changer50)
+                    .on('keyup', changer250)
             );
 
+        var container = $('<div>').addClass('center').attr('id', this.ids.filter);
         return div;
     },
 
+    /*=======================================
+     * paging functions
+     *=======================================*/
     change_page: function(n){
         this.page = parseInt(n);
-        return this.create_column();
+        this.replace_paging();
+        this.replace_papers();
     },
 
-    create_pagination: function(){
+    create_paging: function(){
         /* This is a bit of a mess, but it basically ensures that the page list
          * looks visually uniform independent of the current page number. We want
          *   - always the same number of elements
@@ -465,9 +512,13 @@ ColumnView.prototype = {
         var S = 2*B + 2*2 + 1;  /* number of total links in the pages sections:
                                    2*buffer + 2*(first number + dots) + current */
 
+        var container = $('<div>').addClass('center').attr('id', this.ids.paging);
+
         var meta = this;
-        if (this.data.length <= 0)
-            return $('<span>').text('-')
+        if (this.data.length <= 0){
+            container.append($('<span>').text('-'));
+            return container;
+        }
 
         var langle = '◀';
         var rangle = '▶';
@@ -547,16 +598,23 @@ ColumnView.prototype = {
             select = $('<span>');
         }
 
-        return $('<span>')
+        container.append($('<span>')
             .append(pages_text)
             .append(pages)
-            .append(select);
+            .append(select)
+        );
+        return container;
     },
 
+    /*=======================================
+     * sorting functions
+     *=======================================*/
     change_sort: function(field, order){
         this.sort_field = field;
         this.sort_order = order;
-        return this.create_column();
+        this.recalculate_data();
+        this.replace_papers();
+        this.replace_sorter();
     },
 
     create_sorter: function(){
@@ -583,6 +641,7 @@ ColumnView.prototype = {
         }
         sort_field.val(this.sort_field);
 
+        console.log(this.sort_order);
         var up = this.sort_order == 'up';
         var sort_order = $('<span>')
             .addClass('sort-arrow')
@@ -608,11 +667,15 @@ ColumnView.prototype = {
             .addClass('bib-sorter')
             .append($('<span>').text('Sort by: ').addClass('sort-label'))
             .append(sort_field)
-            .append(sort_order)
+            .append(sort_order);
 
+        var container = $('<div>').addClass('center').attr('id', this.ids.sorter);
         if (this.data.length <= 0)
-            return $('<span>');
-        return $('<span>').append(filters);
+            container.append($('<span>'));
+        else
+            container.append($('<span>').append(filters));
+
+        return container;
     },
 
     sortfield: function(data){
@@ -804,18 +867,12 @@ ColumnView.prototype = {
     create_utilities: function(){
         return $('<div>')
             .addClass('page')
-            .append($('<div>').addClass('center').append(this.create_pagination()))
-            .append($('<div>').addClass('center').append(this.create_sorter()))
-            .append($('<div>').addClass('center').append(this.create_filter()))
+            .append(this.create_paging())
+            .append(this.create_sorter())
+            .append(this.create_filter());
     },
 
-    create_column: function(){
-        var references = this.filterfield(this.sortfield(this.data));
-        var column = $('<div>').addClass('bib-col').attr('id', this.htmlid);
-
-        // create the header with the branding and explanation of red dots
-        var brandid = Math.random().toString(36).substring(7);
-
+    create_header: function(){
         var desc = $('<span>')
                     .addClass('bib-col-center bib-col-aside')
                     .append($('<span>').css('color', 'black').text('('))
@@ -824,31 +881,51 @@ ColumnView.prototype = {
 
         var blank = $('<a>');
 
-        // header business (title, subtitle, branding)
+        var text = null;
+        var text0 = this.data.header+' ('+this.data.length+')';
+        var text1 = this.data.header+' ('+this.fdata.length+'/'+this.data.length+')';
+        text = (this.data.length != this.fdata.length) ? text1 : text0;
+
         var header = $('<div>')
             .addClass('bib-col-header')
+            .attr('id', this.ids.header)
             .append(
                 $('<span>')
                     .addClass('bib-col-center')
-                    .attr('id', brandid)
                     .append(
                         $('<a>')
                             .addClass('bib-col-title')
                             .attr('href', this.data.header_url)
                             .attr('target', '_blank')
-                            .text(this.data.header+" ("+references.length+")")
+                            .text(text)
                     )
             )
-            .append(this.data.description ? desc : blank)
-            .append(this.create_utilities())
-            .appendTo(column)
+            .append(this.data.description ? desc : blank);
 
+        return header;
+    },
 
-        // inject the papers with authors into the column
-        var len = references.length;
+    create_papers: function(){
+        var papers = $('<div>').attr('id', this.ids.papers);
+
+        var len = this.fdata.length;
         var start = PAGE_LENGTH * (this.page-1);
         for (var i=start; i<min(start+PAGE_LENGTH, len); i++)
-            column.append(this.paper_line(references[i]));
+            papers.append(this.paper_line(this.fdata[i]));
+
+        return papers;
+    },
+
+    create_column: function(){
+        var column = $('<div>')
+            .addClass('bib-col')
+            .attr('id', this.htmlid);
+
+        column
+            .append(this.create_header())
+            .append(this.create_utilities())
+            .append(this.create_papers());
+
 
         $('#'+this.htmlid).replaceWith(column);
         return column;
