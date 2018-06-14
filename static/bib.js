@@ -170,16 +170,22 @@ ADSData.prototype = {
         return output;
     },
 
+    reformat_title: function(title){
+        if (!title || title.length == 0)
+            return 'Unknown';
+        return title[0];
+    },
+
     reformat_document: function(doc, index){
         var doc = {
-            'title': doc.title[0],
+            'title': this.reformat_title(doc.title),
             'authors': this.reformat_authors(doc.author),
             'api': this.ads_url_bibcode(doc.bibcode),
             'url': this.ads_url_bibcode(doc.bibcode),
             'arxiv_url': this.ads_url_arxiv(doc.identifier),
-            'paperId': doc.bibcode,
-            'year': doc.year,
-            'venue': doc.pub,
+            'paperId': doc.bibcode || '',
+            'year': doc.year || '',
+            'venue': doc.pub || '',
             'doi': doc.doi || '',
             'identifier': doc.identifier || '',
             'citation_count': doc.citation_count,
@@ -220,7 +226,7 @@ ADSData.prototype = {
         }
     },
 
-    load_data: function(query, obj, callback){
+    load_data: function(query, obj, callback, errorcallback){
         this.api_params['q'] = query;
 
         if (obj in this.rawdata){
@@ -242,7 +248,8 @@ ADSData.prototype = {
                     this.rawdata[obj] = data.response;
                     this.load_data_callback(callback);
                 }, this
-            )
+            ),
+            failure: function(){errorcallback();}
         });
     },
 
@@ -250,11 +257,11 @@ ADSData.prototype = {
         return callback(this.cache[url]);
     },
 
-    async_load: function(callback){
+    async_load: function(callback, errorcallback){
         this.aid = get_current_article();
-        this.load_data('arXiv:'+this.aid, 'base', callback);
-        this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback);
-        this.load_data('references(arXiv:'+this.aid+')', 'references', callback);
+        this.load_data('arXiv:'+this.aid, 'base', callback, errorcallback);
+        this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback, errorcallback);
+        this.load_data('references(arXiv:'+this.aid+')', 'references', callback, errorcallback);
     },
 
     sorters: {
@@ -339,7 +346,7 @@ S2Data.prototype = {
         return data;
     },
 
-    async_load: function(callback){
+    async_load: function(callback, errorcallback){
         this.aid = get_current_article();
         var url = this.url_paper(this.aid);
 
@@ -349,7 +356,10 @@ S2Data.prototype = {
                this.cache[url] = this.data;
                callback(this);
             }, this)
-        );
+        )
+        .fail(function(err){
+            errorcallback();
+        })
     },
 
     get_paper: function(url, callback){
@@ -384,13 +394,6 @@ S2Data.prototype = {
 //============================================================================
 function random_id(){
     return new String(Math.random()).substring(2,12);
-}
-
-function external_link(elm){
-    if (elm.tagName.toLowerCase() == 'a'){
-        if (!elm.href.startsWith('https://arxiv.org'))
-            elm.attr('target', '_blank');
-    }
 }
 
 function makeDelay(callback, ms) {
@@ -559,7 +562,7 @@ ColumnView.prototype = {
         }
 
         var pages_text = $('<span>').text('Pages: ');
-        var pages = $('<ul>').addClass('page-list')
+        var pages = $('<ul>').addClass('bib-page-list')
 
         pages.append(_inclink(-1));
 
@@ -598,7 +601,7 @@ ColumnView.prototype = {
         // finally decide if we should be showing nothing at all
         if (this.npages <= 1){
             pages_text = $('<span>').text('');
-            pages = $('<ul>').addClass('page-list');
+            pages = $('<ul>').addClass('bib-page-list');
             select = $('<span>');
         }
 
@@ -869,7 +872,7 @@ ColumnView.prototype = {
 
     create_utilities: function(){
         return $('<div>')
-            .addClass('page')
+            .addClass('bib-utils')
             .append(this.create_paging())
             .append(this.create_sorter())
             .append(this.create_filter());
@@ -1047,7 +1050,10 @@ Overlay.prototype = {
 
     load: function(ds){
         this.create_spinner();
-        ds.async_load($.proxy(this.create_overlay, this));
+        ds.async_load(
+            $.proxy(this.create_overlay, this),
+            $.proxy(this.destroy_spinner, this)
+        );
     }
 };
 

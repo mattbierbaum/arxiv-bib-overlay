@@ -48,7 +48,7 @@
 }
 
 .bib-col-header {
-    margin-bottom: 1em;
+    margin: 0px;
 }
 
 .bib-col-aside {
@@ -87,8 +87,7 @@
 
 .bib-paper {
     color: black;
-    margin-bottom: 1.3em;
-    margin-top: 0.3em;
+    margin-bottom: 1.5em;
     /*height: 50px;
     overflow: hidden;*/
 }
@@ -213,19 +212,19 @@
     justify-content: center;
 }
 
-.page {
+.bib-utils {
     margin-top: 1em;
     display: table;
-    margin: 0.7em auto;
+    margin: 0.7em auto 1.5em auto;
 }
 
-.page-list {
+.bib-page-list {
     list-style: none;
     padding: 0;
     display: inline;
 }
 
-.page-list > li {
+.bib-page-list > li {
     display: inline-block;
     margin-left: 0.25em;
     margin-right: 0.25em;
