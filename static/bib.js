@@ -175,6 +175,7 @@ ADSData.prototype = {
     },
 
     reverse_author: function(name){
+        if (!name) return 'Unknown';
         return name.split(', ').reverse().join(' ');
     },
 
@@ -230,6 +231,9 @@ ADSData.prototype = {
 
     load_data_callback: function(callback) {
         if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
+            if (this.rawdata.base.docs.length == 0)
+                throw new Error("No data loaded for "+this.aid);
+
             var output = this.reformat_document(this.rawdata.base.docs[0]);
             output.citations = this.reformat_documents(this.rawdata.citations.docs);
             output.references = this.reformat_documents(this.rawdata.references.docs);
@@ -246,7 +250,7 @@ ADSData.prototype = {
         }
     },
 
-    load_data: function(query, obj, callback, errorcallback){
+    load_data: function(query, obj, callback){
         this.api_params['q'] = query;
 
         if (obj in this.rawdata){
@@ -271,7 +275,7 @@ ADSData.prototype = {
                     this.load_data_callback(callback);
                 }, this
             ),
-            failure: function(){errorcallback();}
+            failure: function(){throw new Error("Error accessing "+url);}
         });
     },
 
@@ -279,12 +283,12 @@ ADSData.prototype = {
         return callback(this.cache[url]);
     },
 
-    async_load: function(callback, errorcallback){
+    async_load: function(callback){
         this.ready = {};
         this.aid = get_current_article();
-        this.load_data('arXiv:'+this.aid, 'base', callback, errorcallback);
-        this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback, errorcallback);
-        this.load_data('references(arXiv:'+this.aid+')', 'references', callback, errorcallback);
+        this.load_data('arXiv:'+this.aid, 'base', callback);
+        this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback);
+        this.load_data('references(arXiv:'+this.aid+')', 'references', callback);
     },
 
     sorters: {
@@ -369,7 +373,7 @@ S2Data.prototype = {
         return data;
     },
 
-    async_load: function(callback, errorcallback){
+    async_load: function(callback){
         this.aid = get_current_article();
         var url = this.url_paper(this.aid);
 
@@ -380,9 +384,7 @@ S2Data.prototype = {
                callback(this);
             }, this)
         )
-        .fail(function(err){
-            errorcallback();
-        })
+        .fail(function(err){})
     },
 
     get_paper: function(url, callback){
@@ -396,9 +398,7 @@ S2Data.prototype = {
                 callback(data);
             }, this)
         )
-        .fail(function(err) {
-            console.log("Could not resolve "+url);
-        });
+        .fail(function(err) {});
     },
 
     sorters: {
@@ -517,24 +517,6 @@ InspireData.prototype = {
         return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase();
     },
 
-    reformat_authors: function(auths){
-        if (!auths) return [];
-
-        var output = []
-        for (var i=0; i<auths.length; i++)
-            output.push({
-                'name': this.reverse_author(auths[i]),
-                'url': this.ads_url_author(auths[i])
-            });
-        return output;
-    },
-
-    reformat_title: function(title){
-        if (!title || title.length == 0)
-            return 'Unknown';
-        return title[0];
-    },
-
     reformat_document: function(doc, index){
         var arxivid = this.doc_arxiv_id(doc);
         var doc = {
@@ -589,7 +571,7 @@ InspireData.prototype = {
         }
     },
 
-    load_data: function(query, obj, callback, errorcallback){
+    load_data: function(query, obj, callback){
         this.api_params['p'] = query;
         var url = this.api_url+'?'+encodeQueryData(this.api_params);
 
@@ -610,7 +592,7 @@ InspireData.prototype = {
                     this.load_data_callback(callback);
                 }, this
             ),
-            failure: function(){errorcallback();}
+            failure: function(){throw new Error("Error accessing "+url);}
         });
     },
 
@@ -618,12 +600,12 @@ InspireData.prototype = {
         return callback(this.cache[url]);
     },
 
-    async_load: function(callback, errorcallback){
+    async_load: function(callback){
         this.ready = {};
         this.aid = get_current_article();
-        this.load_data(this.aid, 'base', callback, errorcallback);
-        this.load_data('refersto:'+this.aid, 'citations', callback, errorcallback);
-        this.load_data('citedby:'+this.aid, 'references', callback, errorcallback);
+        this.load_data(this.aid, 'base', callback);
+        this.load_data('refersto:'+this.aid, 'citations', callback);
+        this.load_data('citedby:'+this.aid, 'references', callback);
     },
 
     sorters: {
@@ -1228,6 +1210,22 @@ Overlay.prototype = {
         return out;
     },
 
+    create_error: function(txt){
+        if ($('.errors').length){
+            $('.errors').append($('<p>').text(txt));
+            return;
+        }
+
+        $('<div>')
+            .addClass('delete')
+            .addClass('bib-sidebar')
+            .addClass('bib-sidebar-errors')
+            .addClass('errors')
+            .append($('<span>').addClass('bib-sidebar-error').text('Overlay error:'))
+            .append($('<p>').text(txt))
+            .insertBefore($('.bookmarks'));
+    },
+
     create_sidebar: function(ds){
         var src = ds.url_icon;
 
@@ -1329,14 +1327,21 @@ Overlay.prototype = {
         $('.bib-pulse-container').remove()
     },
 
+    bind_errors: function(o){
+        var error = $.proxy(function(err){
+            this.destroy_spinner();
+            this.create_error(err.message);
+            throw(err);
+        }, this);
+
+        wrap_object(o, error);
+    },
+
     toggle_source: function(ds){
         $('.delete').remove();
 
         this.create_spinner();
-        ds.async_load(
-            $.proxy(this.create_overlay, this),
-            $.proxy(this.destroy_spinner, this)
-        );
+        ds.async_load($.proxy(this.create_overlay, this));
     },
 
     load: function(ds){
@@ -1355,9 +1360,35 @@ Overlay.prototype = {
             }
         }
 
+        this.bind_errors(this);
+        for (var i in this.available)
+            this.bind_errors(this.available[i]);
+
         this.toggle_source(this.available[0]);
     }
 };
+
+function wrap_error(func, error) {
+    if (!func._wrapped) {
+        func._wrapped = function () {
+            try {
+                return func.apply(this, arguments);
+            } catch(err) {
+                error(err);
+                throw err;
+            }
+        }
+    }
+    return func._wrapped;
+};
+
+function wrap_object(obj, error){
+	for (var name in obj){
+        if (typeof obj[name] == 'function'){
+            obj[name] = wrap_error(obj[name], error);
+        }
+    }
+}
 
 function gogogo(){
     var ui = new Overlay();
