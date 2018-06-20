@@ -11,12 +11,22 @@ var URL_ASSET_BASE = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-over
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
 
-function get_categories(){
+function minor_to_major(category){
+    // extract the major category from a full minor category
+    var re = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g);
+
+    var match = re.exec(category);
+    while (match != null)
+        return match[1];
+    return '';
+}
+
+function get_minor_categories(){
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     // also, (hep-th)
     var txt = $('.metatable').find('.subjects').text();
-    var re = new RegExp(/\(([a-z\-]+)(:?\.[a-zA-Z\-]+)?\)/g);
+    var re = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g);
 
     var matches = []
     var match = re.exec(txt);
@@ -25,6 +35,15 @@ function get_categories(){
         match = re.exec(txt);
     }
     return matches;
+}
+
+function get_categories(){
+    var cats = get_minor_categories();
+
+    var out = [];
+    for (var i=0; i<cats.length; i++)
+        out.push([minor_to_major(cats[i]), cats[i]]);
+    return out;
 }
 
 function get_current_article(){
@@ -97,6 +116,7 @@ var RE_IDENTIFIER = new RegExp(
 // ADS specific transformations
 //============================================================================
 function ADSData() {
+    this.ready = {};
     this.rawdata = {};
     this.cache = {};
     this.data = {};
@@ -202,14 +222,14 @@ ADSData.prototype = {
         var output = [];
         for (var i=0; i<docs.length; i++){
             var d = this.reformat_document(docs[i], i);
-            this.cache[d.url] = d;
+            this.cache[d.api] = d;
             output.push(d);
         }
         return output;
     },
 
     load_data_callback: function(callback) {
-        if ('base' in this.rawdata && 'citations' in this.rawdata && 'references' in this.rawdata){
+        if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
             var output = this.reformat_document(this.rawdata.base.docs[0]);
             output.citations = this.reformat_documents(this.rawdata.citations.docs);
             output.references = this.reformat_documents(this.rawdata.references.docs);
@@ -230,8 +250,9 @@ ADSData.prototype = {
         this.api_params['q'] = query;
 
         if (obj in this.rawdata){
-           this.load_data_callback(callback);
-           return;
+            this.ready[obj] = true;
+            this.load_data_callback(callback);
+            return;
         }
 
         var url = this.api_url+'?'+encodeQueryData(this.api_params);
@@ -245,6 +266,7 @@ ADSData.prototype = {
             },
             success: $.proxy(
                 function(data){
+                    this.ready[obj] = true;
                     this.rawdata[obj] = data.response;
                     this.load_data_callback(callback);
                 }, this
@@ -258,6 +280,7 @@ ADSData.prototype = {
     },
 
     async_load: function(callback, errorcallback){
+        this.ready = {};
         this.aid = get_current_article();
         this.load_data('arXiv:'+this.aid, 'base', callback, errorcallback);
         this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback, errorcallback);
@@ -291,7 +314,7 @@ S2Data.prototype = {
     url_icon: asset_url('static/icon-s2.png'),
 
     shortname: 'S2',
-    categories: new Set(['cs']),
+    categories: new Set(['cs', 'stats.ML']),
     homepage: 'https://semanticscholar.org',
     api_url: 'https://api.semanticscholar.org/v1/',
     api_params: 'include_unknown_references=true',
@@ -388,6 +411,232 @@ S2Data.prototype = {
     sorters_default: 'influence',
 };
 
+
+//============================================================================
+// HEP inspire api
+//============================================================================
+function InspireData() {
+    this.ready = {};
+    this.rawdata = {}
+    this.cache = {};
+    this.data = {}
+    this.aid = null;
+}
+
+InspireData.prototype = {
+    url_logo: asset_url('static/source-inspire.png'),
+    url_icon: asset_url('static/icon-inspire.png'),
+
+    shortname: 'Inspire',
+    categories: new Set(['hep-th', 'hep-ex', 'hep-ph']),
+    homepage: 'https://inspirehep.net',
+    api_url: 'https://inspirehep.net/search',
+    api_params: {
+        p:  'a query',  // pattern (query)
+        of: 'recjson',  // output format
+        ot: [           // output tags
+            'recid',
+            'title',
+            'doi',
+            'authors',
+            'number_of_citations',
+            'publication_info',
+            'primary_report_number',
+            'cataloguer_info',
+            'system_control_number',
+        ],
+        rg: '250',      // records in groups of
+        //jrec: 250     // jump to record
+    },
+
+    url_paper: function(id) {return this.homepage+'/record/'+id;},
+    url_paper_api: function(id) {return this.api_url+'?'+encodeQueryData({'p': 'recid:'+id, 'of': 'recjson'});},
+    url_author: function(name, recid) {return this.homepage+'/author/profile/'+name+'?'+encodeQueryData({'recid': recid});},
+    url_arxiv: function(arxivid){return arxivid ? 'https://arxiv.org/abs/'+arxivid : null;},
+
+    doc_arxiv_id: function(doc){
+        var reports = doc.primary_report_number;
+        if (reports){
+            for (var i=0; i<reports.length; i++){
+                var match = RE_IDENTIFIER.exec(reports[i]);
+                if (match) return (match[1] || match[2]);
+            }
+        }
+    },
+
+    doc_year: function(doc){
+        if (doc.publication_info && doc.publication_info.year)
+            return doc.publication_info.year;
+
+        if (doc.cataloguer_info && doc.cataloguer_info.length > 0)
+            return doc.cataloguer_info[0].creation_date.substring(0,4);
+
+        return '';
+    },
+
+    doc_title: function(doc){
+        if (!doc.title || !doc.title.title) return '';
+        return doc.title.title;
+    },
+
+    doc_authors: function(doc){
+        var auths = doc.authors;
+
+        if (!auths) return [];
+
+        output = [];
+        for (var i=0; i<auths.length; i++){
+            var name = [auths[i].first_name, auths[i].last_name].join(' ');
+            var url = this.url_author(auths[i].full_name, doc.recid);
+            output.push({
+                name: name,
+                url: url,
+            });
+        }
+        return output;
+    },
+
+    doc_venue: function(doc){
+        var pubs = doc.publication_info;
+
+        if (!pubs) return '';
+
+        for (var i=0; i<pubs.length; i++){
+            if (pubs[i].title)
+                return pubs[i].title.split('.').join(' ');
+        }
+
+        return '';
+    },
+
+    searchline: function(doc){
+        var auths = '';
+        for (var i=0; i<doc.authors.length; i++){
+            auths += doc.authors[i].name + ' ';
+        }
+        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase();
+    },
+
+    reformat_authors: function(auths){
+        if (!auths) return [];
+
+        var output = []
+        for (var i=0; i<auths.length; i++)
+            output.push({
+                'name': this.reverse_author(auths[i]),
+                'url': this.ads_url_author(auths[i])
+            });
+        return output;
+    },
+
+    reformat_title: function(title){
+        if (!title || title.length == 0)
+            return 'Unknown';
+        return title[0];
+    },
+
+    reformat_document: function(doc, index){
+        var arxivid = this.doc_arxiv_id(doc);
+        var doc = {
+            'title': this.doc_title(doc),
+            'authors': this.doc_authors(doc),
+            'year': this.doc_year(doc),
+            'venue': this.doc_venue(doc),
+            'doi': doc.doi || '',
+            'citation_count': doc.number_of_citations,
+            'recid': doc.recid.toString(),
+            'paperId': doc.recid.toString(),
+            'index': index,
+            'api': this.url_paper_api(doc.recid.toString()),
+            'url': this.url_paper(doc.recid),
+            'arxiv_url': this.url_arxiv(arxivid),
+        };
+        doc.searchline = this.searchline(doc);
+        return doc;
+    },
+
+    reformat_documents: function(docs){
+        if (!docs) return [];
+
+        var output = [];
+        for (var i=0; i<docs.length; i++){
+            var d = this.reformat_document(docs[i], i);
+            this.cache[d.api] = d;
+            output.push(d);
+        }
+        return output;
+    },
+
+    // t0: "http://inspirehep.net/search?p=hep-th/9711201&of=recjson&ot=recid,number_of_citations,authors,title,year",
+    // t1: "http://inspirehep.net/search?p=refersto:recid:451648&of=recjson&rg=250",
+    // t2: "http://inspirehep.net/search?p=citedby:recid:451648&of=recjson&rg=250&ot=title,year,authors"
+
+    load_data_callback: function(callback) {
+        if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
+            var output = this.reformat_document(this.rawdata.base.docs[0]);
+            output.citations = this.reformat_documents(this.rawdata.citations.docs);
+            output.references = this.reformat_documents(this.rawdata.references.docs);
+
+            output.citations.header = 'Citations';
+            output.references.header = 'References';
+            output.citations.header_url = output.url;
+            output.references.header_url = output.url;
+            output.citations.description = '';
+            output.references.description = '';
+
+            this.data = output;
+            callback(this);
+        }
+    },
+
+    load_data: function(query, obj, callback, errorcallback){
+        this.api_params['p'] = query;
+        var url = this.api_url+'?'+encodeQueryData(this.api_params);
+
+        if (obj in this.rawdata){
+            this.ready[obj] = true;
+            this.load_data_callback(callback);
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: $.proxy(
+                function(data){
+                    this.ready[obj] = true;
+                    this.rawdata[obj] = {};
+                    this.rawdata[obj].docs = data;
+                    this.load_data_callback(callback);
+                }, this
+            ),
+            failure: function(){errorcallback();}
+        });
+    },
+
+    get_paper: function(url, callback){
+        return callback(this.cache[url]);
+    },
+
+    async_load: function(callback, errorcallback){
+        this.ready = {};
+        this.aid = get_current_article();
+        this.load_data(this.aid, 'base', callback, errorcallback);
+        this.load_data('refersto:'+this.aid, 'citations', callback, errorcallback);
+        this.load_data('citedby:'+this.aid, 'references', callback, errorcallback);
+    },
+
+    sorters: {
+        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
+        'citations': {'name': 'Citations', 'func': function(i){return i.citation_count;}},
+        'influence': {'name': 'ADS read count', 'func': function(i){return i.read_count;}},
+        'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
+        'author': {'name': 'First author', 'func': function(i){return i.authors[0].name || '';}},
+        'year': {'name': 'Year', 'func': function(i){return i.year;}}
+    },
+    sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
+    sorters_default: 'citations',
+};
 
 //============================================================================
 // both at once now
@@ -727,6 +976,7 @@ ColumnView.prototype = {
         var make_link = {
             'ads': function(ref){return ref.url;},
             's2': function(ref){return ref.url;},
+            'inspire': function(ref){return ref.url;},
             'arxiv': function(ref){return ref.arxiv_url;},
             'doi': function(ref){return 'https://doi.org/'+ref.doi;},
             'scholar': function(ref){
@@ -737,6 +987,7 @@ ColumnView.prototype = {
         var make_text = {
             'ads': function(){return $('<span>').text('ADS').addClass('ads');},
             's2': function(){return $('<span>').text('S2').addClass('s2');},
+            'inspire': function(){return $('<span>').text('Inspire').addClass('inspire');},
             'arxiv': function(){return $('<span>').text('arXiv').addClass('arxiv');},
             'doi': function(){return $('<span>').text('DOI').addClass('doi');},
             'scholar': function(){
@@ -773,6 +1024,7 @@ ColumnView.prototype = {
         var make_text = {
             'ads': function(){return _img('ads');},
             's2': function(){return _img('s2');},
+            'inspire': function(){return _img('inspire');},
             'doi': function(){return _img('doi');},
             'arxiv': function(){return _img('arxiv');},
             'scholar': function(){return _img('scholar');},
@@ -781,6 +1033,7 @@ ColumnView.prototype = {
         var make_hover = {
             'ads': 'NASA ADS',
             's2': 'Semantic Scholar',
+            'inspire': 'Inspire HEP',
             'doi': 'Journal article',
             'arxiv': 'ArXiv article',
             'scholar': 'Google Scholar',
@@ -948,6 +1201,33 @@ Overlay.prototype = {
     id_references: 'col-references',
     id_citations: 'col-citations',
 
+    create_data_option: function(){
+        if (this.available.length <= 1)
+            return null;
+
+        var out = $('<div>')
+            .addClass('bib-sidebar-source center')
+            .append($('<span>').text('Data source:  '));
+
+        for (var i=0; i<this.available.length; i++){
+            var ds = this.available[i];
+            var func = (function(ctx, s){
+                return function(){
+                    ctx.toggle_source(s);
+                };
+            })(this, ds);
+
+            out.append(
+                $('<img>')
+                    .attr('src', ds.url_icon)
+                    .on('click', func)
+                    .addClass(ds.url_icon == this.ds.url_icon ? 'bib-selected' : 'bib-unselected')
+            );
+        }
+
+        return out;
+    },
+
     create_sidebar: function(ds){
         var src = ds.url_icon;
 
@@ -990,6 +1270,7 @@ Overlay.prototype = {
             .addClass('bib-sidebar')
             .append(badge)
             .append(authorlist)
+            .append(this.create_data_option())
             .insertBefore($('.bookmarks'));
     },
 
@@ -1048,33 +1329,40 @@ Overlay.prototype = {
         $('.bib-pulse-container').remove()
     },
 
-    load: function(ds){
+    toggle_source: function(ds){
+        $('.delete').remove();
+
         this.create_spinner();
         ds.async_load(
             $.proxy(this.create_overlay, this),
             $.proxy(this.destroy_spinner, this)
         );
+    },
+
+    load: function(ds){
+        this.datasets = [new S2Data(), new InspireData(), new ADSData()];
+        this.available = [];
+
+        var cats = get_categories();
+        if (!cats || cats.length == 0)
+            return;
+
+        var pcat = cats[0];
+        for (var i=0; i<this.datasets.length; i++){
+            if (this.datasets[i].categories.has(pcat[0]) ||
+                this.datasets[i].categories.has(pcat[1])){
+                this.available.push(this.datasets[i]);
+            }
+        }
+
+        this.toggle_source(this.available[0]);
     }
 };
 
 function gogogo(){
-    var ds, ui;
-    var datasets = [new S2Data(), new ADSData()];
-
-    var cats = get_categories();
-    if (!cats || cats.length == 0)
-        return;
-
-    for (var i=0; i<datasets.length; i++){
-        if (datasets[i].categories.has(cats[0]))
-            ds = datasets[i];
-    }
-
-    if (ds){
-        ui = new Overlay();
-        ui.load(ds);
-        D = ui;
-    }
+    var ui = new Overlay();
+    ui.load();
+    D = ui;
 }
 
 gogogo();

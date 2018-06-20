@@ -21,8 +21,10 @@
     "web_accessible_resources": [
         "static/source-s2.png",
         "static/source-ads.png",
+        "static/source-inspire.png",
         "static/icon-s2.png",
         "static/icon-ads.png",
+        "static/icon-inspire.png",
         "static/icon-scholar.png",
         "static/icon-doi.png",
         "static/icon-arxiv.png"

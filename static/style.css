@@ -277,27 +277,6 @@ h1.bib-header span {
     padding: 0 15px;
 }
 
-.bib-selected {
-    border: 2px solid #d8d8d8;
-    border-radius: 20px;
-}
-
-.bib-selected:hover {
-    border: 2px solid #d8d8d8;
-    border-radius: 20px;
-}
-
-.bib-unselected {
-    border: 2px solid white;
-    border-radius: 20px;
-}
-
-.bib-unselected:hover {
-    border: 2px solid black;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
 .bib-sidebar {
     padding: 0 1em 0 1em;
     font-size: 90%;
@@ -321,6 +300,45 @@ h1.bib-header span {
     margin: 0 1em 0 2em;
     padding: 0 0 0.5em 1em;
 }
+
+.bib-sidebar-source {
+    padding-bottom: 5px;
+}
+
+.bib-sidebar-source span {
+    position: relative;
+    margin-right: 5px;
+}
+
+.bib-sidebar-source img {
+    height: 18px;
+    width: auto;
+    padding: 3px;
+    margin-right: 3px;
+    position: relative;
+}
+
+.bib-selected {
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+}
+
+.bib-selected:hover {
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+}
+
+.bib-unselected {
+    border: 1px solid white;
+    border-radius: 6px;
+}
+
+.bib-unselected:hover {
+    border: 1px solid black;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
 
 .bib-pulse-container {
 	display: flex;
