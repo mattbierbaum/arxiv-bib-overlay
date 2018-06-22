@@ -1,0 +1,111 @@
+//============================================================================
+// S2 specific transformations
+//============================================================================
+function S2Data() {
+    this.cache = {};
+    this.data = {}
+    this.aid = null;
+}
+
+S2Data.prototype = {
+    url_logo: asset_url('static/source-s2.png'),
+    url_icon: asset_url('static/icon-s2.png'),
+
+    shortname: 'S2',
+    categories: new Set(['cs', 'stats.ML']),
+    homepage: 'https://semanticscholar.org',
+    api_url: 'https://api.semanticscholar.org/v1/',
+    api_params: 'include_unknown_references=true',
+
+    url_paper: function(id) {return urlproxy(this.api_url+'paper/arXiv:'+id+'?'+this.api_params);},
+    url_paperId: function(id) {return urlproxy(this.api_url+'paper/'+id+'?'+this.api_params);},
+    url_author: function(id) {return this.api_url+'author/'+id;},
+
+    add_api_url: function(data){
+        if ('paperId' in data)
+            data['api'] = this.url_paperId(data['paperId']);
+    },
+
+    add_url_arxiv: function(data){
+        if (data.venue == 'ArXiv'){
+            var url = 'https://arxiv.org/search/?';
+            var param = {
+                'query': '"'+data.title+'"',
+                'searchtype': 'title'
+            };
+            data['url_arxiv'] = url + encodeQueryData(param);
+        }
+        else
+            data['url_arxiv'] = '';
+    },
+
+    add_url_doi: function(data){
+        data.url_doi = data.doi ? 'https://doi.org/'+data.doi : '';
+    },
+
+    searchline: function(doc){
+        return [doc.title, doc.venue, doc.year].join(' ').toLowerCase();
+    },
+
+    reformat_document: function(data, index){
+        this.add_api_url(data);
+        this.add_url_arxiv(data);
+        this.add_url_doi(data);
+        data.searchline = this.searchline(data);
+        data.index = index;
+    },
+
+    transform_result: function(data){
+        this.reformat_document(data);
+
+        for (var ind in data.citations)
+            this.reformat_document(data.citations[ind], ind);
+        for (var ind in data.references)
+            this.reformat_document(data.references[ind], ind);
+
+        data.citations.header = 'Citations';
+        data.references.header = 'References';
+        data.citations.header_url = data.url + '#citingPapers';
+        data.references.header_url = data.url + '#citedPapers';
+        data.citations.description = 'highly influenced citations';
+        data.references.description = 'highly influential references';
+        return data;
+    },
+
+    async_load: function(callback){
+        this.aid = get_current_article();
+        var url = this.url_paper(this.aid);
+
+        $.get(url, $.proxy(
+            function(data){
+               this.data = this.transform_result(data);
+               this.cache[url] = this.data;
+               callback(this);
+            }, this)
+        )
+        .fail(function(err){})
+    },
+
+    get_paper: function(url, callback){
+        if (url in this.cache)
+            return callback(this.cache[url]);
+
+        $.get(url, $.proxy(
+            function(data){
+                data = this.transform_result(data);
+                this.cache[url] = data;
+                callback(data);
+            }, this)
+        )
+        .fail(function(err) {});
+    },
+
+    sorters: {
+        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
+        'influence': {'name': 'Influence', 'func': function(i){return i.isInfluential;}},
+        'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
+        'year': {'name': 'Year', 'func': function(i){return i.year;}},
+    },
+    sorters_order: ['influence', 'title', 'year'],
+    sorters_default: 'influence',
+};

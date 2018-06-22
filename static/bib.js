@@ -2,627 +2,7 @@
 var D = null;
 var MAX_AUTHORS = 10;
 var PAGE_LENGTH = 10;
-var URL_ASSET_BASE = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-overlay/';
 
-
-//============================================================================
-// origin S2 functionality
-//============================================================================
-function min(a, b){return (a < b) ? a : b;}
-function max(a, b){return (a > b) ? a : b;}
-
-function minor_to_major(category){
-    // extract the major category from a full minor category
-    var re = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g);
-
-    var match = re.exec(category);
-    while (match != null)
-        return match[1];
-    return '';
-}
-
-function get_minor_categories(){
-    // find the entries in the table which look like
-    // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
-    // also, (hep-th)
-    var txt = $('.metatable').find('.subjects').text();
-    var re = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g);
-
-    var matches = []
-    var match = re.exec(txt);
-    while (match != null){
-        matches.push(match[1]);
-        match = re.exec(txt);
-    }
-    return matches;
-}
-
-function get_categories(){
-    var cats = get_minor_categories();
-
-    var out = [];
-    for (var i=0; i<cats.length; i++)
-        out.push([minor_to_major(cats[i]), cats[i]]);
-    return out;
-}
-
-function get_current_article(){
-    var url = $(location).attr('href');
-    var re_url = new RegExp(
-        '^http(?:s)?://arxiv.org/abs/'+             // we are on an abs page
-        '(?:'+                                           // begin OR group
-          '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+       // there is a new-form arxiv id
-            '|'+                                            // OR
-          '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+ // old-form id (not allowed by S2)
-        ')'+                                             // end OR group
-        '(?:#.*)?'+                                 // anchor links on page
-        '(?:\\?.*)?$'                               // query parameter stuff
-    );
-    var match = re_url.exec(url);
-
-    if (!match){
-        console.log("No valid match could be found for article ID");
-        return;
-    }
-
-    var aid = match.filter(function(x){return x;}).pop();
-
-    if (aid.length <= 5){
-        console.log("No valid article ID extracted from the browser location.");
-        return;
-    }
-
-    return aid;
-}
-
-function asset_url(url){
-    var output = '';
-    try {
-        output = chrome.extension.getURL(url);
-    } catch (err) {
-        output = URL_ASSET_BASE + url;
-    }
-    return output;
-}
-
-function encodeQueryData(data) {
-    var ret = [];
-    for (var d in data){
-        key = d;
-        val = data[d];
-
-        if (!Array.isArray(val))
-            val = [val]
-
-        for (var i=0; i<val.length; i++)
-            ret.push(
-                encodeURIComponent(key) + '=' +
-                encodeURIComponent(val[i])
-            );
-    }
-    return ret.join('&');
-}
-
-var RE_IDENTIFIER = new RegExp(
-    '(?:'+                                           // begin OR group
-      '(?:arXiv:)?(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
-        '|'+                                             // OR
-      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
-    ')'                                              // end OR group
-);
-
-
-//============================================================================
-// ADS specific transformations
-//============================================================================
-function ADSData() {
-    this.ready = {};
-    this.rawdata = {};
-    this.cache = {};
-    this.data = {};
-    this.aid = null;
-}
-
-ADSData.prototype = {
-    url_logo: asset_url('static/source-ads.png'),
-    url_icon: asset_url('static/icon-ads.png'),
-
-    shortname: 'ADS',
-    categories: new Set([
-        'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat',
-        'hep-ph', 'hep-th', 'math-ph', 'nlin', 'nucl-ex',
-        'nucl-th', 'physics', 'quant-ph'
-    ]),
-    homepage: 'https://ui.adsabs.harvard.edu',
-    api_url: 'https://api.adsabs.harvard.edu/v1/search/query',
-    api_key: '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x',
-    api_params: {
-        'fl': [
-            'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
-            'year', 'doi', 'citation_count', 'read_count', 'identifier'
-        ],
-        'rows': 10000
-    },
-
-    ads_url_ui: 'https://ui.adsabs.harvard.edu/#search/',
-    ads_url_part: function(field, value){
-        return this.ads_url_ui + encodeQueryData({'q': field+':"'+value+'"'});
-    },
-    ads_url_author: function(name){return this.ads_url_part('author', name);},
-    ads_url_title: function(name) {return this.ads_url_part('title', name);},
-    ads_url_bibcode_search: function(bib){return this.ads_url_part('bibcode', bib);},
-    ads_url_bibcode: function(bib){
-        var url0 = 'https://ui.adsabs.harvard.edu/#abs/';
-        var url1 = '/abstract';
-        return url0 + bib + url1;
-    },
-    ads_url_arxiv: function(identifiers){
-        if (!identifiers) return;
-
-        for (var i=0; i<identifiers.length; i++){
-            var match = RE_IDENTIFIER.exec(identifiers[i]);
-            if (match) return 'https://arxiv.org/abs/'+(match[1] || match[2]);
-        }
-        return;
-    },
-
-    searchline: function(doc){
-        var auths = '';
-        for (var i=0; i<doc.authors.length; i++){
-            auths += doc.authors[i].name + ' ';
-        }
-        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase();
-    },
-
-    reverse_author: function(name){
-        if (!name) return 'Unknown';
-        return name.split(', ').reverse().join(' ');
-    },
-
-    reformat_authors: function(auths){
-        if (!auths) return [];
-
-        var output = []
-        for (var i=0; i<auths.length; i++)
-            output.push({
-                'name': this.reverse_author(auths[i]),
-                'url': this.ads_url_author(auths[i])
-            });
-        return output;
-    },
-
-    reformat_title: function(title){
-        if (!title || title.length == 0)
-            return 'Unknown';
-        return title[0];
-    },
-
-    reformat_document: function(doc, index){
-        var doc = {
-            'title': this.reformat_title(doc.title),
-            'authors': this.reformat_authors(doc.author),
-            'api': this.ads_url_bibcode(doc.bibcode),
-            'url': this.ads_url_bibcode(doc.bibcode),
-            'arxiv_url': this.ads_url_arxiv(doc.identifier),
-            'paperId': doc.bibcode || '',
-            'year': doc.year || '',
-            'venue': doc.pub || '',
-            'doi': doc.doi || '',
-            'identifier': doc.identifier || '',
-            'citation_count': doc.citation_count,
-            'read_count': doc.read_count,
-            'index': index,
-        };
-        doc.searchline = this.searchline(doc);
-        return doc;
-    },
-
-    reformat_documents: function(docs){
-        if (!docs) return [];
-
-        var output = [];
-        for (var i=0; i<docs.length; i++){
-            var d = this.reformat_document(docs[i], i);
-            this.cache[d.api] = d;
-            output.push(d);
-        }
-        return output;
-    },
-
-    load_data_callback: function(callback) {
-        if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
-            if (this.rawdata.base.docs.length == 0)
-                throw new Error("No data loaded for "+this.aid);
-
-            var output = this.reformat_document(this.rawdata.base.docs[0]);
-            output.citations = this.reformat_documents(this.rawdata.citations.docs);
-            output.references = this.reformat_documents(this.rawdata.references.docs);
-
-            output.citations.header = 'Citations';
-            output.references.header = 'References';
-            output.citations.header_url = output.url;
-            output.references.header_url = output.url;
-            output.citations.description = '';
-            output.references.description = '';
-
-            this.data = output;
-            callback(this);
-        }
-    },
-
-    load_data: function(query, obj, callback){
-        this.api_params['q'] = query;
-
-        if (obj in this.rawdata){
-            this.ready[obj] = true;
-            this.load_data_callback(callback);
-            return;
-        }
-
-        var url = this.api_url+'?'+encodeQueryData(this.api_params);
-        var auth = 'Bearer '+this.api_key;
-
-        $.ajax({
-            type: 'GET',
-            url: url,
-            beforeSend: function(xhr){
-                xhr.setRequestHeader('Authorization', auth);
-            },
-            success: $.proxy(
-                function(data){
-                    this.ready[obj] = true;
-                    this.rawdata[obj] = data.response;
-                    this.load_data_callback(callback);
-                }, this
-            ),
-            failure: function(){throw new Error("Error accessing "+url);}
-        });
-    },
-
-    get_paper: function(url, callback){
-        return callback(this.cache[url]);
-    },
-
-    async_load: function(callback){
-        this.ready = {};
-        this.aid = get_current_article();
-        this.load_data('arXiv:'+this.aid, 'base', callback);
-        this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback);
-        this.load_data('references(arXiv:'+this.aid+')', 'references', callback);
-    },
-
-    sorters: {
-        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
-        'citations': {'name': 'Citations', 'func': function(i){return i.citation_count;}},
-        'influence': {'name': 'ADS read count', 'func': function(i){return i.read_count;}},
-        'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
-        'author': {'name': 'First author', 'func': function(i){return i.authors[0].name || '';}},
-        'year': {'name': 'Year', 'func': function(i){return i.year;}}
-    },
-    sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
-    sorters_default: 'citations',
-};
-
-
-//============================================================================
-// S2 specific transformations
-//============================================================================
-function S2Data() {
-    this.cache = {};
-    this.data = {}
-    this.aid = null;
-}
-
-S2Data.prototype = {
-    url_logo: asset_url('static/source-s2.png'),
-    url_icon: asset_url('static/icon-s2.png'),
-
-    shortname: 'S2',
-    categories: new Set(['cs', 'stats.ML']),
-    homepage: 'https://semanticscholar.org',
-    api_url: 'https://api.semanticscholar.org/v1/',
-    api_params: 'include_unknown_references=true',
-
-    url_paper: function(id) {return this.api_url+'paper/arXiv:'+id+'?'+this.api_params;},
-    url_paperId: function(id) {return this.api_url+'paper/'+id+'?'+this.api_params;},
-    url_author: function(id) {return this.api_url+'author/'+id;},
-
-    add_api_url: function(data){
-        if ('paperId' in data)
-            data['api'] = this.url_paperId(data['paperId']);
-    },
-
-    add_arxiv_url: function(data){
-        if (data.venue == 'ArXiv'){
-            var url = 'https://arxiv.org/search/?';
-            var param = {
-                'query': '"'+data.title+'"',
-                'searchtype': 'title'
-            };
-            data['arxiv_url'] = url + encodeQueryData(param);
-        }
-        else
-            data['arxiv_url'] = '';
-    },
-
-    searchline: function(doc){
-        return [doc.title, doc.venue, doc.year].join(' ').toLowerCase();
-    },
-
-    reformat_document: function(data, index){
-        this.add_api_url(data);
-        this.add_arxiv_url(data);
-        data.searchline = this.searchline(data);
-        data.index = index;
-    },
-
-    transform_result: function(data){
-        this.reformat_document(data);
-
-        for (var ind in data.citations)
-            this.reformat_document(data.citations[ind], ind);
-        for (var ind in data.references)
-            this.reformat_document(data.references[ind], ind);
-
-        data.citations.header = 'Citations';
-        data.references.header = 'References';
-        data.citations.header_url = data.url + '#citingPapers';
-        data.references.header_url = data.url + '#citedPapers';
-        data.citations.description = 'highly influenced citations';
-        data.references.description = 'highly influential references';
-        return data;
-    },
-
-    async_load: function(callback){
-        this.aid = get_current_article();
-        var url = this.url_paper(this.aid);
-
-        $.get(url, $.proxy(
-            function(data){
-               this.data = this.transform_result(data);
-               this.cache[url] = this.data;
-               callback(this);
-            }, this)
-        )
-        .fail(function(err){})
-    },
-
-    get_paper: function(url, callback){
-        if (url in this.cache)
-            return callback(this.cache[url]);
-
-        $.get(url, $.proxy(
-            function(data){
-                data = this.transform_result(data);
-                this.cache[url] = data;
-                callback(data);
-            }, this)
-        )
-        .fail(function(err) {});
-    },
-
-    sorters: {
-        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
-        'influence': {'name': 'Influence', 'func': function(i){return i.isInfluential;}},
-        'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
-        'year': {'name': 'Year', 'func': function(i){return i.year;}},
-    },
-    sorters_order: ['influence', 'title', 'year'],
-    sorters_default: 'influence',
-};
-
-
-//============================================================================
-// HEP inspire api
-//============================================================================
-function InspireData() {
-    this.ready = {};
-    this.rawdata = {}
-    this.cache = {};
-    this.data = {}
-    this.aid = null;
-}
-
-InspireData.prototype = {
-    url_logo: asset_url('static/source-inspire.png'),
-    url_icon: asset_url('static/icon-inspire.png'),
-
-    shortname: 'Inspire',
-    categories: new Set(['hep-th', 'hep-ex', 'hep-ph']),
-    homepage: 'https://inspirehep.net',
-    api_url: 'https://inspirehep.net/search',
-    api_params: {
-        p:  'a query',  // pattern (query)
-        of: 'recjson',  // output format
-        ot: [           // output tags
-            'recid',
-            'title',
-            'doi',
-            'authors',
-            'number_of_citations',
-            'publication_info',
-            'primary_report_number',
-            'cataloguer_info',
-            'system_control_number',
-        ],
-        rg: '250',      // records in groups of
-        //jrec: 250     // jump to record
-    },
-
-    url_paper: function(id) {return this.homepage+'/record/'+id;},
-    url_paper_api: function(id) {return this.api_url+'?'+encodeQueryData({'p': 'recid:'+id, 'of': 'recjson'});},
-    url_author: function(name, recid) {return this.homepage+'/author/profile/'+name+'?'+encodeQueryData({'recid': recid});},
-    url_arxiv: function(arxivid){return arxivid ? 'https://arxiv.org/abs/'+arxivid : null;},
-
-    doc_arxiv_id: function(doc){
-        var reports = doc.primary_report_number;
-        if (reports){
-            for (var i=0; i<reports.length; i++){
-                var match = RE_IDENTIFIER.exec(reports[i]);
-                if (match) return (match[1] || match[2]);
-            }
-        }
-    },
-
-    doc_year: function(doc){
-        if (doc.publication_info && doc.publication_info.year)
-            return doc.publication_info.year;
-
-        if (doc.cataloguer_info && doc.cataloguer_info.length > 0)
-            return doc.cataloguer_info[0].creation_date.substring(0,4);
-
-        return '';
-    },
-
-    doc_title: function(doc){
-        if (!doc.title || !doc.title.title) return '';
-        return doc.title.title;
-    },
-
-    doc_authors: function(doc){
-        var auths = doc.authors;
-
-        if (!auths) return [];
-
-        output = [];
-        for (var i=0; i<auths.length; i++){
-            var name = [auths[i].first_name, auths[i].last_name].join(' ');
-            var url = this.url_author(auths[i].full_name, doc.recid);
-            output.push({
-                name: name,
-                url: url,
-            });
-        }
-        return output;
-    },
-
-    doc_venue: function(doc){
-        var pubs = doc.publication_info;
-
-        if (!pubs) return '';
-
-        for (var i=0; i<pubs.length; i++){
-            if (pubs[i].title)
-                return pubs[i].title.split('.').join(' ');
-        }
-
-        return '';
-    },
-
-    searchline: function(doc){
-        var auths = '';
-        for (var i=0; i<doc.authors.length; i++){
-            auths += doc.authors[i].name + ' ';
-        }
-        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase();
-    },
-
-    reformat_document: function(doc, index){
-        var arxivid = this.doc_arxiv_id(doc);
-        var doc = {
-            'title': this.doc_title(doc),
-            'authors': this.doc_authors(doc),
-            'year': this.doc_year(doc),
-            'venue': this.doc_venue(doc),
-            'doi': doc.doi || '',
-            'citation_count': doc.number_of_citations,
-            'recid': doc.recid.toString(),
-            'paperId': doc.recid.toString(),
-            'index': index,
-            'api': this.url_paper_api(doc.recid.toString()),
-            'url': this.url_paper(doc.recid),
-            'arxiv_url': this.url_arxiv(arxivid),
-        };
-        doc.searchline = this.searchline(doc);
-        return doc;
-    },
-
-    reformat_documents: function(docs){
-        if (!docs) return [];
-
-        var output = [];
-        for (var i=0; i<docs.length; i++){
-            var d = this.reformat_document(docs[i], i);
-            this.cache[d.api] = d;
-            output.push(d);
-        }
-        return output;
-    },
-
-    // t0: "http://inspirehep.net/search?p=hep-th/9711201&of=recjson&ot=recid,number_of_citations,authors,title,year",
-    // t1: "http://inspirehep.net/search?p=refersto:recid:451648&of=recjson&rg=250",
-    // t2: "http://inspirehep.net/search?p=citedby:recid:451648&of=recjson&rg=250&ot=title,year,authors"
-
-    load_data_callback: function(callback) {
-        if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
-            var output = this.reformat_document(this.rawdata.base.docs[0]);
-            output.citations = this.reformat_documents(this.rawdata.citations.docs);
-            output.references = this.reformat_documents(this.rawdata.references.docs);
-
-            output.citations.header = 'Citations';
-            output.references.header = 'References';
-            output.citations.header_url = output.url;
-            output.references.header_url = output.url;
-            output.citations.description = '';
-            output.references.description = '';
-
-            this.data = output;
-            callback(this);
-        }
-    },
-
-    load_data: function(query, obj, callback){
-        this.api_params['p'] = query;
-        var url = this.api_url+'?'+encodeQueryData(this.api_params);
-
-        if (obj in this.rawdata){
-            this.ready[obj] = true;
-            this.load_data_callback(callback);
-            return;
-        }
-
-        $.ajax({
-            type: 'GET',
-            url: url,
-            success: $.proxy(
-                function(data){
-                    this.ready[obj] = true;
-                    this.rawdata[obj] = {};
-                    this.rawdata[obj].docs = data;
-                    this.load_data_callback(callback);
-                }, this
-            ),
-            failure: function(){throw new Error("Error accessing "+url);}
-        });
-    },
-
-    get_paper: function(url, callback){
-        return callback(this.cache[url]);
-    },
-
-    async_load: function(callback){
-        this.ready = {};
-        this.aid = get_current_article();
-        this.load_data(this.aid, 'base', callback);
-        this.load_data('refersto:'+this.aid, 'citations', callback);
-        this.load_data('citedby:'+this.aid, 'references', callback);
-    },
-
-    sorters: {
-        'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
-        'citations': {'name': 'Citations', 'func': function(i){return i.citation_count;}},
-        'influence': {'name': 'ADS read count', 'func': function(i){return i.read_count;}},
-        'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
-        'author': {'name': 'First author', 'func': function(i){return i.authors[0].name || '';}},
-        'year': {'name': 'Year', 'func': function(i){return i.year;}}
-    },
-    sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
-    sorters_default: 'citations',
-};
-
-//============================================================================
-// both at once now
-//============================================================================
 function random_id(){
     return new String(Math.random()).substring(2,12);
 }
@@ -635,6 +15,9 @@ function makeDelay(callback, ms) {
     };
 }
 
+//============================================================================
+// Column elements (one for citations, one for references)
+//============================================================================
 function ColumnView(ds, datakey, htmlid){
     this.ds = ds;
     this.htmlid = htmlid;
@@ -959,8 +342,8 @@ ColumnView.prototype = {
             'ads': function(ref){return ref.url;},
             's2': function(ref){return ref.url;},
             'inspire': function(ref){return ref.url;},
-            'arxiv': function(ref){return ref.arxiv_url;},
-            'doi': function(ref){return 'https://doi.org/'+ref.doi;},
+            'arxiv': function(ref){return ref.url_arxiv;},
+            'doi': function(ref){return ref.url_doi;},
             'scholar': function(ref){
                 return 'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title});
             },
@@ -1043,10 +426,10 @@ ColumnView.prototype = {
             urls.append(arrow);
             urls.append(outbound_link(ref, this.ds.shortname.toLowerCase()));
 
-            if (ref.arxiv_url)
+            if (ref.url_arxiv)
                 urls.append(outbound_link(ref, 'arxiv', false));
 
-            if (ref.doi)
+            if (ref.url_doi)
                 urls.append(outbound_link(ref, 'doi'));
 
             urls.append(outbound_link(ref, 'scholar'));
@@ -1177,6 +560,9 @@ ColumnView.prototype = {
     },
 };
 
+//============================================================================
+// The overall layout of the overlay
+//============================================================================
 function Overlay(){}
 
 Overlay.prototype = {
@@ -1211,8 +597,21 @@ Overlay.prototype = {
     },
 
     create_error: function(txt){
+        function err2div(txt){
+            if (txt.length <= 30)
+                $('.errors').append($('<li>').addClass('error').text(txt));
+            else {
+                $('.errors').append(
+                    $('<li>')
+                        .addClass('error')
+                        .text(txt.substring(0,27) + '...')
+                        .append($('<pre>').text(txt).addClass('hover'))
+                );
+            }
+        }
+
         if ($('.errors').length){
-            $('.errors').append($('<p>').text(txt));
+            err2div(txt);
             return;
         }
 
@@ -1220,10 +619,11 @@ Overlay.prototype = {
             .addClass('delete')
             .addClass('bib-sidebar')
             .addClass('bib-sidebar-errors')
-            .addClass('errors')
             .append($('<span>').addClass('bib-sidebar-error').text('Overlay error:'))
-            .append($('<p>').text(txt))
+            .append($('<ul>').addClass('errors'))
             .insertBefore($('.bookmarks'));
+
+        err2div(txt);
     },
 
     create_sidebar: function(ds){

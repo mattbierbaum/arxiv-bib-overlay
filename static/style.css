@@ -310,6 +310,35 @@ h1.bib-header span {
     margin: 0;
 }
 
+.bib-sidebar-errors .errors {
+    padding-left: 0px;
+    margin: 0.3em 0em;
+}
+
+.bib-sidebar-errors .error {
+    color: black;
+    font-size: 100%;
+    font-weight: normal;
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.bib-sidebar-errors .error .hover {
+    top: -5px;
+    right: 105%; 
+    visibility: hidden;
+    color: white;
+    background-color: #444;
+    padding: 1em;
+    position: absolute;
+    z-index: 1;
+}
+
+.bib-sidebar-errors .error:hover .hover {
+    visibility: visible;
+}
+
 .bib-sidebar-authors {
     margin: 0 1em 0 2em;
     padding: 0 0 0.5em 1em;
