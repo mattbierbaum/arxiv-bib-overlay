@@ -102,7 +102,7 @@ function urlproxy(url){
 
 var RE_IDENTIFIER = new RegExp(
     '(?:'+                                           // begin OR group
-      '(?:arXiv:)?(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
+      '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
         '|'+                                             // OR
       '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
     ')'                                              // end OR group

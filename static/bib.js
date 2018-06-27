@@ -569,12 +569,22 @@ Overlay.prototype = {
     id_references: 'col-references',
     id_citations: 'col-citations',
 
-    create_data_option: function(){
-        if (this.available.length <= 1)
+    create_sidebar: function(){
+        $('<div>')
+            .addClass('delete')
+            .addClass('bib-sidebar')
+            .append($('<div>').addClass('bib-sidebar-paper nodisplay'))
+            .append($('<div>').addClass('bib-sidebar-errors nodisplay'))
+            .append($('<div>').addClass('bib-sidebar-source nodisplay'))
+            .insertBefore($('.bookmarks'));
+    },
+
+    populate_source: function(){
+        if (this.available.length == 0)
             return null;
 
         var out = $('<div>')
-            .addClass('bib-sidebar-source center')
+            .addClass('bib-sidebar-source')
             .append($('<span>').text('Data source:  '));
 
         for (var i=0; i<this.available.length; i++){
@@ -588,15 +598,17 @@ Overlay.prototype = {
             out.append(
                 $('<img>')
                     .attr('src', ds.url_icon)
+                    .attr('title', ds.shortname)
                     .on('click', func)
                     .addClass(ds.url_icon == this.ds.url_icon ? 'bib-selected' : 'bib-unselected')
             );
         }
 
-        return out;
+        $('.bib-sidebar-source').replaceWith(out);
+        $('.bib-sidebar-source').css('display', 'flex');
     },
 
-    create_error: function(txt){
+    populate_error: function(txt){
         function err2div(txt){
             if (txt.length <= 30)
                 $('.errors').append($('<li>').addClass('error').text(txt));
@@ -615,38 +627,40 @@ Overlay.prototype = {
             return;
         }
 
-        $('<div>')
-            .addClass('delete')
-            .addClass('bib-sidebar')
-            .addClass('bib-sidebar-errors')
-            .append($('<span>').addClass('bib-sidebar-error').text('Overlay error:'))
-            .append($('<ul>').addClass('errors'))
-            .insertBefore($('.bookmarks'));
+        $('.bib-sidebar-errors').replaceWith(
+            $('<div>')
+                .addClass('bib-sidebar-errors')
+                .append($('<span>').addClass('bib-sidebar-error').text('Overlay error:'))
+                .append($('<ul>').addClass('errors'))
+        );
+        $('.bib-sidebar-errors').css('display', 'block');
 
         err2div(txt);
     },
 
-    create_sidebar: function(ds){
+    populate_sidebar: function(ds){
         var src = ds.url_icon;
 
-        var badge = $('<span>')
-            .append(
-                $('<img>')
-                    .addClass('bib-sidebar-badge')
-                    .css('height', '24')
-                    .css('width', 'auto')
-                    .attr('src', src)
-            )
-            .append(
-                $('<a>')
-                    .addClass('bib-sidebar-title')
-                    .text(ds.data.title.substring(0, 20) + '...')
-                    .attr('href', ds.data.url)
-                    .attr('target', '_blank')
+        var badge = $('<div>')
+            .addClass('bib-sidebar-title')
+            .append($('<span>')
+                .append(
+                    $('<img>')
+                        .addClass('bib-sidebar-badge')
+                        .css('height', '24')
+                        .css('width', 'auto')
+                        .attr('src', src)
+                )
+                .append(
+                    $('<a>')
+                        .addClass('bib-sidebar-title-link')
+                        .text(ds.data.title.substring(0, 20) + '...')
+                        .attr('href', ds.data.url)
+                        .attr('target', '_blank')
+                )
             );
 
         var authorlist = $('<ul>').addClass('bib-sidebar-authors');
-
         for (var i=0; i<min(ds.data.authors.length, MAX_AUTHORS); i++){
             authorlist.append(
                 $('<li>').append(
@@ -663,16 +677,16 @@ Overlay.prototype = {
                 $('<a>').text('...').attr('href', ds.data.url).attr('target', '_blank')
             ));
 
-        $('<div>')
-            .addClass('delete')
-            .addClass('bib-sidebar')
+        var output = $('<div>')
+            .addClass('bib-sidebar-paper')
             .append(badge)
-            .append(authorlist)
-            .append(this.create_data_option())
-            .insertBefore($('.bookmarks'));
+            .append(authorlist);
+
+        $('.bib-sidebar-paper').replaceWith(output)
+        $('.bib-sidebar-paper').css('display', 'block');
     },
 
-    create_header: function(ds){
+    create_main: function(ds){
         var brand = $('<h1>')
             .addClass('bib-header')
             .append($('<span>').append(
@@ -697,12 +711,11 @@ Overlay.prototype = {
 
     create_overlay: function(ds){
         this.destroy_spinner();
-
-        this.ds = ds;
-        this.create_sidebar(ds);
+        this.populate_source();
+        this.populate_sidebar(ds);
 
         if (ds.data.references.length > 0 || ds.data.citations.length > 0){
-            this.create_header(ds);
+            this.create_main(ds);
 
             this.column0 = new ColumnView(ds, 'references', this.id_references);
             this.column1 = new ColumnView(ds, 'citations', this.id_citations);
@@ -730,7 +743,7 @@ Overlay.prototype = {
     bind_errors: function(o){
         var error = $.proxy(function(err){
             this.destroy_spinner();
-            this.create_error(err.message);
+            this.populate_error(err.message);
             throw(err);
         }, this);
 
@@ -740,7 +753,10 @@ Overlay.prototype = {
     toggle_source: function(ds){
         $('.delete').remove();
 
+        this.ds = ds;
         this.create_spinner();
+        this.create_sidebar();
+        this.populate_source();
         ds.async_load($.proxy(this.create_overlay, this));
     },
 
@@ -764,7 +780,9 @@ Overlay.prototype = {
         for (var i in this.available)
             this.bind_errors(this.available[i]);
 
-        this.toggle_source(this.available[0]);
+        if (this.available.length > 0){
+            this.toggle_source(this.available[0]);
+        }
     }
 };
 

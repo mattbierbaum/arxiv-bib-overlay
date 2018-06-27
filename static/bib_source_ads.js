@@ -16,7 +16,7 @@ ADSData.prototype = {
     shortname: 'ADS',
     categories: new Set([
         'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat',
-        'hep-ph', 'hep-th', 'math-ph', 'nlin', 'nucl-ex',
+        'hep-ph', 'hep-th', 'nlin', 'nucl-ex',
         'nucl-th', 'physics', 'quant-ph'
     ]),
     homepage: 'https://ui.adsabs.harvard.edu',
@@ -38,9 +38,7 @@ ADSData.prototype = {
     ads_url_title: function(name) {return this.ads_url_part('title', name);},
     ads_url_bibcode_search: function(bib){return this.ads_url_part('bibcode', bib);},
     ads_url_bibcode: function(bib){
-        var url0 = 'https://ui.adsabs.harvard.edu/#abs/';
-        var url1 = '/abstract';
-        return url0 + bib + url1;
+        return 'https://ui.adsabs.harvard.edu/#abs/' + bib;
     },
     ads_url_arxiv: function(identifiers){
         if (!identifiers) return;
@@ -131,8 +129,8 @@ ADSData.prototype = {
 
             output.citations.header = 'Citations';
             output.references.header = 'References';
-            output.citations.header_url = output.url;
-            output.references.header_url = output.url;
+            output.citations.header_url = output.url + '/citations';
+            output.references.header_url = output.url + '/references';
             output.citations.description = '';
             output.references.description = '';
 

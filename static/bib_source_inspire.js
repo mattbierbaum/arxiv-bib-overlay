@@ -14,7 +14,7 @@ InspireData.prototype = {
     url_icon: asset_url('static/icon-inspire.png'),
 
     shortname: 'Inspire',
-    categories: new Set(['hep-th', 'hep-ex', 'hep-ph', 'gr-qc']),
+    categories: new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc']),
     homepage: 'https://inspirehep.net',
     api_url: 'https://inspirehep.net/search',
     api_params: {
@@ -30,6 +30,8 @@ InspireData.prototype = {
             'primary_report_number',
             'cataloguer_info',
             'system_control_number',
+            'prepublication',
+            'creation_date',
         ],
         rg: '250',      // records in groups of
         //jrec: 250     // jump to record
@@ -59,6 +61,12 @@ InspireData.prototype = {
 
         if (doc.cataloguer_info && doc.cataloguer_info.length > 0)
             return doc.cataloguer_info[0].creation_date.substring(0,4);
+
+        if (doc.prepublication && doc.prepublication.date)
+            return doc.prepublication.date.substring(0,4);
+
+        if (doc.creation_date)
+            return doc.creation_date.substring(0,4);
 
         return '';
     },
@@ -150,8 +158,8 @@ InspireData.prototype = {
 
             output.citations.header = 'Citations';
             output.references.header = 'References';
-            output.citations.header_url = output.url;
-            output.references.header_url = output.url;
+            output.citations.header_url = output.url + '/citations';
+            output.references.header_url = output.url + '/references';
             output.citations.description = '';
             output.references.description = '';
 

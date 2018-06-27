@@ -61,7 +61,7 @@
 }
 
 .bib-col-title {
-    font-size: x-large;
+    font-size: large;
     font-weight: bold;
 }
 
@@ -76,6 +76,10 @@
 .bib-filter-label {
     margin-left: 1em;
     margin-right: 0.7em;
+}
+
+.lbl {
+    text-align: right;    
 }
 
 .bib-fiter-input {
@@ -283,11 +287,15 @@ h1.bib-header span {
     border-bottom: medium solid #ddd;
 }
 
+.nodisplay {
+    display: none;
+}
+
 .bib-sidebar-badge {
     padding: 0.5em 0 0 0;
 }
 
-.bib-sidebar-title {
+.bib-sidebar-title-link {
     position: relative;
     top: -6px;
     /*color: black;*/
@@ -345,6 +353,9 @@ h1.bib-header span {
 }
 
 .bib-sidebar-source {
+    display: flex;
+    align-items: center;
+    padding-top: 5px;
     padding-bottom: 5px;
 }
 
