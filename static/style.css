@@ -292,23 +292,6 @@ h1.bib-header span {
     display: none;
 }
 
-.bib-sidebar-badge {
-    padding: 0.5em 0 0 0;
-}
-
-.bib-sidebar-title {
-    margin: 0.3em 0em 0.3em 0em;
-}
-
-.bib-sidebar-title-link {
-    position: relative;
-    /*top: -6px;*/
-    /*color: black;*/
-    font-weight: bold;
-    font-size: 14px;
-    padding-left: 0.3em;
-}
-
 .bib-sidebar-error {
     color: red;
     font-weight: bold;
@@ -316,7 +299,7 @@ h1.bib-header span {
 }
 
 .bib-sidebar-errors {
-    padding: 0.3em 1em 0.3em 1em;
+    padding: 0.5em 0em 0.5em 0em;
 }
 
 .bib-sidebar-errors p {
@@ -337,6 +320,10 @@ h1.bib-header span {
     border-bottom: 1px dotted black;
 }
 
+.bib-sidebar-errors .error:hover {
+    cursor: help;
+}
+
 .bib-sidebar-errors .error .hover {
     top: -5px;
     right: 105%;
@@ -352,13 +339,34 @@ h1.bib-header span {
     visibility: visible;
 }
 
-.bib-sidebar-paper {
-    padding-bottom: 0.3em;
+.bib-sidebar-paper {}
+.bib-sidebar-paper > div {
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 0.5em;
+}
+.bib-sidebar-paper > div:first-of-type {
+    margin-top: 0.5em;
+}
+
+.bib-sidebar-badge {
+    padding: 0.5em 0 0 0;
+}
+.bib-sidebar-title {}
+.bib-sidebar-title-link {
+    position: relative;
+    /*top: -6px;*/
+    /*color: black;*/
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .bib-sidebar-authors {
-    margin: 0 1em 0 2em;
-    padding: 0 0 0.3em 1em;
+    list-style-position: inside;
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 0.5em;
+    padding-left: 1em;
 }
 
 /*.bib-sidebar-authors li a {
