@@ -22,6 +22,7 @@
         }
     ],
     "permissions": [
+        "storage",
         "https://api.semanticscholar.org/*",
         "https://api.adsabs.harvard.edu/*"
     ],

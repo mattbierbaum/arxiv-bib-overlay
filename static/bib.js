@@ -3,16 +3,96 @@ var D = null;
 var MAX_AUTHORS = 10;
 var PAGE_LENGTH = 10;
 
-function random_id(){
-    return new String(Math.random()).substring(2,12);
-}
-
-function makeDelay(callback, ms) {
-    var timer = 0;
-    return function(){
-        clearTimeout(timer);
-        timer = setTimeout(callback, ms);
+function outbound_links(ref, ignore=[]){
+    var make_link = {
+        'ads': function(ref){return ref.url;},
+        's2': function(ref){return ref.url;},
+        'inspire': function(ref){return ref.url;},
+        'arxiv': function(ref){return ref.url_arxiv;},
+        'doi': function(ref){return ref.url_doi;},
+        'scholar': function(ref){
+            return 'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title});
+        },
     };
+
+    var make_text = {
+        'ads': function(){return $('<span>').text('ADS').addClass('ads');},
+        's2': function(){return $('<span>').text('S2').addClass('s2');},
+        'inspire': function(){return $('<span>').text('Inspire').addClass('inspire');},
+        'arxiv': function(){return $('<span>').text('arXiv').addClass('arxiv');},
+        'doi': function(){return $('<span>').text('DOI').addClass('doi');},
+        'scholar': function(){
+            var colors = [
+                '#4484f4', // b
+                '#e94637', // r
+                '#fbbb00', // y
+                '#4484f4', // b
+                '#38a654', // g
+                '#e94637', // r
+                '#fbbb00', // y
+            ];
+            var chars = 'scholar'.split('');
+            var out = $('<span>');
+
+            for (var i=0; i<chars.length; i++){
+                out.append(
+                    $('<span>')
+                        .css('color', colors[i])
+                        .text(chars[i])
+                );
+            }
+            return out;
+        },
+    };
+
+    function _img(n){
+        return $('<img>')
+            .attr('src', asset_url('static/icon-'+n+'.png'))
+            .css('height', '18')
+            .css('width', 'auto')
+    }
+
+    var make_text = {
+        'ads': function(){return _img('ads');},
+        's2': function(){return _img('s2');},
+        'inspire': function(){return _img('inspire');},
+        'doi': function(){return _img('doi');},
+        'arxiv': function(){return _img('arxiv');},
+        'scholar': function(){return _img('scholar');},
+    };
+
+    var make_hover = {
+        'ads': 'NASA ADS',
+        's2': 'Semantic Scholar',
+        'inspire': 'Inspire HEP',
+        'doi': 'Journal article',
+        'arxiv': 'ArXiv article',
+        'scholar': 'Google Scholar',
+    };
+
+    function outbound_link(ref, style){
+        var arrow = $('<span>').addClass('exitarrow').text('↳ ');
+        var link = $('<a>')
+            .addClass(name)
+            .attr('title', make_hover[style])
+            .attr('href', make_link[style](ref))
+            .append(make_text[style]());
+
+        if (style != 'arxiv') link.attr('target', '_blank');
+
+        return $('<span>').append(link);
+    }
+
+    var arrow = $('<span>').addClass('exitarrow movearrow').text('↳ ');
+    var urls = $('<div>').addClass('bib-outbound');
+
+    urls.append(arrow);
+
+    ignore = new Set(ignore);
+    for (var i=0; i<ref.outbound.length; i++)
+        if (!ignore.has(ref.outbound[i]))
+            urls.append(outbound_link(ref, ref.outbound[i]));
+    return urls;
 }
 
 //============================================================================
@@ -333,109 +413,11 @@ ColumnView.prototype = {
         return output;
     },
 
+
     paper_line: function(ref){
         function titlecase(title) {
             return title.replace(/(?:\b)([a-zA-Z])/g, function(l){return l.toUpperCase();});
         }
-
-        var make_link = {
-            'ads': function(ref){return ref.url;},
-            's2': function(ref){return ref.url;},
-            'inspire': function(ref){return ref.url;},
-            'arxiv': function(ref){return ref.url_arxiv;},
-            'doi': function(ref){return ref.url_doi;},
-            'scholar': function(ref){
-                return 'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title});
-            },
-        };
-
-        var make_text = {
-            'ads': function(){return $('<span>').text('ADS').addClass('ads');},
-            's2': function(){return $('<span>').text('S2').addClass('s2');},
-            'inspire': function(){return $('<span>').text('Inspire').addClass('inspire');},
-            'arxiv': function(){return $('<span>').text('arXiv').addClass('arxiv');},
-            'doi': function(){return $('<span>').text('DOI').addClass('doi');},
-            'scholar': function(){
-                var colors = [
-                    '#4484f4', // b
-                    '#e94637', // r
-                    '#fbbb00', // y
-                    '#4484f4', // b
-                    '#38a654', // g
-                    '#e94637', // r
-                    '#fbbb00', // y
-                ];
-                var chars = 'scholar'.split('');
-                var out = $('<span>');
-
-                for (var i=0; i<chars.length; i++){
-                    out.append(
-                        $('<span>')
-                            .css('color', colors[i])
-                            .text(chars[i])
-                    );
-                }
-                return out;
-            },
-        };
-
-        function _img(n){
-            return $('<img>')
-                .attr('src', asset_url('static/icon-'+n+'.png'))
-                .css('height', '18')
-                .css('width', 'auto')
-        }
-
-        var make_text = {
-            'ads': function(){return _img('ads');},
-            's2': function(){return _img('s2');},
-            'inspire': function(){return _img('inspire');},
-            'doi': function(){return _img('doi');},
-            'arxiv': function(){return _img('arxiv');},
-            'scholar': function(){return _img('scholar');},
-        };
-
-        var make_hover = {
-            'ads': 'NASA ADS',
-            's2': 'Semantic Scholar',
-            'inspire': 'Inspire HEP',
-            'doi': 'Journal article',
-            'arxiv': 'ArXiv article',
-            'scholar': 'Google Scholar',
-        };
-
-        function outbound_link(ref, style, newtab=true){
-            var arrow = $('<span>').addClass('exitarrow').text('↳ ');
-            var link = $('<a>')
-                .addClass(name)
-                .attr('title', make_hover[style])
-                .attr('href', make_link[style](ref))
-                .append(make_text[style]());
-
-            if (newtab) link.attr('target', '_blank');
-
-            return $('<span>')
-                //.append(arrow)
-                .append(link);
-        }
-
-        function outbound_links(ref){
-            var arrow = $('<span>').addClass('exitarrow movearrow').text('↳ ');
-            var urls = $('<div>').addClass('bib-outbound');
-
-            urls.append(arrow);
-            urls.append(outbound_link(ref, this.ds.shortname.toLowerCase()));
-
-            if (ref.url_arxiv)
-                urls.append(outbound_link(ref, 'arxiv', false));
-
-            if (ref.url_doi)
-                urls.append(outbound_link(ref, 'doi'));
-
-            urls.append(outbound_link(ref, 'scholar'));
-            return urls;
-        }
-        outbound_links = $.proxy(outbound_links, this);
 
         var known = (ref.paperId.length > 1);
         var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
@@ -593,7 +575,7 @@ Overlay.prototype = {
                 return function(){
                     ctx.toggle_source(s);
                 };
-            })(this, ds);
+            })(this, ds.shortname);
 
             out.append(
                 $('<img>')
@@ -634,7 +616,7 @@ Overlay.prototype = {
                 .append($('<ul>').addClass('errors'))
         );
         $('.bib-sidebar-errors').css('display', 'block');
-
+        $('.bib-sidebar-source').addClass('topborder');
         err2div(txt);
     },
 
@@ -644,13 +626,13 @@ Overlay.prototype = {
         var badge = $('<div>')
             .addClass('bib-sidebar-title')
             .append($('<span>')
-                .append(
+                /*.append(
                     $('<img>')
                         .addClass('bib-sidebar-badge')
                         .css('height', '24')
                         .css('width', 'auto')
                         .attr('src', src)
-                )
+                )*/
                 .append(
                     $('<a>')
                         .addClass('bib-sidebar-title-link')
@@ -677,13 +659,17 @@ Overlay.prototype = {
                 $('<a>').text('...').attr('href', ds.data.url).attr('target', '_blank')
             ));
 
+        var outbounds = outbound_links(ds.data, ['arxiv']);
+
         var output = $('<div>')
             .addClass('bib-sidebar-paper')
             .append(badge)
-            .append(authorlist);
+            .append(authorlist)
+            .append(outbounds);
 
         $('.bib-sidebar-paper').replaceWith(output)
         $('.bib-sidebar-paper').css('display', 'block');
+        $('.bib-sidebar-source').addClass('topborder');
     },
 
     create_main: function(ds){
@@ -750,14 +736,61 @@ Overlay.prototype = {
         wrap_object(o, error);
     },
 
-    toggle_source: function(ds){
+    sync_key: function(cat){
+        return 'default:'+cat;
+    },
+
+    load_default_source: function(){
+        var pcat = get_categories()[0][0];
+        var key = this.sync_key(pcat);
+
+        chrome.storage.local.get(key,
+            $.proxy(function(items){
+                if (!chrome.runtime.error) {
+                    var name = '';
+                    for (var key in items)
+                        name = items[key];
+
+                    if (name)
+                        this.toggle_source(name);
+                    else
+                        this.toggle_source(this.available[0].shortname);
+
+                } else {
+                    console.log(chrome.runtime.error);
+                }
+            }, this)
+        );
+    },
+
+    save_default_source: function(){
+        var pcat = get_categories()[0][0];
+
+        var data = {};
+        data[this.sync_key(pcat)] = this.ds.shortname;
+
+        chrome.storage.local.set(data, function() {
+            if (chrome.runtime.error)
+                throw new OverlayException('Syncing category defaults failed: '+chrome.runtime.error);
+        });
+    },
+
+    toggle_source: function(name){
         $('.delete').remove();
 
-        this.ds = ds;
+        this.ds = this.get_dataset(name);
         this.create_spinner();
         this.create_sidebar();
         this.populate_source();
-        ds.async_load($.proxy(this.create_overlay, this));
+        this.save_default_source();
+        this.ds.async_load($.proxy(this.create_overlay, this));
+    },
+
+    get_dataset: function(name){
+        for (var i=0; i<this.available.length; i++){
+            if (this.available[i].shortname == name)
+                return this.available[i];
+        }
     },
 
     load: function(ds){
@@ -781,7 +814,7 @@ Overlay.prototype = {
             this.bind_errors(this.available[i]);
 
         if (this.available.length > 0){
-            this.toggle_source(this.available[0]);
+            this.load_default_source();
         }
     }
 };

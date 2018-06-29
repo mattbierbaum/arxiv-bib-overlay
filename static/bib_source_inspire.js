@@ -114,6 +114,15 @@ InspireData.prototype = {
         return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase();
     },
 
+    outbound_names: function(ref){
+        outs = [];
+        outs.push(this.shortname.toLowerCase());
+        if (ref.url_arxiv) outs.push('arxiv');
+        if (ref.url_doi) outs.push('doi');
+        outs.push('scholar');
+        return outs;
+    },
+
     reformat_document: function(doc, index){
         var arxivid = this.doc_arxiv_id(doc);
         var doc = {
@@ -131,6 +140,7 @@ InspireData.prototype = {
             'url_arxiv': this.url_arxiv(arxivid),
         };
         doc.searchline = this.searchline(doc);
+        doc.outbound = this.outbound_names(doc);
         return doc;
     },
 

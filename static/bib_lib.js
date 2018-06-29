@@ -3,6 +3,23 @@ var URL_ASSET_BASE = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-over
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
 
+function OverlayException(message) {
+    this.message = message;
+    this.name = 'OverlayException';
+}
+
+function random_id(){
+    return new String(Math.random()).substring(2,12);
+}
+
+function makeDelay(callback, ms) {
+    var timer = 0;
+    return function(){
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+}
+
 function minor_to_major(category){
     // extract the major category from a full minor category
     var re = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g);
@@ -107,3 +124,10 @@ var RE_IDENTIFIER = new RegExp(
       '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
     ')'                                              // end OR group
 );
+
+Array.prototype.remove = function(element){
+    var index = this.indexOf(element);
+    if (index > -1) {
+        this.splice(index, 1);
+    }
+}

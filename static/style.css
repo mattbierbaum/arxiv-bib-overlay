@@ -79,7 +79,7 @@
 }
 
 .lbl {
-    text-align: right;    
+    text-align: right;
 }
 
 .bib-fiter-input {
@@ -186,15 +186,16 @@
 }
 
 .bib-outbound .movearrow {
-    top: -5px;
+    top: -6px;
+    position: relative;
 }
 
 .bib-outbound .shadow {
     text-shadow:
         -0.5px -0.5px 0 #444,
-        0.5px -0.5px 0 #444,
-        -0.5px 0.5px 0 #444,
-        0.5px 0.5px 0 #444;
+         0.5px -0.5px 0 #444,
+        -0.5px  0.5px 0 #444,
+         0.5px  0.5px 0 #444;
 }
 
 .bib-outbound .arxiv {color: #b31b1b;}
@@ -295,9 +296,13 @@ h1.bib-header span {
     padding: 0.5em 0 0 0;
 }
 
+.bib-sidebar-title {
+    margin: 0.3em 0em 0.3em 0em;
+}
+
 .bib-sidebar-title-link {
     position: relative;
-    top: -6px;
+    /*top: -6px;*/
     /*color: black;*/
     font-weight: bold;
     font-size: 14px;
@@ -334,7 +339,7 @@ h1.bib-header span {
 
 .bib-sidebar-errors .error .hover {
     top: -5px;
-    right: 105%; 
+    right: 105%;
     visibility: hidden;
     color: white;
     background-color: #444;
@@ -347,16 +352,32 @@ h1.bib-header span {
     visibility: visible;
 }
 
+.bib-sidebar-paper {
+    padding-bottom: 0.3em;
+}
+
 .bib-sidebar-authors {
     margin: 0 1em 0 2em;
-    padding: 0 0 0.5em 1em;
+    padding: 0 0 0.3em 1em;
 }
+
+/*.bib-sidebar-authors li a {
+    font-size: 1.0em;
+    color: #555;
+}*/
 
 .bib-sidebar-source {
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.topborder {
+    border-top-style: solid;
+    border-top-color: #dfdfdf;
+    border-top-width: 2px;
 }
 
 .bib-sidebar-source span {

@@ -47,11 +47,21 @@ S2Data.prototype = {
         return [doc.title, doc.venue, doc.year].join(' ').toLowerCase();
     },
 
+    outbound_names: function(ref){
+        outs = [];
+        outs.push(this.shortname.toLowerCase());
+        if (ref.url_arxiv) outs.push('arxiv');
+        if (ref.url_doi) outs.push('doi');
+        outs.push('scholar');
+        return outs;
+    },
+
     reformat_document: function(data, index){
         this.add_api_url(data);
         this.add_url_arxiv(data);
         this.add_url_doi(data);
         data.searchline = this.searchline(data);
+        data.outbound = this.outbound_names(data);
         data.index = index;
     },
 
@@ -75,6 +85,11 @@ S2Data.prototype = {
     async_load: function(callback){
         this.aid = get_current_article();
         var url = this.url_paper(this.aid);
+
+        if (url in this.cache){
+            callback(this);
+            return;
+        }
 
         $.get(url, $.proxy(
             function(data){

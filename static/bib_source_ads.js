@@ -86,6 +86,15 @@ ADSData.prototype = {
         return title[0];
     },
 
+    outbound_names: function(ref){
+        outs = [];
+        outs.push(this.shortname.toLowerCase());
+        if (ref.url_arxiv) outs.push('arxiv');
+        if (ref.url_doi) outs.push('doi');
+        outs.push('scholar');
+        return outs;
+    },
+
     reformat_document: function(doc, index){
         var doc = {
             'title': this.reformat_title(doc.title),
@@ -103,6 +112,7 @@ ADSData.prototype = {
             'index': index,
         };
         doc.searchline = this.searchline(doc);
+        doc.outbound = this.outbound_names(doc);
         return doc;
     },
 
