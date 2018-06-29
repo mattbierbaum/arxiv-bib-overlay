@@ -421,6 +421,7 @@ ColumnView.prototype = {
 
         var known = (ref.paperId.length > 1);
         var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
+        var cite_text = ref.citation_count ? '(citations: '+ref.citation_count+')' : '';
 
         var paper = $('<div>')
             .addClass('bib-paper')
@@ -436,6 +437,7 @@ ColumnView.prototype = {
                 $('<span>').addClass('jinfo')
                     .append($('<span>').addClass('venue').text(titlecase(ref.venue)))
                     .append($('<span>').addClass('year').text(ref.year))
+                    .append($('<span>').addClass('citations').text(cite_text))
             );
 
         if (known) {

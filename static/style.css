@@ -89,6 +89,20 @@
     box-sizing: border-box;
 }
 
+.bib-paper-container {
+    margin-bottom: 1.5em;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+.bib-paper-right {
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    flex: 0 0 20px;
+}
+
 .bib-paper {
     color: black;
     margin-bottom: 1.5em;
@@ -113,10 +127,19 @@
 }
 
 .bib-paper .year {
+    padding-right: 0.5em;
     font-weight: bold;
 }
 
 .bib-paper .year:empty {
+    display: none;
+}
+
+.bib-paper .citations {
+    padding-right: 0.5em;
+}
+
+.bib-paper .citations:empty {
     display: none;
 }
 
@@ -163,6 +186,13 @@
 
 .bib-authors a:last-of-type:after {
     content: '';
+}
+
+.bib-cites {
+    margin-left: 0.7em;
+    font-size: 0.9em;
+    color: #555;
+    margin-right: 0.5em;
 }
 
 .bib-outbound {
