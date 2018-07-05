@@ -179,7 +179,7 @@ InspireData.prototype = {
         }
     },
 
-    load_all: function(query, obj, callback, index=0, docs=[]){
+    load_all: function(query, obj, callback, index, docs){
         var params = $.extend(true, {}, this.api_params);
         params['p'] = query;
         params['jrec'] = index * this.pagelength;
@@ -225,7 +225,7 @@ InspireData.prototype = {
     async_load: function(callback){
         this.ready = {};
         this.aid = get_current_article();
-        this.load_all(this.aid, 'base', callback, 0, []);
+        this.load_all('eprint:'+this.aid, 'base', callback, 0, []);
         this.load_all('refersto:eprint:'+this.aid, 'citations', callback, 0, []);
         this.load_all('citedby:eprint:'+this.aid, 'references', callback, 0, []);
     },
