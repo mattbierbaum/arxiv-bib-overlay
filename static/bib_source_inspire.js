@@ -16,6 +16,7 @@ InspireData.prototype = {
     shortname: 'Inspire',
     categories: new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc']),
     homepage: 'https://inspirehep.net',
+    pagelength: 250,
     api_url: 'https://inspirehep.net/search',
     api_params: {
         p:  'a query',  // pattern (query)
@@ -179,8 +180,9 @@ InspireData.prototype = {
     },
 
     load_data: function(query, obj, callback){
-        this.api_params['p'] = query;
-        var url = this.api_url+'?'+encodeQueryData(this.api_params);
+        var params = $.extend(true, {}, this.api_params);
+        params['p'] = query;
+        var url = this.api_url+'?'+encodeQueryData(params);
 
         if (obj in this.rawdata){
             this.ready[obj] = true;
@@ -191,15 +193,55 @@ InspireData.prototype = {
         $.ajax({
             type: 'GET',
             url: urlproxy(url),
+            dataType: 'text',
             success: $.proxy(
                 function(data){
                     this.ready[obj] = true;
                     this.rawdata[obj] = {};
-                    this.rawdata[obj].docs = data;
+                    this.rawdata[obj].docs = data ? JSON.parse(data) : [];
                     this.load_data_callback(callback);
                 }, this
             ),
             failure: function(){throw new Error("Error accessing "+url);}
+        });
+    },
+
+    load_all: function(query, obj, callback, index=0, docs=[]){
+        var params = $.extend(true, {}, this.api_params);
+        params['p'] = query;
+        params['jrec'] = index * this.pagelength;
+        var url = this.api_url+'?'+encodeQueryData(params);
+
+        if (obj in this.rawdata){
+            this.ready[obj] = true;
+            this.load_data_callback(callback);
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+            url: urlproxy(url),
+            dataType: 'text',
+            success: $.proxy(
+                function (data){
+                    if (data){
+                        data = JSON.parse(data);
+                        if (data.length >= this.pagelength){
+                            this.load_all(query, obj, callback, index+1, $.merge(docs, data));
+                        } else {
+                            this.ready[obj] = true;
+                            this.rawdata[obj] = {};
+                            this.rawdata[obj].docs = $.merge(docs, data);
+                            this.load_data_callback(callback);
+                        }
+                    } else {
+                        this.ready[obj] = true;
+                        this.rawdata[obj] = {};
+                        this.rawdata[obj].docs = docs;
+                        this.load_data_callback(callback);
+                    }
+                }, this/*, query, obj, callback, index, docs*/
+            ),
         });
     },
 
@@ -211,8 +253,8 @@ InspireData.prototype = {
         this.ready = {};
         this.aid = get_current_article();
         this.load_data(this.aid, 'base', callback);
-        this.load_data('refersto:'+this.aid, 'citations', callback);
-        this.load_data('citedby:'+this.aid, 'references', callback);
+        this.load_all('refersto:eprint:'+this.aid, 'citations', callback, 0, []);
+        this.load_all('citedby:eprint:'+this.aid, 'references', callback, 0, []);
     },
 
     sorters: {
