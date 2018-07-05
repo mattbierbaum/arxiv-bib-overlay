@@ -179,33 +179,6 @@ InspireData.prototype = {
         }
     },
 
-    load_data: function(query, obj, callback){
-        var params = $.extend(true, {}, this.api_params);
-        params['p'] = query;
-        var url = this.api_url+'?'+encodeQueryData(params);
-
-        if (obj in this.rawdata){
-            this.ready[obj] = true;
-            this.load_data_callback(callback);
-            return;
-        }
-
-        $.ajax({
-            type: 'GET',
-            url: urlproxy(url),
-            dataType: 'text',
-            success: $.proxy(
-                function(data){
-                    this.ready[obj] = true;
-                    this.rawdata[obj] = {};
-                    this.rawdata[obj].docs = data ? JSON.parse(data) : [];
-                    this.load_data_callback(callback);
-                }, this
-            ),
-            failure: function(){throw new Error("Error accessing "+url);}
-        });
-    },
-
     load_all: function(query, obj, callback, index=0, docs=[]){
         var params = $.extend(true, {}, this.api_params);
         params['p'] = query;
@@ -252,7 +225,7 @@ InspireData.prototype = {
     async_load: function(callback){
         this.ready = {};
         this.aid = get_current_article();
-        this.load_data(this.aid, 'base', callback);
+        this.load_all(this.aid, 'base', callback, 0, []);
         this.load_all('refersto:eprint:'+this.aid, 'citations', callback, 0, []);
         this.load_all('citedby:eprint:'+this.aid, 'references', callback, 0, []);
     },
