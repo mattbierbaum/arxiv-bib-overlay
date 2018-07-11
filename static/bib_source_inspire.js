@@ -34,7 +34,9 @@ InspireData.prototype = {
             'prepublication',
             'creation_date',
         ],
-        rg: '250',      // records in groups of
+        rg: API_ARTICLE_COUNT,      // records in groups of
+        sf: 'number_of_citations',  // sort field: citation count
+        so: 'd'                     // sort order: descending
         //jrec: 250     // jump to record
     },
 
@@ -195,6 +197,15 @@ InspireData.prototype = {
             type: 'GET',
             url: urlproxy(url),
             dataType: 'text',
+            async: true,
+            timeout: API_TIMEOUT,
+            error: this.error_wrapper(function(x, t, m) {
+                if (t === "timeout") {
+                    throw new Error("Query timed out");
+                } else {
+                    throw new Error("Query generated error: "+t);
+                }
+            }),
             success: $.proxy(
                 function (data){
                     if (data){

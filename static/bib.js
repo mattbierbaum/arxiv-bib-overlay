@@ -841,6 +841,11 @@ function wrap_object(obj, error){
             obj[name] = wrap_error(obj[name], error);
         }
     }
+    obj.error_wrapper = function(){
+        return function(func){
+            return wrap_error(func, error);
+        };
+    }();
 }
 
 function gogogo(){

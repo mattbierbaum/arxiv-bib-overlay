@@ -363,6 +363,10 @@ h1.bib-header span {
     padding: 1em;
     position: absolute;
     z-index: 1;
+    /*max-width: 500px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;*/
 }
 
 .bib-sidebar-errors .error:hover .hover {

@@ -163,6 +163,7 @@ ADSData.prototype = {
 
         $.ajax({
             type: 'GET',
+            async: true,
             url: urlproxy(url),
             beforeSend: function(xhr){
                 xhr.setRequestHeader('Authorization', auth);
@@ -174,7 +175,15 @@ ADSData.prototype = {
                     this.load_data_callback(callback);
                 }, this
             ),
-            failure: function(){throw new Error("Error accessing "+url);}
+            error: this.error_wrapper(function(x, t, m) {
+                if (t === "timeout") {
+                    throw new Error("Query timed out");
+                } else {
+                    throw new Error("Query generated error: "+t);
+                }
+            }),
+            failure: function(){throw new Error("Error accessing "+url);},
+            timeout: API_TIMEOUT,
         });
     },
 
