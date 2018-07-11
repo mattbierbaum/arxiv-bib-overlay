@@ -24,7 +24,8 @@
     "permissions": [
         "storage",
         "https://api.semanticscholar.org/*",
-        "https://api.adsabs.harvard.edu/*"
+        "https://api.adsabs.harvard.edu/*",
+        "https://inspirehep.net/*"
     ],
     "web_accessible_resources": [
         "static/source-s2.png",
