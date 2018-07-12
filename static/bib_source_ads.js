@@ -27,7 +27,8 @@ ADSData.prototype = {
             'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
             'year', 'doi', 'citation_count', 'read_count', 'identifier'
         ],
-        'rows': 10000
+        'rows': API_ARTICLE_COUNT,
+        'sort': 'citation_count desc',
     },
 
     ads_url_ui: 'https://ui.adsabs.harvard.edu/#search/',
@@ -128,6 +129,11 @@ ADSData.prototype = {
         return output;
     },
 
+    add_counts: function(data){
+        data.citations.count = data.citation_count;
+        data.references.count = data.references.length;
+    },
+
     load_data_callback: function(callback) {
         if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
             if (this.rawdata.base.docs.length == 0)
@@ -145,6 +151,7 @@ ADSData.prototype = {
             output.references.description = '';
 
             this.data = output;
+            this.add_counts(this.data);
             callback(this);
         }
     },

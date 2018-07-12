@@ -102,6 +102,7 @@ function ColumnView(ds, datakey, htmlid){
     this.ds = ds;
     this.htmlid = htmlid;
     this.data = ds.data[datakey];
+    this.length = ds.data[datakey].count;
     this.fdata = this.data;
 
     this.sort_field = ds.sorters_default;
@@ -481,6 +482,16 @@ ColumnView.prototype = {
     },
 
     create_header: function(){
+        var star = $('<a>')
+                        .addClass('bib-col-title')
+                        .text('*')
+                        .attr('title',
+                                'Only displaying the '+API_ARTICLE_COUNT+' most cited articles. '+
+                                'For better performance, visit the external site for all articles.')
+                        .attr('href', this.data.header_url)
+                        .css('color', 'red')
+                        .css('font-size', '24px');
+
         var desc = $('<span>')
                     .addClass('bib-col-center bib-col-aside')
                     .append($('<span>').css('color', 'black').text('('))
@@ -491,8 +502,9 @@ ColumnView.prototype = {
 
         var text = null;
         var text0 = this.data.header+' ('+this.data.length+')';
-        var text1 = this.data.header+' ('+this.fdata.length+'/'+this.data.length+')';
-        text = (this.data.length != this.fdata.length) ? text1 : text0;
+        var text1 = this.data.header+' ('+this.fdata.length+'/'+this.length+')';
+        text = (this.length != this.fdata.length) ? text1 : text0;
+        foot = (this.data.length == API_ARTICLE_COUNT) ? star : null;
 
         var header = $('<div>')
             .addClass('bib-col-header')
@@ -507,6 +519,7 @@ ColumnView.prototype = {
                             .attr('target', '_blank')
                             .text(text)
                     )
+                    .append(foot)
             )
             .append(this.data.description ? desc : blank);
 

@@ -65,6 +65,11 @@ S2Data.prototype = {
         data.index = index;
     },
 
+    add_counts: function(data){
+        data.citation_count = data.citations.length;
+        data.reference_count = data.references.length;
+    },
+
     transform_result: function(data){
         this.reformat_document(data);
 
@@ -79,6 +84,7 @@ S2Data.prototype = {
         data.references.header_url = data.url + '#citedPapers';
         data.citations.description = 'highly influenced citations';
         data.references.description = 'highly influential references';
+        this.add_counts(data);
         return data;
     },
 

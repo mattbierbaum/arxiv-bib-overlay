@@ -36,7 +36,7 @@ InspireData.prototype = {
         ],
         rg: API_ARTICLE_COUNT,      // records in groups of
         sf: 'number_of_citations',  // sort field: citation count
-        so: 'd'                     // sort order: descending
+        so: 'a'                     // sort order: descending
         //jrec: 250     // jump to record
     },
 
@@ -159,6 +159,10 @@ InspireData.prototype = {
         return output;
     },
 
+    add_counts: function(data){
+        data.citations.count = data.citation_count;
+        data.references.count = data.references.length;
+    },
     // t0: "http://inspirehep.net/search?p=hep-th/9711201&of=recjson&ot=recid,number_of_citations,authors,title,year",
     // t1: "http://inspirehep.net/search?p=refersto:recid:451648&of=recjson&rg=250",
     // t2: "http://inspirehep.net/search?p=citedby:recid:451648&of=recjson&rg=250&ot=title,year,authors"
@@ -177,6 +181,7 @@ InspireData.prototype = {
             output.references.description = '';
 
             this.data = output;
+            this.add_counts(this.data);
             callback(this);
         }
     },
@@ -210,14 +215,14 @@ InspireData.prototype = {
                 function (data){
                     if (data){
                         data = JSON.parse(data);
-                        if (data.length >= this.pagelength){
+                        /*if (data.length >= this.pagelength){
                             this.load_all(query, obj, callback, index+1, $.merge(docs, data));
-                        } else {
-                            this.ready[obj] = true;
-                            this.rawdata[obj] = {};
-                            this.rawdata[obj].docs = $.merge(docs, data);
-                            this.load_data_callback(callback);
-                        }
+                        } else {*/
+                        this.ready[obj] = true;
+                        this.rawdata[obj] = {};
+                        this.rawdata[obj].docs = $.merge(docs, data);
+                        this.load_data_callback(callback);
+                        //}
                     } else {
                         this.ready[obj] = true;
                         this.rawdata[obj] = {};
