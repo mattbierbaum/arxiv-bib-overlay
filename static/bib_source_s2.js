@@ -66,8 +66,8 @@ S2Data.prototype = {
     },
 
     add_counts: function(data){
-        data.citation_count = data.citations.length;
-        data.reference_count = data.references.length;
+        data.citations.count = data.citations.length;
+        data.references.count = data.references.length;
     },
 
     transform_result: function(data){
@@ -97,14 +97,26 @@ S2Data.prototype = {
             return;
         }
 
-        $.get(url, $.proxy(
-            function(data){
-               this.data = this.transform_result(data);
-               this.cache[url] = this.data;
-               callback(this);
-            }, this)
-        )
-        .fail(function(err){})
+        $.ajax({
+            type: 'GET',
+            url: urlproxy(url),
+            async: true,
+            timeout: API_TIMEOUT,
+            error: this.error_wrapper(function(x, t, m) {
+                if (t === "timeout") {
+                    throw new Error("Query timed out");
+                } else {
+                    throw new Error("Query generated error: "+t);
+                }
+            }),
+            success: $.proxy(
+                function(data){
+                   this.data = this.transform_result(data);
+                   this.cache[url] = this.data;
+                   callback(this);
+                }, this
+            )
+        });
     },
 
     get_paper: function(url, callback){
