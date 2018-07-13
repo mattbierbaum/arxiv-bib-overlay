@@ -14,6 +14,7 @@ ADSData.prototype = {
     url_icon: asset_url('static/icon-ads.png'),
 
     shortname: 'ADS',
+    longname: 'NASA ADS',
     categories: new Set([
         'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat',
         'hep-ph', 'hep-th', 'nlin', 'nucl-ex',

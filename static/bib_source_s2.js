@@ -12,6 +12,7 @@ S2Data.prototype = {
     url_icon: asset_url('static/icon-s2.png'),
 
     shortname: 'S2',
+    longname: 'Semantic Scholar',
     categories: new Set(['cs', 'stats.ML']),
     homepage: 'https://semanticscholar.org',
     api_url: 'https://api.semanticscholar.org/v1/',
@@ -27,14 +28,16 @@ S2Data.prototype = {
     },
 
     add_url_arxiv: function(data){
-        if (data.venue == 'ArXiv'){
+        /*if (data.venue == 'ArXiv'){
             var url = 'https://arxiv.org/search/?';
             var param = {
                 'query': '"'+data.title+'"',
                 'searchtype': 'title'
             };
             data['url_arxiv'] = url + encodeQueryData(param);
-        }
+        }*/
+        if (data.arxivId)
+            data['url_arxiv'] = 'https://arxiv.org/abs/'+data.arxivId;
         else
             data['url_arxiv'] = '';
     },

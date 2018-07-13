@@ -487,8 +487,9 @@ ColumnView.prototype = {
                         .text('*')
                         .attr('title',
                                 'Only displaying the '+API_ARTICLE_COUNT+' most cited articles. '+
-                                'For better performance, visit the external site for all articles.')
+                                'For all articles, follow this link to '+this.ds.longname+'.')
                         .attr('href', this.data.header_url)
+                        .attr('target', '_blank')
                         .css('color', 'red')
                         .css('font-size', '24px');
 

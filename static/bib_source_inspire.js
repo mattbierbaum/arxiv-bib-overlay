@@ -14,6 +14,7 @@ InspireData.prototype = {
     url_icon: asset_url('static/icon-inspire.png'),
 
     shortname: 'Inspire',
+    longname: 'Inspire HEP',
     categories: new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc']),
     homepage: 'https://inspirehep.net',
     pagelength: 250,
