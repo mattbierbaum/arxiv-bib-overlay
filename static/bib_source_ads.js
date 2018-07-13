@@ -171,6 +171,7 @@ ADSData.prototype = {
         $.ajax({
             type: 'GET',
             async: true,
+            timeout: API_TIMEOUT,
             url: urlproxy(url),
             beforeSend: function(xhr){
                 xhr.setRequestHeader('Authorization', auth);
@@ -185,12 +186,15 @@ ADSData.prototype = {
             error: this.error_wrapper(function(x, t, m) {
                 if (t === "timeout") {
                     throw new Error("Query timed out");
+                } else if (x.status == 404){
+                    throw new Error("Query error 404: no data available");
+                } else if (x.status == 500){
+                    throw new Error("Query error 500: API internal server error");
                 } else {
-                    throw new Error("Query generated error: "+t);
+                    throw new Error("Query error "+x.status+": "+m);
                 }
             }),
             failure: function(){throw new Error("Error accessing "+url);},
-            timeout: API_TIMEOUT,
         });
     },
 

@@ -105,8 +105,12 @@ S2Data.prototype = {
             error: this.error_wrapper(function(x, t, m) {
                 if (t === "timeout") {
                     throw new Error("Query timed out");
+                } else if (x.status == 404){
+                    throw new Error("Query error 404: no data available");
+                } else if (x.status == 500){
+                    throw new Error("Query error 500: API internal server error");
                 } else {
-                    throw new Error("Query generated error: "+t);
+                    throw new Error("Query error "+x.status+": "+m);
                 }
             }),
             success: $.proxy(
