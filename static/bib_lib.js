@@ -124,6 +124,8 @@ var RE_IDENTIFIER = new RegExp(
       '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
         '|'+                                             // OR
       '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
+        '|'+
+      '(?:^(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)$)'+   // new-form with no preamble
     ')'                                              // end OR group
 );
 

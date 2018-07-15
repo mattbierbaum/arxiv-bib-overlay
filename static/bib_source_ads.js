@@ -47,7 +47,7 @@ ADSData.prototype = {
 
         for (var i=0; i<identifiers.length; i++){
             var match = RE_IDENTIFIER.exec(identifiers[i]);
-            if (match) return 'https://arxiv.org/abs/'+(match[1] || match[2]);
+            if (match) return 'https://arxiv.org/abs/'+(match[1] || match[2] || match[3]);
         }
         return;
     },
