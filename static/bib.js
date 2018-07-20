@@ -760,23 +760,27 @@ Overlay.prototype = {
         var pcat = get_categories()[0][0];
         var key = this.sync_key(pcat);
 
-        chrome.storage.local.get(key,
-            $.proxy(function(items){
-                if (!chrome.runtime.error) {
-                    var name = '';
-                    for (var key in items)
-                        name = items[key];
+        try {
+            chrome.storage.local.get(key,
+                $.proxy(function(items){
+                    if (!chrome.runtime.error) {
+                        var name = '';
+                        for (var key in items)
+                            name = items[key];
 
-                    if (name)
-                        this.toggle_source(name);
-                    else
-                        this.toggle_source(this.available[0].shortname);
+                        if (name)
+                            this.toggle_source(name);
+                        else
+                            this.toggle_source(this.available[0].shortname);
 
-                } else {
-                    console.log(chrome.runtime.error);
-                }
-            }, this)
-        );
+                    } else {
+                        console.log(chrome.runtime.error);
+                    }
+                }, this)
+            );
+        } catch (err) {
+            this.toggle_source(this.available[0].shortname);
+        }
     },
 
     save_default_source: function(){
@@ -785,10 +789,12 @@ Overlay.prototype = {
         var data = {};
         data[this.sync_key(pcat)] = this.ds.shortname;
 
-        chrome.storage.local.set(data, function() {
-            if (chrome.runtime.error)
-                throw new OverlayException('Syncing category defaults failed: '+chrome.runtime.error);
-        });
+        try {
+            chrome.storage.local.set(data, function() {
+                if (chrome.runtime.error)
+                    throw new OverlayException('Syncing category defaults failed: '+chrome.runtime.error);
+            });
+        } catch (err) {}
     },
 
     toggle_source: function(name){

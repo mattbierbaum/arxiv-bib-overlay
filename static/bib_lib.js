@@ -1,6 +1,6 @@
 var API_ARTICLE_COUNT = 200;
 var API_TIMEOUT = 30*1000;
-var URL_ASSET_BASE = 'https://mattbierbaum.github.io/semantic-scholar-arxiv-overlay/';
+var URL_ASSET_BASE = 'https://mattbierbaum.github.io/arxiv-bib-overlay/';
 
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
