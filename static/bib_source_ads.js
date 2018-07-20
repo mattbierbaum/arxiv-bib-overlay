@@ -94,6 +94,7 @@ ADSData.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
+        if (ref.doi) outs.push('cite');
         return outs;
     },
 
@@ -105,6 +106,7 @@ ADSData.prototype = {
             'url': this.ads_url_bibcode(doc.bibcode),
             'url_arxiv': this.ads_url_arxiv(doc.identifier),
             'url_doi': this.ads_url_doi(doc),
+            'doi': (doc.doi || [''])[0],
             'paperId': doc.bibcode || '',
             'year': doc.year || '',
             'venue': doc.pub || '',

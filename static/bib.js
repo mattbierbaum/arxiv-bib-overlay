@@ -3,48 +3,106 @@ var D = null;
 var MAX_AUTHORS = 10;
 var PAGE_LENGTH = 10;
 
+function BibTexModal(doi){
+    this.src = 'doi';
+    this.typ = 'bibtex';
+
+    this.doi = doi
+    this.create_modal();
+    this.display_bibtex();
+}
+
+BibTexModal.prototype = {
+    create_modal: function(){
+        this.idm = random_id();
+        this.idc = random_id();
+
+		var src_buttons = $('<div>').addClass('modal-button-container');
+		var typ_buttons = $('<div>').addClass('modal-button-container');
+
+        /*src_buttons.append($('<button>').addClass('modal-button selected').text("DOI"));
+        src_buttons.append($('<button>').addClass('modal-button').text("arXiv"));*/
+        src_buttons.append(
+            $('<button>').addClass('modal-button bibtex').text("BibTeX")
+            .click($.proxy(function(){this.typ='bibtex'; this.display_bibtex();}, this))
+        );
+        src_buttons.append(
+            $('<button>').addClass('modal-button mla').text("MLA")
+            .click($.proxy(function(){this.typ='mla'; this.display_bibtex();}, this))
+        );
+        src_buttons.append(
+            $('<button>').addClass('modal-button modal-button-close').html('&times;')
+        );
+
+        var content = $('<textarea>')
+            .attr('rows', 15)
+            .attr('cols', 75)
+            //.attr('wrap', 'off')
+            .css('border-width', '2px')
+            .attr('id', this.idc);
+
+    	var modal = $('<div>')
+            .addClass('modal')
+            .attr('id', this.idm)
+            .append($('<div>')
+                .addClass('modal-content')
+                .append(src_buttons)
+                .append(content)
+                .append(typ_buttons)
+            );
+
+        $('body').append(modal);
+        $('body').on('click', '.modal-button-close',
+            $.proxy(function(){
+                $('#'+this.idm).remove();
+            }, this)
+        );
+    },
+
+    format_bibtex: function(data){
+        data = data.replace(/^\s+/, '');
+        data = data.replace(/},/g, '},\n  ');
+        data = data.replace(', title=', ',\n   title=');
+        data = data.replace('}}', '}\n}');
+        return data;
+    },
+
+    display_bibtex: function(){
+        var area = $('#'+this.idc);
+        $('.bibtex').removeClass('selected');
+        $('.mla').removeClass('selected');
+        $('.'+this.typ).addClass('selected');
+
+        if (this.typ == 'mla') area.wrap = 'soft';
+        if (this.typ == 'bibtex') area.wrap = 'off';
+
+        var url = 'https://dx.doi.org/'+this.doi;
+        console.log(url);
+        $.ajax({
+            type: 'GET',
+            async: true,
+            dataType: 'text',
+            timeout: API_TIMEOUT,
+            url: urlproxy(url),
+            beforeSend: $.proxy(function(xhr){
+                xhr.setRequestHeader('Accept', 'text/bibliography; style='+this.typ);
+            }, this),
+            success: $.proxy(function(data){
+                data = this.format_bibtex(data);
+                var lines = data.split('\n');
+                var lens = lines.map(function(i){return i.length;});
+
+                var elm = $('#'+this.idc);
+                elm.val(data);
+
+                if (elm.rows < lines.length)
+                    elm.rows = lines.length;
+            }, this)
+        });
+    },
+};
+
 function outbound_links(ref, ignore=[]){
-    var make_link = {
-        'ads': function(ref){return ref.url;},
-        's2': function(ref){return ref.url;},
-        'inspire': function(ref){return ref.url;},
-        'arxiv': function(ref){return ref.url_arxiv;},
-        'doi': function(ref){return ref.url_doi;},
-        'scholar': function(ref){
-            return 'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title});
-        },
-    };
-
-    var make_text = {
-        'ads': function(){return $('<span>').text('ADS').addClass('ads');},
-        's2': function(){return $('<span>').text('S2').addClass('s2');},
-        'inspire': function(){return $('<span>').text('Inspire').addClass('inspire');},
-        'arxiv': function(){return $('<span>').text('arXiv').addClass('arxiv');},
-        'doi': function(){return $('<span>').text('DOI').addClass('doi');},
-        'scholar': function(){
-            var colors = [
-                '#4484f4', // b
-                '#e94637', // r
-                '#fbbb00', // y
-                '#4484f4', // b
-                '#38a654', // g
-                '#e94637', // r
-                '#fbbb00', // y
-            ];
-            var chars = 'scholar'.split('');
-            var out = $('<span>');
-
-            for (var i=0; i<chars.length; i++){
-                out.append(
-                    $('<span>')
-                        .css('color', colors[i])
-                        .text(chars[i])
-                );
-            }
-            return out;
-        },
-    };
-
     function _img(n){
         return $('<img>')
             .attr('src', asset_url('static/icon-'+n+'.png'))
@@ -52,35 +110,54 @@ function outbound_links(ref, ignore=[]){
             .css('width', 'auto')
     }
 
-    var make_text = {
-        'ads': function(){return _img('ads');},
-        's2': function(){return _img('s2');},
-        'inspire': function(){return _img('inspire');},
-        'doi': function(){return _img('doi');},
-        'arxiv': function(){return _img('arxiv');},
-        'scholar': function(){return _img('scholar');},
-    };
+    function _link(name, desc, url){
+        return $('<a>')
+            .addClass(name)
+            .attr('title', desc)
+            .attr('href', url)
+            .append(_img(name));
+    }
 
-    var make_hover = {
-        'ads': 'NASA ADS',
-        's2': 'Semantic Scholar',
-        'inspire': 'Inspire HEP',
-        'doi': 'Journal article',
-        'arxiv': 'ArXiv article',
-        'scholar': 'Google Scholar',
+    function _linkex(name, desc, url){
+        var link = _link(name, desc, url);
+        link.attr('target', '_blank');
+        return link;
+    }
+
+    function _modal(name, desc, doi){
+        var link = $('<a>')
+            .addClass(name)
+            .attr('title', desc)
+            .append(_img(name));
+
+        console.log('modal');
+        console.log(doi);
+        link.click($.proxy(
+            function(){console.log('click'); var modal = new BibTexModal(doi);}
+        , [doi]));
+        console.log('modal2');
+        return link;
+    }
+
+    var make_link = {
+        'ads':      function(ref){return _linkex('ads', 'NASA ADS', ref.url);},
+        's2':       function(ref){return _linkex('s2', 'Semantic Scholar', ref.url);},
+        'inspire':  function(ref){return _linkex('inspire', 'Inspire HEP', ref.url);},
+        'arxiv':    function(ref){return _link('arxiv', 'ArXiv article', ref.url_arxiv);},
+        'doi':      function(ref){return _linkex('doi', 'Journal article', ref.url_doi);},
+        'cite':     function(ref){return _modal('cite', 'Citation entry', ref.doi);},
+        'scholar':  function(ref){
+            return _link(
+                'scholar', 'Google Scholar',
+                'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title})
+            );
+        },
     };
 
     function outbound_link(ref, style){
         var arrow = $('<span>').addClass('exitarrow').text('↳ ');
-        var link = $('<a>')
-            .addClass(name)
-            .attr('title', make_hover[style])
-            .attr('href', make_link[style](ref))
-            .append(make_text[style]());
-
-        if (style != 'arxiv') link.attr('target', '_blank');
-
-        return $('<span>').append(link);
+        var element = make_link[style](ref);
+        return $('<span>').append(element);
     }
 
     var arrow = $('<span>').addClass('exitarrow movearrow').text('↳ ');
@@ -812,6 +889,7 @@ Overlay.prototype = {
     load: function(ds){
         this.datasets = [new S2Data(), new InspireData(), new ADSData()];
         this.available = [];
+        this.unavailable = [];
 
         var cats = get_categories();
         if (!cats || cats.length == 0)
@@ -822,6 +900,8 @@ Overlay.prototype = {
             if (this.datasets[i].categories.has(pcat[0]) ||
                 this.datasets[i].categories.has(pcat[1])){
                 this.available.push(this.datasets[i]);
+            } else {
+                this.unavailable.push(this.datasets[i]);
             }
         }
 

@@ -56,6 +56,7 @@ S2Data.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
+        if (ref.doi) outs.push('cite');
         return outs;
     },
 
