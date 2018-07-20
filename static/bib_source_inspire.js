@@ -124,7 +124,7 @@ InspireData.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
-        if (ref.doi) outs.push('cite');
+        if (ref.doi || ref.arxivid) outs.push('cite');
         return outs;
     },
 
@@ -142,6 +142,7 @@ InspireData.prototype = {
             'api': this.url_paper_api(doc.recid.toString()),
             'url': this.url_paper(doc.recid),
             'doi': string_to_array(doc.doi || '')[0],
+            'arxivid': arxivid,
             'url_doi': doc.doi ? 'https://doi.org/'+doc.doi : '',
             'url_arxiv': this.url_arxiv(arxivid),
         };

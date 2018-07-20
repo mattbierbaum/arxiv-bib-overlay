@@ -3,13 +3,14 @@ var D = null;
 var MAX_AUTHORS = 10;
 var PAGE_LENGTH = 10;
 
-function BibTexModal(doi){
-    this.src = 'doi';
+function BibTexModal(doi, arxivid){
+    this.src = doi ? 'doi' : 'arxiv';
     this.typ = 'bibtex';
 
-    this.doi = doi
+    this.doi = doi;
+    this.arxivid = arxivid;
     this.create_modal();
-    this.display_bibtex();
+    this.display();
 }
 
 BibTexModal.prototype = {
@@ -20,16 +21,25 @@ BibTexModal.prototype = {
 		var src_buttons = $('<div>').addClass('modal-button-container');
 		var typ_buttons = $('<div>').addClass('modal-button-container');
 
-        /*src_buttons.append($('<button>').addClass('modal-button selected').text("DOI"));
-        src_buttons.append($('<button>').addClass('modal-button').text("arXiv"));*/
+        if (this.doi)
+            src_buttons.append(
+                $('<button>').addClass('modal-button doi').text("DOI")
+                .click($.proxy(function(){this.display('doi', this.typ);}, this))
+            );
+        if (this.arxivid)
+            src_buttons.append(
+                $('<button>').addClass('modal-button arxiv').text("arXiv")
+                .click($.proxy(function(){this.display('arxiv', this.typ);}, this))
+            );
         src_buttons.append(
             $('<button>').addClass('modal-button bibtex').text("BibTeX")
-            .click($.proxy(function(){this.typ='bibtex'; this.display_bibtex();}, this))
+            .click($.proxy(function(){this.display(this.src, 'bibtex');}, this))
         );
-        src_buttons.append(
-            $('<button>').addClass('modal-button mla').text("MLA")
-            .click($.proxy(function(){this.typ='mla'; this.display_bibtex();}, this))
-        );
+        if (this.doi)
+            src_buttons.append(
+                $('<button>').addClass('modal-button mla').text("MLA")
+                .click($.proxy(function(){this.display(this.src, 'mla');}, this))
+            );
         src_buttons.append(
             $('<button>').addClass('modal-button modal-button-close').html('&times;')
         );
@@ -59,7 +69,7 @@ BibTexModal.prototype = {
         );
     },
 
-    format_bibtex: function(data){
+    format_bibtex_doi: function(data){
         data = data.replace(/^\s+/, '');
         data = data.replace(/},/g, '},\n  ');
         data = data.replace(', title=', ',\n   title=');
@@ -67,15 +77,43 @@ BibTexModal.prototype = {
         return data;
     },
 
-    display_bibtex: function(){
-        var area = $('#'+this.idc);
-        $('.bibtex').removeClass('selected');
-        $('.mla').removeClass('selected');
-        $('.'+this.typ).addClass('selected');
+    format_bibtex_arxiv: function(xml){
+        var id = xml.find('entry > id').text();
+        id = id.split('/abs/')[1].split('v')[0];
 
-        if (this.typ == 'mla') area.wrap = 'soft';
-        if (this.typ == 'bibtex') area.wrap = 'off';
+        var title = xml.find('entry > title').text();
+        var auths = xml.find('entry > author > name');
+        var year = xml.find('entry > published').text().split('-')[0];
+        var journal = xml.find('entry > journal_ref');
+        var doi = xml.find('entry > doi');
+        var eprint = this.arxivid;
 
+        var authline = $.map(auths, function(i){return i.textContent;}).join(' and ');
+
+return `@article{${id},
+    title={${title}},
+    author={${authline}},
+    year={${year}},
+    eprint={${eprint}},
+    archivePrefix={arXiv},
+}`;
+    },
+
+    query_arxiv: function(){
+        var url = 'https://export.arxiv.org/api/query?id_list='+this.arxivid;
+        $.ajax({
+            url: url,
+            dataType: 'xml',
+            success: $.proxy(
+                function(data){
+                    var data = this.format_bibtex_arxiv($('feed', data));
+                    this.display_content(data);
+                }, this
+            ),
+        });
+    },
+
+    query_doi: function(){
         var url = 'https://dx.doi.org/'+this.doi;
         console.log(url);
         $.ajax({
@@ -88,17 +126,49 @@ BibTexModal.prototype = {
                 xhr.setRequestHeader('Accept', 'text/bibliography; style='+this.typ);
             }, this),
             success: $.proxy(function(data){
-                data = this.format_bibtex(data);
-                var lines = data.split('\n');
-                var lens = lines.map(function(i){return i.length;});
-
-                var elm = $('#'+this.idc);
-                elm.val(data);
-
-                if (elm.rows < lines.length)
-                    elm.rows = lines.length;
+                data = this.format_bibtex_doi(data);
+                this.display_content(data);
             }, this)
         });
+    },
+
+    display_clear: function(){
+        $('.bibtex').removeClass('selected disabled');
+        $('.mla').removeClass('selected disabled');
+        $('.'+this.typ).addClass('selected');
+
+        $('.doi').removeClass('selected');
+        $('.arxiv').removeClass('selected');
+        $('.'+this.src).addClass('selected');
+
+        if (this.src == 'arxiv')
+            $('.mla').addClass('disabled');
+    },
+
+    display_content: function(data){
+        var textarea = $('#'+this.idc);
+        var lines = data.split('\n');
+        var lens = lines.map(function(i){return i.length;});
+
+        textarea.val(data);
+
+        if (textarea.rows < lines.length)
+            textarea.rows = lines.length;
+    },
+
+    display: function(src=null, typ=null){
+        if (src == this.src && typ == this.typ) return;
+        if (src == 'arxiv' && typ == 'mla') return;
+
+        this.src = src || this.src;
+        this.typ = typ || this.typ;
+
+        this.display_clear();
+
+        if (this.src == 'doi')
+            this.query_doi();
+        if (this.src == 'arxiv')
+            this.query_arxiv();
     },
 };
 
@@ -124,7 +194,7 @@ function outbound_links(ref, ignore=[]){
         return link;
     }
 
-    function _modal(name, desc, doi){
+    function _modal(name, desc, doi, arxivid){
         var link = $('<a>')
             .addClass(name)
             .attr('title', desc)
@@ -132,9 +202,12 @@ function outbound_links(ref, ignore=[]){
 
         console.log('modal');
         console.log(doi);
-        link.click($.proxy(
-            function(){console.log('click'); var modal = new BibTexModal(doi);}
-        , [doi]));
+        link.click((function(){
+            return function(){
+                console.log('click');
+                var modal = new BibTexModal(doi, arxivid);
+            };
+        })());
         console.log('modal2');
         return link;
     }
@@ -145,7 +218,7 @@ function outbound_links(ref, ignore=[]){
         'inspire':  function(ref){return _linkex('inspire', 'Inspire HEP', ref.url);},
         'arxiv':    function(ref){return _link('arxiv', 'ArXiv article', ref.url_arxiv);},
         'doi':      function(ref){return _linkex('doi', 'Journal article', ref.url_doi);},
-        'cite':     function(ref){return _modal('cite', 'Citation entry', ref.doi);},
+        'cite':     function(ref){return _modal('cite', 'Citation entry', ref.doi, ref.arxivid);},
         'scholar':  function(ref){
             return _link(
                 'scholar', 'Google Scholar',

@@ -567,6 +567,8 @@ h1.bib-header span {
 
 .modal-button.selected {opacity: 1.0;}
 .modal-button.selected:hover {opacity: 1.0; cursor: default;}
+.modal-button.disabled {background-color: #aaaaaa;}
+.modal-button.disabled:hover {opacity: 0.7; cursor: default;}
 
 .modal-button-close {
     display: flex;
