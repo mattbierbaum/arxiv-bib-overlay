@@ -578,3 +578,7 @@ h1.bib-header span {
     padding: 0;
     font-size: 2em;
 }
+
+.cite:hover {
+    cursor: pointer;
+}
