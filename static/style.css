@@ -1,6 +1,6 @@
 .arrow {
-  width: 0; 
-  height: 0; 
+  width: 0;
+  height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
 }
@@ -13,100 +13,147 @@
   border-top: 8px solid black;
 }
 
-.authors a {
-    color: black;
-    text-decoration: none;
-}
+.bib-main {}
 
-.s2-col2 {
+.bib-col2 {
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
-    margin: 20px;
+    justify-content: space-evenly;
+    margin: 0px 20px 0px 20px;
 }
 
-.s2-col2 h2 {
+.bib-col2 h2 {
     text-align: center;
 }
 
-.s2-col2 > div {
+.bib-col2 > div {
+}
+
+.bib-col2 a {
+    text-decoration: none;
+    color: black;
+}
+
+.bib-col {
+    margin: 0px 20px 20px 20px;
+    max-width: 450px;
     width: 50%;
     padding: 10px;
 }
 
-.s2-col2 > div:first-child {
-    margin-right: 20px;
-    border-width: 0px 0.35em 0px 0px;
-    /*border-style: solid;*/
-    border-color: #ddd;
+.bib-col-divider {
+    width: 1px;
+    background-color: #dfdfdf;
 }
 
-.s2-col2 a {
-    text-decoration: none;
-    color: black;
+.bib-col-header {
+    margin: 0px;
 }
 
-.s2-col-header {
-    margin-bottom: 1em;
-}
-
-.s2-col-aside {
+.bib-col-aside {
     font-size: small;
 }
 
-.s2-col-center {
+.bib-col-center {
     display: table;
     margin: 0 auto;
 }
 
-.s2-col-title {
-    font-size: x-large;
+.bib-col-title {
+    font-size: large;
     font-weight: bold;
 }
 
-.s2-paper {
+.bib-sorter {
+    margin-top: 0.25em;
+}
+
+.bib-filter {
+    margin-top: 0.25em;
+}
+
+.bib-filter-label {
+    margin-left: 1em;
+    margin-right: 0.7em;
+}
+
+.lbl {
+    text-align: right;
+}
+
+.bib-fiter-input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+.bib-paper-container {
+    margin-bottom: 1.5em;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+.bib-paper-right {
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    flex: 0 0 20px;
+}
+
+.bib-paper {
     color: black;
-    margin-bottom: 1.3em;
-    margin-top: 0.3em;
+    margin-bottom: 1.5em;
     /*height: 50px;
     overflow: hidden;*/
 }
 
-.s2-paper .jinfo {
+.bib-paper .jinfo {
     padding-left: 0.7em;
     font-size: 0.9em;
 }
 
-.s2-paper .venue {
+.bib-paper .venue {
     padding-right: 0.5em;
     text-transform: capitalize;
     font-style: italic;
     color: #777;
 }
 
-.s2-paper .venue:empty {
+.bib-paper .venue:empty {
     display: none;
 }
 
-.s2-paper .year {
+.bib-paper .year {
+    padding-right: 0.5em;
     font-weight: bold;
 }
 
-.s2-paper .year:empty {
+.bib-paper .year:empty {
     display: none;
 }
 
-.s2-paper a {
+.bib-paper .citations {
+    padding-right: 0.5em;
+}
+
+.bib-paper .citations:empty {
+    display: none;
+}
+
+.bib-paper a {
     color: #000;
     position: relative;
 }
 
-.s2-paper span {
+.bib-paper span {
     color: #000;
     position: relative;
 }
 
-.s2-paper .influential::before {
+.bib-paper .influential::before {
     left: -17px;
     position: absolute;
     width: 0px;
@@ -114,7 +161,7 @@
     color: red;
 }
 
-/*.s2-paper .unknown::before {
+/*.bib-paper .unknown::before {
     left: -17px;
     position: absolute;
     width: 0px;
@@ -123,25 +170,70 @@
     font-size: 0.85em;
 }*/
 
-.s2-authors {
+.bib-authors {
     margin-left: 0.7em;
 }
 
-.s2-authors a {
+.bib-authors a {
     font-size: 0.9em;
     color: #555;
     margin-right: 0.5em;
 }
 
-.s2-authors a::after {
+.bib-authors a::after {
     content: ',';
 }
 
-.s2-authors a:last-of-type:after {
+.bib-authors a:last-of-type:after {
     content: '';
 }
 
-.s2-lbl {
+.bib-cites {
+    margin-left: 0.7em;
+    font-size: 0.9em;
+    color: #555;
+    margin-right: 0.5em;
+}
+
+.bib-outbound {
+    margin-left: 0.7em;
+    margin-top: 3px;
+}
+
+.bib-outbound a {
+    font-weight: bold;
+    font-size: 1.0em;
+    text-decoration: none;
+    margin-right: 0.5em;
+}
+
+.bib-outbound .exitarrow {
+    color: black;
+    font-weight: bold;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.bib-outbound .movearrow {
+    top: -6px;
+    position: relative;
+}
+
+.bib-outbound .shadow {
+    text-shadow:
+        -0.5px -0.5px 0 #444,
+         0.5px -0.5px 0 #444,
+        -0.5px  0.5px 0 #444,
+         0.5px  0.5px 0 #444;
+}
+
+.bib-outbound .arxiv {color: #b31b1b;}
+.bib-outbound .ads {color: #2e78e1;}
+.bib-outbound .bib {color: #286a8e;}
+.bib-outbound .doi {color: #fcb328;}
+
+.bib-lbl {
     font-size: 12px;
     color: white;
     background-color: black;
@@ -155,19 +247,19 @@
     justify-content: center;
 }
 
-.page {
+.bib-utils {
     margin-top: 1em;
     display: table;
-    margin: 0.7em auto;
+    margin: 0.7em auto 1.5em auto;
 }
 
-.page-list {
+.bib-page-list {
     list-style: none;
     padding: 0;
     display: inline;
 }
 
-.page-list > li {
+.bib-page-list > li {
     display: inline-block;
     margin-left: 0.25em;
     margin-right: 0.25em;
@@ -197,13 +289,15 @@
     font-weight: bold;
 }
 
-h1.lined {
+h1.bib-header {
+    margin-bottom: 0px;
+    margin-top: 0px;
     text-align: center;
     position: relative;
     z-index: 1;
 }
 
-h1.lined::before {
+h1.bib-header::before {
     border-top: 2px solid #dfdfdf;
     content:"";
     margin: 0 auto;
@@ -213,9 +307,195 @@ h1.lined::before {
     z-index: -1;
 }
 
-h1.lined span {
+h1.bib-header span {
     background: #fff;
     padding: 0 15px;
 }
 
+.bib-sidebar {
+    padding: 0 1em 0 1em;
+    font-size: 90%;
+    border-bottom: medium solid #ddd;
+}
 
+.nodisplay {
+    display: none;
+}
+
+.bib-sidebar-error {
+    color: red;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.bib-sidebar-errors {
+    padding: 0.5em 0em 0.5em 0em;
+}
+
+.bib-sidebar-errors p {
+    margin: 0;
+}
+
+.bib-sidebar-errors .errors {
+    padding-left: 0px;
+    margin: 0.3em 0em;
+}
+
+.bib-sidebar-errors .error {
+    color: black;
+    font-size: 100%;
+    font-weight: normal;
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.bib-sidebar-errors .error:hover {
+    cursor: help;
+}
+
+.bib-sidebar-errors .error .hover {
+    top: -5px;
+    right: 105%;
+    visibility: hidden;
+    color: white;
+    background-color: #444;
+    padding: 1em;
+    position: absolute;
+    z-index: 1;
+    /*max-width: 500px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;*/
+}
+
+.bib-sidebar-errors .error:hover .hover {
+    visibility: visible;
+}
+
+.bib-sidebar-paper {}
+.bib-sidebar-paper > div {
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 0.5em;
+}
+.bib-sidebar-paper > div:first-of-type {
+    margin-top: 0.5em;
+}
+
+.bib-sidebar-badge {
+    padding: 0.5em 0 0 0;
+}
+.bib-sidebar-title {}
+.bib-sidebar-title-link {
+    position: relative;
+    /*top: -6px;*/
+    /*color: black;*/
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.bib-sidebar-authors {
+    list-style-position: inside;
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 0.5em;
+    padding-left: 1em;
+}
+
+/*.bib-sidebar-authors li a {
+    font-size: 1.0em;
+    color: #555;
+}*/
+
+.bib-sidebar-source {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.topborder {
+    border-top-style: solid;
+    border-top-color: #dfdfdf;
+    border-top-width: 2px;
+}
+
+.bib-sidebar-source span {
+    position: relative;
+    margin-right: 5px;
+}
+
+.bib-sidebar-source img {
+    height: 18px;
+    width: auto;
+    padding: 3px;
+    margin-right: 3px;
+    position: relative;
+}
+
+.bib-selected {
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+}
+
+.bib-selected:hover {
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+}
+
+.bib-unselected {
+    border: 1px solid white;
+    border-radius: 6px;
+}
+
+.bib-unselected:hover {
+    border: 1px solid black;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+
+.bib-pulse-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.bib-pulse > div {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+	background-color: #000;
+    border-radius: 30px;
+    opacity: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    animation: pulsate 1.5s ease-out;
+    animation-iteration-count: infinite;
+}
+.bib-pulse > div:nth-of-type(2) {
+    -webkit-animation-delay: 0.18s;
+    -moz-animation-delay: 0.18s;
+}
+.bib-pulse > div:nth-of-type(3) {
+    -webkit-animation-delay: 0.36s;
+    -moz-animation-delay: 0.36s;
+}
+
+
+@keyframes pulsate {
+    0% {
+      transform: scale(.1);
+      opacity: 0.0;
+    }
+    30% {
+      opacity: 1;
+    }
+    60% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+}
