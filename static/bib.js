@@ -400,7 +400,7 @@ ColumnView.prototype = {
         if (this.filter_text.length == 0 || this.filter_text == '') return data;
 
         var output = [];
-        var words = this.filter_text.split(' ');
+        var words = this.filter_text.toLowerCase().split(' ');
 
         var output = data;
         for (var i=0; i<words.length; i++){
