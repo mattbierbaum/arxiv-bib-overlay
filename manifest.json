@@ -36,6 +36,7 @@
         "static/icon-inspire.png",
         "static/icon-scholar.png",
         "static/icon-doi.png",
-        "static/icon-arxiv.png"
+        "static/icon-arxiv.png",
+        "static/icon-cite.png"
     ]
 }

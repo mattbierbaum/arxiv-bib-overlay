@@ -129,6 +129,12 @@ var RE_IDENTIFIER = new RegExp(
     ')'                                              // end OR group
 );
 
+function string_to_array(e){
+    if (typeof e === 'string')
+        return [e];
+    return e;
+}
+
 Array.prototype.remove = function(element){
     var index = this.indexOf(element);
     if (index > -1) {

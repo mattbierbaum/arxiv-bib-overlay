@@ -43,18 +43,25 @@ ADSData.prototype = {
         return 'https://ui.adsabs.harvard.edu/#abs/' + bib;
     },
     ads_url_arxiv: function(identifiers){
-        if (!identifiers) return;
-
-        for (var i=0; i<identifiers.length; i++){
-            var match = RE_IDENTIFIER.exec(identifiers[i]);
-            if (match) return 'https://arxiv.org/abs/'+(match[1] || match[2] || match[3]);
-        }
+        var eprint = this.get_eprint(identifiers);
+        if (eprint)
+            return 'https://arxiv.org/abs/'+eprint;
         return;
     },
 
     ads_url_doi: function(doc){
         if (!doc.doi) return '';
         return this.homepage+'/link_gateway/'+doc.bibcode+'/doi:'+doc.doi;
+    },
+
+    get_eprint: function(identifiers){
+        if (!identifiers) return;
+
+        for (var i=0; i<identifiers.length; i++){
+            var match = RE_IDENTIFIER.exec(identifiers[i]);
+            if (match) return (match[1] || match[2] || match[3]);
+        }
+        return;
     },
 
     searchline: function(doc){
@@ -94,6 +101,7 @@ ADSData.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
+        if (ref.doi || ref.arxivid) outs.push('cite');
         return outs;
     },
 
@@ -105,6 +113,8 @@ ADSData.prototype = {
             'url': this.ads_url_bibcode(doc.bibcode),
             'url_arxiv': this.ads_url_arxiv(doc.identifier),
             'url_doi': this.ads_url_doi(doc),
+            'arxivid': this.get_eprint(doc.identifier),
+            'doi': (doc.doi || [''])[0],
             'paperId': doc.bibcode || '',
             'year': doc.year || '',
             'venue': doc.pub || '',

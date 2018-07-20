@@ -28,14 +28,6 @@ S2Data.prototype = {
     },
 
     add_url_arxiv: function(data){
-        /*if (data.venue == 'ArXiv'){
-            var url = 'https://arxiv.org/search/?';
-            var param = {
-                'query': '"'+data.title+'"',
-                'searchtype': 'title'
-            };
-            data['url_arxiv'] = url + encodeQueryData(param);
-        }*/
         if (data.arxivId)
             data['url_arxiv'] = 'https://arxiv.org/abs/'+data.arxivId;
         else
@@ -56,6 +48,7 @@ S2Data.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
+        if (ref.doi || ref.arxivid) outs.push('cite');
         return outs;
     },
 
@@ -66,6 +59,7 @@ S2Data.prototype = {
         data.searchline = this.searchline(data);
         data.outbound = this.outbound_names(data);
         data.index = index;
+        data.arxivid = data.arxivId;
     },
 
     add_counts: function(data){
