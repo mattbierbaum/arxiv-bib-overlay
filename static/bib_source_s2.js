@@ -3,7 +3,7 @@
 //============================================================================
 function S2Data() {
     this.cache = {};
-    this.data = {}
+    this.data = {};
     this.aid = null;
 }
 
@@ -24,14 +24,14 @@ S2Data.prototype = {
 
     add_api_url: function(data){
         if ('paperId' in data)
-            data['api'] = this.url_paperId(data['paperId']);
+            data.api = this.url_paperId(data.paperId);
     },
 
     add_url_arxiv: function(data){
         if (data.arxivId)
-            data['url_arxiv'] = 'https://arxiv.org/abs/'+data.arxivId;
+            data.url_arxiv = 'https://arxiv.org/abs/'+data.arxivId;
         else
-            data['url_arxiv'] = '';
+            data.url_arxiv = '';
     },
 
     add_url_doi: function(data){
@@ -70,9 +70,10 @@ S2Data.prototype = {
     transform_result: function(data){
         this.reformat_document(data);
 
-        for (var ind in data.citations)
+        var ind;
+        for (ind in data.citations)
             this.reformat_document(data.citations[ind], ind);
-        for (var ind in data.references)
+        for (ind in data.references)
             this.reformat_document(data.references[ind], ind);
 
         data.citations.header = 'Citations';

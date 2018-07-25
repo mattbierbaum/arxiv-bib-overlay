@@ -11,7 +11,7 @@ function OverlayException(message) {
 }
 
 function random_id(){
-    return new String(Math.random()).substring(2,12);
+    return String(Math.random()).substring(2,12);
 }
 
 function makeDelay(callback, ms) {
@@ -27,7 +27,7 @@ function minor_to_major(category){
     var re = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g);
 
     var match = re.exec(category);
-    while (match != null)
+    while (match !== null)
         return match[1];
     return '';
 }
@@ -39,9 +39,9 @@ function get_minor_categories(){
     var txt = $('.metatable').find('.subjects').text();
     var re = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g);
 
-    var matches = []
+    var matches = [];
     var match = re.exec(txt);
-    while (match != null){
+    while (match !== null){
         matches.push(match[1]);
         match = re.exec(txt);
     }
@@ -103,7 +103,7 @@ function encodeQueryData(data) {
         val = data[d];
 
         if (!Array.isArray(val))
-            val = [val]
+            val = [val];
 
         for (var i=0; i<val.length; i++)
             ret.push(
@@ -140,4 +140,4 @@ Array.prototype.remove = function(element){
     if (index > -1) {
         this.splice(index, 1);
     }
-}
+};

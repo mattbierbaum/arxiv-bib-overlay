@@ -18,8 +18,8 @@ BibTexModal.prototype = {
         this.idm = random_id();
         this.idc = random_id();
 
-		var src_buttons = $('<div>').addClass('modal-button-container');
-		var typ_buttons = $('<div>').addClass('modal-button-container');
+        var src_buttons = $('<div>').addClass('modal-button-container');
+        var typ_buttons = $('<div>').addClass('modal-button-container');
 
         if (this.doi)
             src_buttons.append(
@@ -90,13 +90,10 @@ BibTexModal.prototype = {
 
         var authline = $.map(auths, function(i){return i.textContent;}).join(' and ');
 
-return `@article{${id},
-    title={${title}},
-    author={${authline}},
-    year={${year}},
-    eprint={${eprint}},
-    archivePrefix={arXiv},
-}`;
+        return (
+            '@article{'+id+',\n  ' + 'title={'+title+'},\n  ' + 'author={'+authline+'},\n  ' +
+            'year={'+year+'},\n  ' + 'eprint={'+eprint+'},\n  ' + 'archivePrefix={arXiv},\n}'
+        );
     },
 
     query_arxiv: function(){
@@ -106,7 +103,7 @@ return `@article{${id},
             dataType: 'xml',
             success: $.proxy(
                 function(data){
-                    var data = this.format_bibtex_arxiv($('feed', data));
+                    data = this.format_bibtex_arxiv($('feed', data));
                     this.display_content(data);
                 }, this
             ),
@@ -115,7 +112,6 @@ return `@article{${id},
 
     query_doi: function(){
         var url = 'https://dx.doi.org/'+this.doi;
-        console.log(url);
         $.ajax({
             type: 'GET',
             async: true,
@@ -156,7 +152,7 @@ return `@article{${id},
             textarea.rows = lines.length;
     },
 
-    display: function(src=null, typ=null){
+    display: function(src, typ){
         if (src == this.src && typ == this.typ) return;
         if (src == 'arxiv' && typ == 'mla') return;
 
@@ -172,12 +168,12 @@ return `@article{${id},
     },
 };
 
-function outbound_links(ref, ignore=[]){
+function outbound_links(ref, ignore){
     function _img(n){
         return $('<img>')
             .attr('src', asset_url('static/icon-'+n+'.png'))
             .css('height', '18')
-            .css('width', 'auto')
+            .css('width', 'auto');
     }
 
     function _link(name, desc, url){
@@ -200,15 +196,11 @@ function outbound_links(ref, ignore=[]){
             .attr('title', desc)
             .append(_img(name));
 
-        console.log('modal');
-        console.log(doi);
         link.click((function(){
             return function(){
-                console.log('click');
                 var modal = new BibTexModal(doi, arxivid);
             };
         })());
-        console.log('modal2');
         return link;
     }
 
@@ -402,18 +394,19 @@ ColumnView.prototype = {
 
         function _pagelink(n, active){
             /* num links, args: page number, whether to show dots */
-            var active = (active === undefined) ? true : active;
-            return !active ? _nolink(dots) : ((n == P) ? _nolink(n, 'bold') : _link(n));
+            var a = (active === undefined) ? true : active;
+            return !a ? _nolink(dots) : ((n == P) ? _nolink(n, 'bold') : _link(n));
         }
 
         var pages_text = $('<span>').text('Pages: ');
-        var pages = $('<ul>').addClass('bib-page-list')
+        var pages = $('<ul>').addClass('bib-page-list');
 
         pages.append(_inclink(-1));
 
+        var i = 0;
         if (L <= S){
             // just show all numbers if the number of pages is less than the slots
-            for (var i=1; i<=L; i++)
+            for (i=1; i<=L; i++)
                 pages.append(_pagelink(i));
         } else {
             // the first number (1) and dots if list too long
@@ -424,7 +417,7 @@ ColumnView.prototype = {
             var i0 = min(L-2 - 2*B, max(1+2, P-B));
             var i1 = max(1+2 + 2*B, min(L-2, P+B));
 
-            for (var i=i0; i<=i1; i++)
+            for (i=i0; i<=i1; i++)
                 pages.append(_pagelink(i));
 
             // the last number (-1) and dots if list too long
@@ -435,11 +428,10 @@ ColumnView.prototype = {
         pages.append(_inclink(+1));
 
         // create the dropdown as well for ease of navigating large lists
-        var meta = this;
         var pager = function(){meta.change_page(this.value);};
 
         var select = $('<select>').on('change', pager);
-        for (var i=1; i<=this.npages; i++)
+        for (i=1; i<=this.npages; i++)
             select.append($('<option>').attr('value', i).text(i));
         select.val(this.page);
 
@@ -482,7 +474,7 @@ ColumnView.prototype = {
 
         var sort_field = $('<select>')
             .attr('id', 'sort_field')
-            .on('change', sort_field_changer)
+            .on('change', sort_field_changer);
 
         for (var i=0; i<this.ds.sorters_order.length; i++){
             var sid = this.ds.sorters_order[i];
@@ -539,7 +531,7 @@ ColumnView.prototype = {
                 if (a.title  < b.title)  return -1;
                 return 0;
             });
-        }
+        };
 
         var func = this.ds.sorters[this.sort_field].func;
         output = sorter(data, func, this.sort_order);
@@ -547,11 +539,9 @@ ColumnView.prototype = {
     },
 
     filterfield: function(data){
-        if (this.filter_text.length == 0 || this.filter_text == '') return data;
+        if (this.filter_text.length === 0 || this.filter_text === '') return data;
 
-        var output = [];
         var words = this.filter_text.toLowerCase().split(' ');
-
         var output = data;
         for (var i=0; i<words.length; i++){
             var newlist = [];
@@ -728,7 +718,7 @@ Overlay.prototype = {
     },
 
     populate_source: function(){
-        if (this.available.length == 0)
+        if (this.available.length === 0)
             return null;
 
         var out = $('<div>')
@@ -817,7 +807,7 @@ Overlay.prototype = {
                     .attr('target', '_blank')
                     .text(ds.data.authors[i].name)
                 )
-            )
+            );
         }
 
         if (ds.data.authors.length > MAX_AUTHORS)
@@ -833,7 +823,7 @@ Overlay.prototype = {
             .append(authorlist)
             .append(outbounds);
 
-        $('.bib-sidebar-paper').replaceWith(output)
+        $('.bib-sidebar-paper').replaceWith(output);
         $('.bib-sidebar-paper').css('display', 'block');
         $('.bib-sidebar-source').addClass('topborder');
     },
@@ -889,7 +879,7 @@ Overlay.prototype = {
     },
 
     destroy_spinner: function(){
-        $('.bib-pulse-container').remove()
+        $('.bib-pulse-container').remove();
     },
 
     bind_errors: function(o){
@@ -971,11 +961,12 @@ Overlay.prototype = {
         this.unavailable = [];
 
         var cats = get_categories();
-        if (!cats || cats.length == 0)
+        if (!cats || cats.length === 0)
             return;
 
+        var i = 0;
         var pcat = cats[0];
-        for (var i=0; i<this.datasets.length; i++){
+        for (i=0; i<this.datasets.length; i++){
             if (this.datasets[i].categories.has(pcat[0]) ||
                 this.datasets[i].categories.has(pcat[1])){
                 this.available.push(this.datasets[i]);
@@ -985,7 +976,7 @@ Overlay.prototype = {
         }
 
         this.bind_errors(this);
-        for (var i in this.available)
+        for (i in this.available)
             this.bind_errors(this.available[i]);
 
         if (this.available.length > 0){
@@ -1003,10 +994,10 @@ function wrap_error(func, error) {
                 error(err);
                 throw err;
             }
-        }
+        };
     }
     return func._wrapped;
-};
+}
 
 function wrap_object(obj, error){
 	for (var name in obj){
@@ -1026,5 +1017,21 @@ function gogogo(){
     ui.load();
     D = ui;
 }
+        function check(filename){
+            var base = 'http://127.0.0.1:8000/static/';
+            var url = base + filename;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'text',
+                success: function(data){
+                    JSHINT(data);
+                    console.log(JSHINT.errors);
+                }
+            });
+        }
+
 
 gogogo();
+
+// https://arxiv.org/abs/hep-th/9712007

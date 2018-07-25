@@ -80,7 +80,7 @@ ADSData.prototype = {
     reformat_authors: function(auths){
         if (!auths) return [];
 
-        var output = []
+        var output = [];
         for (var i=0; i<auths.length; i++)
             output.push({
                 'name': this.reverse_author(auths[i]),
@@ -90,7 +90,7 @@ ADSData.prototype = {
     },
 
     reformat_title: function(title){
-        if (!title || title.length == 0)
+        if (!title || title.length === 0)
             return 'Unknown';
         return title[0];
     },
@@ -106,7 +106,7 @@ ADSData.prototype = {
     },
 
     reformat_document: function(doc, index){
-        var doc = {
+        var newdoc = {
             'title': this.reformat_title(doc.title),
             'authors': this.reformat_authors(doc.author),
             'api': this.ads_url_bibcode(doc.bibcode),
@@ -123,9 +123,9 @@ ADSData.prototype = {
             'read_count': doc.read_count,
             'index': index,
         };
-        doc.searchline = this.searchline(doc);
-        doc.outbound = this.outbound_names(doc);
-        return doc;
+        newdoc.searchline = this.searchline(newdoc);
+        newdoc.outbound = this.outbound_names(newdoc);
+        return newdoc;
     },
 
     reformat_documents: function(docs){
@@ -147,7 +147,7 @@ ADSData.prototype = {
 
     load_data_callback: function(callback) {
         if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready){
-            if (this.rawdata.base.docs.length == 0)
+            if (this.rawdata.base.docs.length === 0)
                 throw new Error("No data loaded for "+this.aid);
 
             var output = this.reformat_document(this.rawdata.base.docs[0]);
@@ -168,7 +168,7 @@ ADSData.prototype = {
     },
 
     load_data: function(query, obj, callback){
-        this.api_params['q'] = query;
+        this.api_params.q = query;
 
         if (obj in this.rawdata){
             this.ready[obj] = true;
