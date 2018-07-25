@@ -50,7 +50,6 @@
             'bib_source_inspire.js',
             'bib_source_ads.js',
             'bib.js',
-            'jshint.js',
         ].forEach(function(i){load(i);});
     }
 )();
