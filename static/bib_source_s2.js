@@ -3,7 +3,7 @@
 //============================================================================
 function S2Data() {
     this.cache = {};
-    this.data = {}
+    this.data = {};
     this.aid = null;
 }
 
@@ -13,7 +13,7 @@ S2Data.prototype = {
 
     shortname: 'S2',
     longname: 'Semantic Scholar',
-    categories: new Set(['cs', 'stats.ML']),
+    categories: new Set(['cs', 'stat.ML']),
     homepage: 'https://semanticscholar.org',
     api_url: 'https://api.semanticscholar.org/v1/',
     api_params: 'include_unknown_references=true',
@@ -24,14 +24,14 @@ S2Data.prototype = {
 
     add_api_url: function(data){
         if ('paperId' in data)
-            data['api'] = this.url_paperId(data['paperId']);
+            data.api = this.url_paperId(data.paperId);
     },
 
     add_url_arxiv: function(data){
         if (data.arxivId)
-            data['url_arxiv'] = 'https://arxiv.org/abs/'+data.arxivId;
+            data.url_arxiv = 'https://arxiv.org/abs/'+data.arxivId;
         else
-            data['url_arxiv'] = '';
+            data.url_arxiv = '';
     },
 
     add_url_doi: function(data){
@@ -70,9 +70,10 @@ S2Data.prototype = {
     transform_result: function(data){
         this.reformat_document(data);
 
-        for (var ind in data.citations)
+        var ind;
+        for (ind in data.citations)
             this.reformat_document(data.citations[ind], ind);
-        for (var ind in data.references)
+        for (ind in data.references)
             this.reformat_document(data.references[ind], ind);
 
         data.citations.header = 'Citations';
@@ -99,24 +100,14 @@ S2Data.prototype = {
             url: urlproxy(url),
             async: true,
             timeout: API_TIMEOUT,
-            error: this.error_wrapper(function(x, t, m) {
-                if (t === "timeout") {
-                    throw new Error("Query timed out");
-                } else if (x.status == 404){
-                    throw new Error("Query error 404: no data available");
-                } else if (x.status == 500){
-                    throw new Error("Query error 500: API internal server error");
-                } else {
-                    throw new Error("Query error "+x.status+": "+m);
-                }
-            }),
             success: $.proxy(
                 function(data){
                    this.data = this.transform_result(data);
                    this.cache[url] = this.data;
                    callback(this);
                 }, this
-            )
+            ),
+            error: this.query_error,
         });
     },
 

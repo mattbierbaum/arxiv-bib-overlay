@@ -3,9 +3,9 @@
 //============================================================================
 function InspireData() {
     this.ready = {};
-    this.rawdata = {}
+    this.rawdata = {};
     this.cache = {};
-    this.data = {}
+    this.data = {};
     this.aid = null;
 }
 
@@ -47,13 +47,14 @@ InspireData.prototype = {
     url_arxiv: function(arxivid){return arxivid ? 'https://arxiv.org/abs/'+arxivid : null;},
 
     doc_arxiv_id: function(doc){
+        var match;
         var reports = doc.primary_report_number;
         if (reports && typeof reports == 'string'){
-            var match = RE_IDENTIFIER.exec(reports);
+            match = RE_IDENTIFIER.exec(reports);
             if (match) return (match[1] || match[2]);
         } else if (reports){
             for (var i=0; i<reports.length; i++){
-                var match = RE_IDENTIFIER.exec(reports[i]);
+                match = RE_IDENTIFIER.exec(reports[i]);
                 if (match) return (match[1] || match[2]);
             }
         }
@@ -130,7 +131,7 @@ InspireData.prototype = {
 
     reformat_document: function(doc, index){
         var arxivid = this.doc_arxiv_id(doc);
-        var doc = {
+        var newdoc = {
             'title': this.doc_title(doc),
             'authors': this.doc_authors(doc),
             'year': this.doc_year(doc),
@@ -146,9 +147,9 @@ InspireData.prototype = {
             'url_doi': doc.doi ? 'https://doi.org/'+doc.doi : '',
             'url_arxiv': this.url_arxiv(arxivid),
         };
-        doc.searchline = this.searchline(doc);
-        doc.outbound = this.outbound_names(doc);
-        return doc;
+        newdoc.searchline = this.searchline(newdoc);
+        newdoc.outbound = this.outbound_names(newdoc);
+        return newdoc;
     },
 
     reformat_documents: function(docs){
@@ -192,8 +193,8 @@ InspireData.prototype = {
 
     load_all: function(query, obj, callback, index, docs){
         var params = $.extend(true, {}, this.api_params);
-        params['p'] = query;
-        params['jrec'] = index * this.pagelength;
+        params.p = query;
+        params.jrec = index * this.pagelength;
         var url = this.api_url+'?'+encodeQueryData(params);
 
         if (obj in this.rawdata){
@@ -208,17 +209,7 @@ InspireData.prototype = {
             dataType: 'text',
             async: true,
             timeout: API_TIMEOUT,
-            error: this.error_wrapper(function(x, t, m) {
-                if (t === "timeout") {
-                    throw new Error("Query timed out");
-                } else if (x.status == 404){
-                    throw new Error("Query error 404: no data available");
-                } else if (x.status == 500){
-                    throw new Error("Query error 500: API internal server error");
-                } else {
-                    throw new Error("Query error "+x.status+": "+m);
-                }
-            }),
+            error: this.query_error,
             success: $.proxy(
                 function (data){
                     if (data){

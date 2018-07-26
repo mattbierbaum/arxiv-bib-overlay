@@ -18,31 +18,35 @@ BibTexModal.prototype = {
         this.idm = random_id();
         this.idc = random_id();
 
-		var src_buttons = $('<div>').addClass('modal-button-container');
-		var typ_buttons = $('<div>').addClass('modal-button-container');
+        var buttons = $('<div>').addClass('modal-button-container');
+        var labels = $('<div>').addClass('modal-button-container');
 
         if (this.doi)
-            src_buttons.append(
+            buttons.append(
                 $('<button>').addClass('modal-button doi').text("DOI")
                 .click($.proxy(function(){this.display('doi', this.typ);}, this))
             );
         if (this.arxivid)
-            src_buttons.append(
+            buttons.append(
                 $('<button>').addClass('modal-button arxiv').text("arXiv")
                 .click($.proxy(function(){this.display('arxiv', this.typ);}, this))
             );
-        src_buttons.append(
-            $('<button>').addClass('modal-button bibtex').text("BibTeX")
+        buttons.append(
+            $('<button>').addClass('modal-button bibtex typ').text("BibTeX")
             .click($.proxy(function(){this.display(this.src, 'bibtex');}, this))
         );
         if (this.doi)
-            src_buttons.append(
-                $('<button>').addClass('modal-button mla').text("MLA")
+            buttons.append(
+                $('<button>').addClass('modal-button mla typ').text("MLA")
                 .click($.proxy(function(){this.display(this.src, 'mla');}, this))
             );
-        src_buttons.append(
+        buttons.append(
             $('<button>').addClass('modal-button modal-button-close').html('&times;')
         );
+
+        labels.append($('<span>').addClass('modal-label').text('Article to reference:'));
+        labels.append($('<span>').addClass('modal-label').text('Reference format:'));
+        labels.append($('<span>').addClass('invisible modal-label modal-label-blank').html('&times;'));
 
         var content = $('<textarea>')
             .attr('rows', 15)
@@ -56,9 +60,9 @@ BibTexModal.prototype = {
             .attr('id', this.idm)
             .append($('<div>')
                 .addClass('modal-content')
-                .append(src_buttons)
+                .append(labels)
+                .append(buttons)
                 .append(content)
-                .append(typ_buttons)
             );
 
         $('body').append(modal);
@@ -67,6 +71,11 @@ BibTexModal.prototype = {
                 $('#'+this.idm).remove();
             }, this)
         );
+    },
+
+    format_mla_doi: function(data){
+        data = data.replace('Crossref. Web.', '');
+        return data;
     },
 
     format_bibtex_doi: function(data){
@@ -90,13 +99,10 @@ BibTexModal.prototype = {
 
         var authline = $.map(auths, function(i){return i.textContent;}).join(' and ');
 
-return `@article{${id},
-    title={${title}},
-    author={${authline}},
-    year={${year}},
-    eprint={${eprint}},
-    archivePrefix={arXiv},
-}`;
+        return (
+            '@article{'+id+',\n  ' + 'title={'+title+'},\n  ' + 'author={'+authline+'},\n  ' +
+            'year={'+year+'},\n  ' + 'eprint={'+eprint+'},\n  ' + 'archivePrefix={arXiv},\n}'
+        );
     },
 
     query_arxiv: function(){
@@ -106,7 +112,7 @@ return `@article{${id},
             dataType: 'xml',
             success: $.proxy(
                 function(data){
-                    var data = this.format_bibtex_arxiv($('feed', data));
+                    data = this.format_bibtex_arxiv($('feed', data));
                     this.display_content(data);
                 }, this
             ),
@@ -115,7 +121,6 @@ return `@article{${id},
 
     query_doi: function(){
         var url = 'https://dx.doi.org/'+this.doi;
-        console.log(url);
         $.ajax({
             type: 'GET',
             async: true,
@@ -127,6 +132,7 @@ return `@article{${id},
             }, this),
             success: $.proxy(function(data){
                 data = this.format_bibtex_doi(data);
+                data = this.format_mla_doi(data);
                 this.display_content(data);
             }, this)
         });
@@ -156,9 +162,9 @@ return `@article{${id},
             textarea.rows = lines.length;
     },
 
-    display: function(src=null, typ=null){
+    display: function(src, typ){
         if (src == this.src && typ == this.typ) return;
-        if (src == 'arxiv' && typ == 'mla') return;
+        if (src == 'arxiv' && typ == 'mla') typ = 'bibtex';
 
         this.src = src || this.src;
         this.typ = typ || this.typ;
@@ -172,12 +178,12 @@ return `@article{${id},
     },
 };
 
-function outbound_links(ref, ignore=[]){
+function outbound_links(ref, ignore){
     function _img(n){
         return $('<img>')
             .attr('src', asset_url('static/icon-'+n+'.png'))
             .css('height', '18')
-            .css('width', 'auto')
+            .css('width', 'auto');
     }
 
     function _link(name, desc, url){
@@ -200,15 +206,11 @@ function outbound_links(ref, ignore=[]){
             .attr('title', desc)
             .append(_img(name));
 
-        console.log('modal');
-        console.log(doi);
         link.click((function(){
             return function(){
-                console.log('click');
                 var modal = new BibTexModal(doi, arxivid);
             };
         })());
-        console.log('modal2');
         return link;
     }
 
@@ -402,18 +404,19 @@ ColumnView.prototype = {
 
         function _pagelink(n, active){
             /* num links, args: page number, whether to show dots */
-            var active = (active === undefined) ? true : active;
-            return !active ? _nolink(dots) : ((n == P) ? _nolink(n, 'bold') : _link(n));
+            var a = (active === undefined) ? true : active;
+            return !a ? _nolink(dots) : ((n == P) ? _nolink(n, 'bold') : _link(n));
         }
 
         var pages_text = $('<span>').text('Pages: ');
-        var pages = $('<ul>').addClass('bib-page-list')
+        var pages = $('<ul>').addClass('bib-page-list');
 
         pages.append(_inclink(-1));
 
+        var i = 0;
         if (L <= S){
             // just show all numbers if the number of pages is less than the slots
-            for (var i=1; i<=L; i++)
+            for (i=1; i<=L; i++)
                 pages.append(_pagelink(i));
         } else {
             // the first number (1) and dots if list too long
@@ -424,7 +427,7 @@ ColumnView.prototype = {
             var i0 = min(L-2 - 2*B, max(1+2, P-B));
             var i1 = max(1+2 + 2*B, min(L-2, P+B));
 
-            for (var i=i0; i<=i1; i++)
+            for (i=i0; i<=i1; i++)
                 pages.append(_pagelink(i));
 
             // the last number (-1) and dots if list too long
@@ -435,11 +438,10 @@ ColumnView.prototype = {
         pages.append(_inclink(+1));
 
         // create the dropdown as well for ease of navigating large lists
-        var meta = this;
         var pager = function(){meta.change_page(this.value);};
 
         var select = $('<select>').on('change', pager);
-        for (var i=1; i<=this.npages; i++)
+        for (i=1; i<=this.npages; i++)
             select.append($('<option>').attr('value', i).text(i));
         select.val(this.page);
 
@@ -482,7 +484,7 @@ ColumnView.prototype = {
 
         var sort_field = $('<select>')
             .attr('id', 'sort_field')
-            .on('change', sort_field_changer)
+            .on('change', sort_field_changer);
 
         for (var i=0; i<this.ds.sorters_order.length; i++){
             var sid = this.ds.sorters_order[i];
@@ -539,7 +541,7 @@ ColumnView.prototype = {
                 if (a.title  < b.title)  return -1;
                 return 0;
             });
-        }
+        };
 
         var func = this.ds.sorters[this.sort_field].func;
         output = sorter(data, func, this.sort_order);
@@ -547,11 +549,9 @@ ColumnView.prototype = {
     },
 
     filterfield: function(data){
-        if (this.filter_text.length == 0 || this.filter_text == '') return data;
+        if (this.filter_text.length === 0 || this.filter_text === '') return data;
 
-        var output = [];
         var words = this.filter_text.toLowerCase().split(' ');
-
         var output = data;
         for (var i=0; i<words.length; i++){
             var newlist = [];
@@ -711,7 +711,9 @@ ColumnView.prototype = {
 //============================================================================
 // The overall layout of the overlay
 //============================================================================
-function Overlay(){}
+function Overlay(){
+    this.messages = new Set();
+}
 
 Overlay.prototype = {
     id_references: 'col-references',
@@ -722,13 +724,13 @@ Overlay.prototype = {
             .addClass('delete')
             .addClass('bib-sidebar')
             .append($('<div>').addClass('bib-sidebar-paper nodisplay'))
-            .append($('<div>').addClass('bib-sidebar-errors nodisplay'))
+            .append($('<div>').addClass('bib-sidebar-msgs nodisplay'))
             .append($('<div>').addClass('bib-sidebar-source nodisplay'))
             .insertBefore($('.bookmarks'));
     },
 
     populate_source: function(){
-        if (this.available.length == 0)
+        if (this.available.length === 0)
             return null;
 
         var out = $('<div>')
@@ -757,33 +759,38 @@ Overlay.prototype = {
     },
 
     populate_error: function(txt){
-        function err2div(txt){
+        function err2div(txt, messages){
+            if (messages.has(txt))
+                return;
+
+            messages.add(txt);
+
             if (txt.length <= 30)
-                $('.errors').append($('<li>').addClass('error').text(txt));
+                $('.msgs').append($('<li>').addClass('msg').text(txt));
             else {
-                $('.errors').append(
+                $('.msgs').append(
                     $('<li>')
-                        .addClass('error')
+                        .addClass('msg')
                         .text(txt.substring(0,27) + '...')
                         .append($('<pre>').text(txt).addClass('hover'))
                 );
             }
         }
 
-        if ($('.errors').length){
-            err2div(txt);
+        if ($('.msgs').length){
+            err2div(txt, this.messages);
             return;
         }
 
-        $('.bib-sidebar-errors').replaceWith(
+        $('.bib-sidebar-msgs').replaceWith(
             $('<div>')
-                .addClass('bib-sidebar-errors')
-                .append($('<span>').addClass('bib-sidebar-error').text('Overlay error:'))
-                .append($('<ul>').addClass('errors'))
+                .addClass('bib-sidebar-msgs')
+                .append($('<span>').addClass('bib-sidebar-msg').text('Bib messages:'))
+                .append($('<ul>').addClass('msgs'))
         );
-        $('.bib-sidebar-errors').css('display', 'block');
+        $('.bib-sidebar-msgs').css('display', 'block');
         $('.bib-sidebar-source').addClass('topborder');
-        err2div(txt);
+        err2div(txt, this.messages);
     },
 
     populate_sidebar: function(ds){
@@ -792,13 +799,6 @@ Overlay.prototype = {
         var badge = $('<div>')
             .addClass('bib-sidebar-title')
             .append($('<span>')
-                /*.append(
-                    $('<img>')
-                        .addClass('bib-sidebar-badge')
-                        .css('height', '24')
-                        .css('width', 'auto')
-                        .attr('src', src)
-                )*/
                 .append(
                     $('<a>')
                         .addClass('bib-sidebar-title-link')
@@ -817,7 +817,7 @@ Overlay.prototype = {
                     .attr('target', '_blank')
                     .text(ds.data.authors[i].name)
                 )
-            )
+            );
         }
 
         if (ds.data.authors.length > MAX_AUTHORS)
@@ -833,7 +833,7 @@ Overlay.prototype = {
             .append(authorlist)
             .append(outbounds);
 
-        $('.bib-sidebar-paper').replaceWith(output)
+        $('.bib-sidebar-paper').replaceWith(output);
         $('.bib-sidebar-paper').css('display', 'block');
         $('.bib-sidebar-source').addClass('topborder');
     },
@@ -889,7 +889,7 @@ Overlay.prototype = {
     },
 
     destroy_spinner: function(){
-        $('.bib-pulse-container').remove()
+        $('.bib-pulse-container').remove();
     },
 
     bind_errors: function(o){
@@ -942,12 +942,13 @@ Overlay.prototype = {
         try {
             chrome.storage.local.set(data, function() {
                 if (chrome.runtime.error)
-                    throw new OverlayException('Syncing category defaults failed: '+chrome.runtime.error);
+                    throw new Error('Syncing category defaults failed: '+chrome.runtime.error);
             });
         } catch (err) {}
     },
 
     toggle_source: function(name){
+        this.messages = new Set();
         $('.delete').remove();
 
         this.ds = this.get_dataset(name);
@@ -971,11 +972,12 @@ Overlay.prototype = {
         this.unavailable = [];
 
         var cats = get_categories();
-        if (!cats || cats.length == 0)
+        if (!cats || cats.length === 0)
             return;
 
+        var i = 0;
         var pcat = cats[0];
-        for (var i=0; i<this.datasets.length; i++){
+        for (i=0; i<this.datasets.length; i++){
             if (this.datasets[i].categories.has(pcat[0]) ||
                 this.datasets[i].categories.has(pcat[1])){
                 this.available.push(this.datasets[i]);
@@ -985,7 +987,7 @@ Overlay.prototype = {
         }
 
         this.bind_errors(this);
-        for (var i in this.available)
+        for (i in this.available)
             this.bind_errors(this.available[i]);
 
         if (this.available.length > 0){
@@ -1003,10 +1005,10 @@ function wrap_error(func, error) {
                 error(err);
                 throw err;
             }
-        }
+        };
     }
     return func._wrapped;
-};
+}
 
 function wrap_object(obj, error){
 	for (var name in obj){
@@ -1018,6 +1020,35 @@ function wrap_object(obj, error){
         return function(func){
             return wrap_error(func, error);
         };
+    }();
+
+    obj.query_error = function(){
+        return wrap_error(
+            function(x, t, m) {
+                switch (t) {
+                    case 'timeout':
+                        var n = Number.parseFloat(API_TIMEOUT/1000).toFixed(1);
+                        throw new Error('Query timed out ('+n+' sec limit)');
+                    case 'parseerror':
+                        throw new Error('Query returned malformed data');
+                    case 'nocontent':
+                        throw new Error('Query returned no data');
+                    default:
+                        break;
+                }
+
+                switch (x.status) {
+                    case 0:
+                        throw new Error('Query prevented by browser -- CORS, firewall, or unknown error');
+                    case 404:
+                        throw new Message('No data available yet');
+                    case 500:
+                        throw new Error('Query error 500: internal server error ('+m+')');
+                    default:
+                        throw new Error('Query error '+x.status+': '+m+'. '+t);
+                }
+            }, error
+        );
     }();
 }
 
