@@ -1,7 +1,13 @@
 (
     function(){
+        /*function random_id(){
+            return String(Math.random()).substring(2,12);
+        }
+        var date = random_id();
+        var base = 'http://127.0.0.1:8000/static/';*/
+
+        var date = '20180726-0'
         var base = 'https://mattbierbaum.github.io/arxiv-bib-overlay/static/';
-        var base = 'http://127.0.0.1:8000/static/';
         function load(filename){
             /*
              This is a bit complicated in order to have deferred, ordered
@@ -17,12 +23,12 @@
                 elem = document.createElement('link');
                 elem.rel  = 'stylesheet';
                 elem.type = 'text/css';
-                elem.href = base + filename;
+                elem.href = base + filename + '?' + date;
                 elem.media = 'all';
             } else {
                 elem = document.createElement('script');
                 elem.type = 'text/javascript';
-                elem.src = base + filename;
+                elem.src = base + filename + '?' + date;
             }
 
             elem.defer = false;
