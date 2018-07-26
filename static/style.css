@@ -546,7 +546,7 @@ h1.bib-header span {
 
 .modal-button {
     display: flex;
-    flex-grow: 1;
+    flex: 1 1 0;
     color: white;
     outline: 0;
     border: 0;
@@ -556,6 +556,10 @@ h1.bib-header span {
     opacity: 0.7;
     background-color: #b31b1b;
     justify-content: center;
+}
+
+.modal-button.typ {
+    background-color: #2485d8;
 }
 
 .modal-button:hover {
@@ -575,6 +579,23 @@ h1.bib-header span {
     color: black;
     padding: 0;
     font-size: 2em;
+}
+
+.modal-label {
+    display: flex;
+    flex: 1 1 0;
+    font-size: 1.2em;
+    margin: 0 0.25em 0 0.25em;
+}
+
+.modal-label-blank {
+    display: flex;
+    flex-grow: 0;
+    background-color: white;
+    color: white;
+    padding: 0;
+    font-size: 2em;
+    height: 0px;
 }
 
 .cite:hover {

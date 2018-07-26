@@ -100,14 +100,14 @@ S2Data.prototype = {
             url: urlproxy(url),
             async: true,
             timeout: API_TIMEOUT,
-            error: this.query_error,
             success: $.proxy(
                 function(data){
                    this.data = this.transform_result(data);
                    this.cache[url] = this.data;
                    callback(this);
                 }, this
-            )
+            ),
+            error: this.query_error,
         });
     },
 

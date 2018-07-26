@@ -195,7 +195,6 @@ ADSData.prototype = {
                 }, this
             ),
             error: this.query_error,
-            failure: function(){throw new Error("Error accessing "+url);},
         });
     },
 

@@ -18,31 +18,35 @@ BibTexModal.prototype = {
         this.idm = random_id();
         this.idc = random_id();
 
-        var src_buttons = $('<div>').addClass('modal-button-container');
-        var typ_buttons = $('<div>').addClass('modal-button-container');
+        var buttons = $('<div>').addClass('modal-button-container');
+        var labels = $('<div>').addClass('modal-button-container');
 
         if (this.doi)
-            src_buttons.append(
+            buttons.append(
                 $('<button>').addClass('modal-button doi').text("DOI")
                 .click($.proxy(function(){this.display('doi', this.typ);}, this))
             );
         if (this.arxivid)
-            src_buttons.append(
+            buttons.append(
                 $('<button>').addClass('modal-button arxiv').text("arXiv")
                 .click($.proxy(function(){this.display('arxiv', this.typ);}, this))
             );
-        src_buttons.append(
-            $('<button>').addClass('modal-button bibtex').text("BibTeX")
+        buttons.append(
+            $('<button>').addClass('modal-button bibtex typ').text("BibTeX")
             .click($.proxy(function(){this.display(this.src, 'bibtex');}, this))
         );
         if (this.doi)
-            src_buttons.append(
-                $('<button>').addClass('modal-button mla').text("MLA")
+            buttons.append(
+                $('<button>').addClass('modal-button mla typ').text("MLA")
                 .click($.proxy(function(){this.display(this.src, 'mla');}, this))
             );
-        src_buttons.append(
+        buttons.append(
             $('<button>').addClass('modal-button modal-button-close').html('&times;')
         );
+
+        labels.append($('<span>').addClass('modal-label').text('Article to reference:'));
+        labels.append($('<span>').addClass('modal-label').text('Reference format:'));
+        labels.append($('<span>').addClass('invisible modal-label modal-label-blank').html('&times;'));
 
         var content = $('<textarea>')
             .attr('rows', 15)
@@ -56,9 +60,9 @@ BibTexModal.prototype = {
             .attr('id', this.idm)
             .append($('<div>')
                 .addClass('modal-content')
-                .append(src_buttons)
+                .append(labels)
+                .append(buttons)
                 .append(content)
-                .append(typ_buttons)
             );
 
         $('body').append(modal);
@@ -67,6 +71,11 @@ BibTexModal.prototype = {
                 $('#'+this.idm).remove();
             }, this)
         );
+    },
+
+    format_mla_doi: function(data){
+        data = data.replace('Crossref. Web.', '');
+        return data;
     },
 
     format_bibtex_doi: function(data){
@@ -123,6 +132,7 @@ BibTexModal.prototype = {
             }, this),
             success: $.proxy(function(data){
                 data = this.format_bibtex_doi(data);
+                data = this.format_mla_doi(data);
                 this.display_content(data);
             }, this)
         });
@@ -154,7 +164,7 @@ BibTexModal.prototype = {
 
     display: function(src, typ){
         if (src == this.src && typ == this.typ) return;
-        if (src == 'arxiv' && typ == 'mla') return;
+        if (src == 'arxiv' && typ == 'mla') typ = 'bibtex';
 
         this.src = src || this.src;
         this.typ = typ || this.typ;
@@ -938,6 +948,7 @@ Overlay.prototype = {
     },
 
     toggle_source: function(name){
+        this.messages = new Set();
         $('.delete').remove();
 
         this.ds = this.get_dataset(name);
@@ -1014,16 +1025,27 @@ function wrap_object(obj, error){
     obj.query_error = function(){
         return wrap_error(
             function(x, t, m) {
-                if (t === 'timeout') {
-                    throw new Error('Query timed out');
-                } else if (x.status == 404){
-                    throw new Message('No data available yet');
-                } else if (x.status == 500){
-                    throw new Error('Query error 500: internal server error ('+m+')');
-                } else if (x.status == 0){
-                    throw new Error('Query discarded by browser -- CORS, firewall, or unknown error');
-                } else {
-                    throw new Error('Query error '+x.status+': '+m+'. '+t);
+                switch (t) {
+                    case 'timeout':
+                        var n = Number.parseFloat(API_TIMEOUT/1000).toFixed(1);
+                        throw new Error('Query timed out ('+n+' sec limit)');
+                    case 'parseerror':
+                        throw new Error('Query returned malformed data');
+                    case 'nocontent':
+                        throw new Error('Query returned no data');
+                    default:
+                        break;
+                }
+
+                switch (x.status) {
+                    case 0:
+                        throw new Error('Query prevented by browser -- CORS, firewall, or unknown error');
+                    case 404:
+                        throw new Message('No data available yet');
+                    case 500:
+                        throw new Error('Query error 500: internal server error ('+m+')');
+                    default:
+                        throw new Error('Query error '+x.status+': '+m+'. '+t);
                 }
             }, error
         );
