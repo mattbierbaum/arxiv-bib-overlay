@@ -1,6 +1,7 @@
 (
     function(){
-	    var base = 'https://mattbierbaum.github.io/arxiv-bib-overlay/static/';
+        var base = 'https://mattbierbaum.github.io/arxiv-bib-overlay/static/';
+        var base = 'http://127.0.0.1:8000/static/';
         function load(filename){
             /*
              This is a bit complicated in order to have deferred, ordered

@@ -5,16 +5,21 @@ var URL_ASSET_BASE = 'https://mattbierbaum.github.io/arxiv-bib-overlay/';
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
 
-function OverlayException(message) {
+function OverlayException(message){
     this.message = message;
     this.name = 'OverlayException';
+}
+
+function Message(message){
+    this.message = message;
+    this.name = 'Message';
 }
 
 function random_id(){
     return String(Math.random()).substring(2,12);
 }
 
-function makeDelay(callback, ms) {
+function makeDelay(callback, ms){
     var timer = 0;
     return function(){
         clearTimeout(timer);

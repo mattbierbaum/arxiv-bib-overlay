@@ -194,17 +194,7 @@ ADSData.prototype = {
                     this.load_data_callback(callback);
                 }, this
             ),
-            error: this.error_wrapper(function(x, t, m) {
-                if (t === "timeout") {
-                    throw new Error("Query timed out");
-                } else if (x.status == 404){
-                    throw new Error("Query error 404: no data available");
-                } else if (x.status == 500){
-                    throw new Error("Query error 500: API internal server error");
-                } else {
-                    throw new Error("Query error "+x.status+": "+m);
-                }
-            }),
+            error: this.query_error,
             failure: function(){throw new Error("Error accessing "+url);},
         });
     },

@@ -701,7 +701,9 @@ ColumnView.prototype = {
 //============================================================================
 // The overall layout of the overlay
 //============================================================================
-function Overlay(){}
+function Overlay(){
+    this.messages = new Set();
+}
 
 Overlay.prototype = {
     id_references: 'col-references',
@@ -712,7 +714,7 @@ Overlay.prototype = {
             .addClass('delete')
             .addClass('bib-sidebar')
             .append($('<div>').addClass('bib-sidebar-paper nodisplay'))
-            .append($('<div>').addClass('bib-sidebar-errors nodisplay'))
+            .append($('<div>').addClass('bib-sidebar-msgs nodisplay'))
             .append($('<div>').addClass('bib-sidebar-source nodisplay'))
             .insertBefore($('.bookmarks'));
     },
@@ -747,33 +749,38 @@ Overlay.prototype = {
     },
 
     populate_error: function(txt){
-        function err2div(txt){
+        function err2div(txt, messages){
+            if (messages.has(txt))
+                return;
+
+            messages.add(txt);
+
             if (txt.length <= 30)
-                $('.errors').append($('<li>').addClass('error').text(txt));
+                $('.msgs').append($('<li>').addClass('msg').text(txt));
             else {
-                $('.errors').append(
+                $('.msgs').append(
                     $('<li>')
-                        .addClass('error')
+                        .addClass('msg')
                         .text(txt.substring(0,27) + '...')
                         .append($('<pre>').text(txt).addClass('hover'))
                 );
             }
         }
 
-        if ($('.errors').length){
-            err2div(txt);
+        if ($('.msgs').length){
+            err2div(txt, this.messages);
             return;
         }
 
-        $('.bib-sidebar-errors').replaceWith(
+        $('.bib-sidebar-msgs').replaceWith(
             $('<div>')
-                .addClass('bib-sidebar-errors')
-                .append($('<span>').addClass('bib-sidebar-error').text('Overlay error:'))
-                .append($('<ul>').addClass('errors'))
+                .addClass('bib-sidebar-msgs')
+                .append($('<span>').addClass('bib-sidebar-msg').text('Bib messages:'))
+                .append($('<ul>').addClass('msgs'))
         );
-        $('.bib-sidebar-errors').css('display', 'block');
+        $('.bib-sidebar-msgs').css('display', 'block');
         $('.bib-sidebar-source').addClass('topborder');
-        err2div(txt);
+        err2div(txt, this.messages);
     },
 
     populate_sidebar: function(ds){
@@ -782,13 +789,6 @@ Overlay.prototype = {
         var badge = $('<div>')
             .addClass('bib-sidebar-title')
             .append($('<span>')
-                /*.append(
-                    $('<img>')
-                        .addClass('bib-sidebar-badge')
-                        .css('height', '24')
-                        .css('width', 'auto')
-                        .attr('src', src)
-                )*/
                 .append(
                     $('<a>')
                         .addClass('bib-sidebar-title-link')
@@ -932,7 +932,7 @@ Overlay.prototype = {
         try {
             chrome.storage.local.set(data, function() {
                 if (chrome.runtime.error)
-                    throw new OverlayException('Syncing category defaults failed: '+chrome.runtime.error);
+                    throw new Error('Syncing category defaults failed: '+chrome.runtime.error);
             });
         } catch (err) {}
     },
@@ -1010,6 +1010,24 @@ function wrap_object(obj, error){
             return wrap_error(func, error);
         };
     }();
+
+    obj.query_error = function(){
+        return wrap_error(
+            function(x, t, m) {
+                if (t === 'timeout') {
+                    throw new Error('Query timed out');
+                } else if (x.status == 404){
+                    throw new Message('No data available yet');
+                } else if (x.status == 500){
+                    throw new Error('Query error 500: internal server error ('+m+')');
+                } else if (x.status == 0){
+                    throw new Error('Query discarded by browser -- CORS, firewall, or unknown error');
+                } else {
+                    throw new Error('Query error '+x.status+': '+m+'. '+t);
+                }
+            }, error
+        );
+    }();
 }
 
 function gogogo(){
@@ -1017,21 +1035,5 @@ function gogogo(){
     ui.load();
     D = ui;
 }
-        function check(filename){
-            var base = 'http://127.0.0.1:8000/static/';
-            var url = base + filename;
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'text',
-                success: function(data){
-                    JSHINT(data);
-                    console.log(JSHINT.errors);
-                }
-            });
-        }
-
 
 gogogo();
-
-// https://arxiv.org/abs/hep-th/9712007

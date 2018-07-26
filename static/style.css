@@ -322,26 +322,24 @@ h1.bib-header span {
     display: none;
 }
 
-.bib-sidebar-error {
-    color: red;
-    font-weight: bold;
+.bib-sidebar-msg {
     font-size: 16px;
 }
 
-.bib-sidebar-errors {
+.bib-sidebar-msgs {
     padding: 0.5em 0em 0.5em 0em;
 }
 
-.bib-sidebar-errors p {
+.bib-sidebar-msgs p {
     margin: 0;
 }
 
-.bib-sidebar-errors .errors {
+.bib-sidebar-msgs .msgs {
     padding-left: 0px;
     margin: 0.3em 0em;
 }
 
-.bib-sidebar-errors .error {
+.bib-sidebar-msgs .msg {
     color: black;
     font-size: 100%;
     font-weight: normal;
@@ -350,11 +348,11 @@ h1.bib-header span {
     border-bottom: 1px dotted black;
 }
 
-.bib-sidebar-errors .error:hover {
+.bib-sidebar-msgs .msg:hover {
     cursor: help;
 }
 
-.bib-sidebar-errors .error .hover {
+.bib-sidebar-msgs .msg .hover {
     top: -5px;
     right: 105%;
     visibility: hidden;
@@ -369,7 +367,7 @@ h1.bib-header span {
     hyphens: auto;*/
 }
 
-.bib-sidebar-errors .error:hover .hover {
+.bib-sidebar-msgs .msg:hover .hover {
     visibility: visible;
 }
 

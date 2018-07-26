@@ -13,7 +13,7 @@ S2Data.prototype = {
 
     shortname: 'S2',
     longname: 'Semantic Scholar',
-    categories: new Set(['cs', 'stats.ML']),
+    categories: new Set(['cs', 'stat.ML']),
     homepage: 'https://semanticscholar.org',
     api_url: 'https://api.semanticscholar.org/v1/',
     api_params: 'include_unknown_references=true',
@@ -100,17 +100,7 @@ S2Data.prototype = {
             url: urlproxy(url),
             async: true,
             timeout: API_TIMEOUT,
-            error: this.error_wrapper(function(x, t, m) {
-                if (t === "timeout") {
-                    throw new Error("Query timed out");
-                } else if (x.status == 404){
-                    throw new Error("Query error 404: no data available");
-                } else if (x.status == 500){
-                    throw new Error("Query error 500: API internal server error");
-                } else {
-                    throw new Error("Query error "+x.status+": "+m);
-                }
-            }),
+            error: this.query_error,
             success: $.proxy(
                 function(data){
                    this.data = this.transform_result(data);
