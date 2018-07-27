@@ -743,6 +743,8 @@ Overlay.prototype = {
             .append($('<div>').addClass('bib-sidebar-msgs nodisplay'))
             .append($('<div>').addClass('bib-sidebar-source nodisplay'))
             .insertBefore($('.bookmarks'));
+
+        // FIXME -- external reference to html ".bookmarks"
     },
 
     populate_source: function(){
@@ -874,7 +876,9 @@ Overlay.prototype = {
             .addClass('delete')
             .append(brand)
             .append(columns)
-            .insertBefore($('.submission-history'));
+            .insertAfter($('.submission-history'));
+
+        // FIXME -- external reference to html ".submission-history"
     },
 
     create_overlay: function(ds){
@@ -901,7 +905,9 @@ Overlay.prototype = {
                 .append($('<div>'))
                 .append($('<div>'))
             )
-            .insertBefore('.submission-history');
+            .insertAfter('.submission-history');
+
+        // FIXME -- external reference to html ".submission-history"
     },
 
     destroy_spinner: function(){

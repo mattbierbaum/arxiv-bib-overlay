@@ -1,13 +1,14 @@
 (
     function(){
+        var date = '20180727-0'
+        var base = 'https://static.arxiv.org/biboverlay/';
+
         /*function random_id(){
             return String(Math.random()).substring(2,12);
         }
         var date = random_id();
         var base = 'http://127.0.0.1:8000/static/';*/
 
-        var date = '20180727-0'
-        var base = 'https://static.arxiv.org/biboverlay/';
         function load(filename){
             /*
              This is a bit complicated in order to have deferred, ordered
