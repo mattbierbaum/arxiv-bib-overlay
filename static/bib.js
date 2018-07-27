@@ -1123,7 +1123,7 @@ function toggleBibOverlay(){
 }
 
 function loadBibOverlay(){
-    footer_create();
+    //footer_create();
 
     var active = cookie_load();
     if (active){
