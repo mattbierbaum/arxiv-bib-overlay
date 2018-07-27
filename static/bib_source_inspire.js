@@ -10,8 +10,8 @@ function InspireData() {
 }
 
 InspireData.prototype = {
-    url_logo: asset_url('static/source-inspire.png'),
-    url_icon: asset_url('static/icon-inspire.png'),
+    url_logo: bib_lib.asset_url('static/source-inspire.png'),
+    url_icon: bib_lib.asset_url('static/icon-inspire.png'),
 
     shortname: 'Inspire',
     longname: 'Inspire HEP',
@@ -35,26 +35,32 @@ InspireData.prototype = {
             'prepublication',
             'creation_date',
         ],
-        rg: API_ARTICLE_COUNT,      // records in groups of
+        rg: bib_lib.API_ARTICLE_COUNT,      // records in groups of
         sf: 'number_of_citations',  // sort field: citation count
         so: 'a'                     // sort order: descending
         //jrec: 250     // jump to record
     },
 
     url_paper: function(id) {return this.homepage+'/record/'+id;},
-    url_paper_api: function(id) {return this.api_url+'?'+encodeQueryData({'p': 'recid:'+id, 'of': 'recjson'});},
-    url_author: function(name, recid) {return this.homepage+'/author/profile/'+name+'?'+encodeQueryData({'recid': recid});},
+    url_paper_api: function(id) {return this.api_url+'?'+bib_lib.encodeQueryData({'p': 'recid:'+id, 'of': 'recjson'});},
+    url_author: function(name, recid) {return this.homepage+'/author/profile/'+name+'?'+bib_lib.encodeQueryData({'recid': recid});},
     url_arxiv: function(arxivid){return arxivid ? 'https://arxiv.org/abs/'+arxivid : null;},
+
+    string_to_array: function(e){
+        if (typeof e === 'string')
+            return [e];
+        return e;
+    },
 
     doc_arxiv_id: function(doc){
         var match;
         var reports = doc.primary_report_number;
         if (reports && typeof reports == 'string'){
-            match = RE_IDENTIFIER.exec(reports);
+            match = bib_lib.RE_IDENTIFIER.exec(reports);
             if (match) return (match[1] || match[2]);
         } else if (reports){
             for (var i=0; i<reports.length; i++){
-                match = RE_IDENTIFIER.exec(reports[i]);
+                match = bib_lib.RE_IDENTIFIER.exec(reports[i]);
                 if (match) return (match[1] || match[2]);
             }
         }
@@ -142,7 +148,7 @@ InspireData.prototype = {
             'index': index,
             'api': this.url_paper_api(doc.recid.toString()),
             'url': this.url_paper(doc.recid),
-            'doi': string_to_array(doc.doi || '')[0],
+            'doi': this.string_to_array(doc.doi || '')[0],
             'arxivid': arxivid,
             'url_doi': doc.doi ? 'https://doi.org/'+doc.doi : '',
             'url_arxiv': this.url_arxiv(arxivid),
@@ -195,7 +201,7 @@ InspireData.prototype = {
         var params = $.extend(true, {}, this.api_params);
         params.p = query;
         params.jrec = index * this.pagelength;
-        var url = this.api_url+'?'+encodeQueryData(params);
+        var url = this.api_url+'?'+bib_lib.encodeQueryData(params);
 
         if (obj in this.rawdata){
             this.ready[obj] = true;
@@ -205,10 +211,10 @@ InspireData.prototype = {
 
         $.ajax({
             type: 'GET',
-            url: urlproxy(url),
+            url: bib_lib.urlproxy(url),
             dataType: 'text',
             async: true,
-            timeout: API_TIMEOUT,
+            timeout: bib_lib.API_TIMEOUT,
             error: this.query_error,
             success: $.proxy(
                 function (data){
@@ -239,7 +245,7 @@ InspireData.prototype = {
 
     async_load: function(callback){
         this.ready = {};
-        this.aid = get_current_article();
+        this.aid = bib_lib.get_current_article();
         this.load_all('eprint:'+this.aid, 'base', callback, 0, []);
         this.load_all('refersto:eprint:'+this.aid, 'citations', callback, 0, []);
         this.load_all('citedby:eprint:'+this.aid, 'references', callback, 0, []);

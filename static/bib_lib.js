@@ -1,14 +1,9 @@
+(function(exports){
+
 var API_ARTICLE_COUNT = 200;
 var API_TIMEOUT = 30*1000;
-var URL_ASSET_BASE = 'https://static.arxiv.org/bib-overlay/';
-
-function min(a, b){return (a < b) ? a : b;}
-function max(a, b){return (a > b) ? a : b;}
-
-function OverlayException(message){
-    this.message = message;
-    this.name = 'OverlayException';
-}
+//var URL_ASSET_BASE = 'https://mattbierbaum.github.io/arxiv-bib-overlay/';
+var URL_ASSET_BASE = 'https://static.arxiv.org/biboverlay/';
 
 function Message(message){
     this.message = message;
@@ -17,14 +12,6 @@ function Message(message){
 
 function random_id(){
     return String(Math.random()).substring(2,12);
-}
-
-function makeDelay(callback, ms){
-    var timer = 0;
-    return function(){
-        clearTimeout(timer);
-        timer = setTimeout(callback, ms);
-    };
 }
 
 function minor_to_major(category){
@@ -134,15 +121,25 @@ var RE_IDENTIFIER = new RegExp(
     ')'                                              // end OR group
 );
 
-function string_to_array(e){
-    if (typeof e === 'string')
-        return [e];
-    return e;
-}
-
 Array.prototype.remove = function(element){
     var index = this.indexOf(element);
     if (index > -1) {
         this.splice(index, 1);
     }
 };
+
+exports.API_ARTICLE_COUNT = API_ARTICLE_COUNT;
+exports.API_TIMEOUT = API_TIMEOUT;
+exports.RE_IDENTIFIER = RE_IDENTIFIER;
+
+exports.get_categories = get_categories;
+exports.get_current_article = get_current_article;
+
+exports.random_id = random_id;
+exports.encodeQueryData = encodeQueryData;
+exports.urlproxy = urlproxy;
+exports.asset_url = asset_url;
+
+exports.Message = Message;
+
+}(typeof exports === 'undefined' ? this.bib_lib = {} : exports));

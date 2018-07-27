@@ -12,6 +12,7 @@
             "matches": ["https://arxiv.org/abs/*"],
             "js": [
                 "static/jquery-3.2.1.min.js",
+                "static/js.cookie-2.2.0.min.js",
                 "static/bib_lib.js",
                 "static/bib_source_ads.js",
                 "static/bib_source_s2.js",

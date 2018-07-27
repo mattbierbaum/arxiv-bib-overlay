@@ -10,8 +10,8 @@ function ADSData() {
 }
 
 ADSData.prototype = {
-    url_logo: asset_url('static/source-ads.png'),
-    url_icon: asset_url('static/icon-ads.png'),
+    url_logo: bib_lib.asset_url('static/source-ads.png'),
+    url_icon: bib_lib.asset_url('static/icon-ads.png'),
 
     shortname: 'ADS',
     longname: 'NASA ADS',
@@ -28,13 +28,13 @@ ADSData.prototype = {
             'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
             'year', 'doi', 'citation_count', 'read_count', 'identifier'
         ],
-        'rows': API_ARTICLE_COUNT,
+        'rows': bib_lib.API_ARTICLE_COUNT,
         'sort': 'citation_count desc',
     },
 
     ads_url_ui: 'https://ui.adsabs.harvard.edu/#search/',
     ads_url_part: function(field, value){
-        return this.ads_url_ui + encodeQueryData({'q': field+':"'+value+'"'});
+        return this.ads_url_ui + bib_lib.encodeQueryData({'q': field+':"'+value+'"'});
     },
     ads_url_author: function(name){return this.ads_url_part('author', name);},
     ads_url_title: function(name) {return this.ads_url_part('title', name);},
@@ -58,7 +58,7 @@ ADSData.prototype = {
         if (!identifiers) return;
 
         for (var i=0; i<identifiers.length; i++){
-            var match = RE_IDENTIFIER.exec(identifiers[i]);
+            var match = bib_lib.RE_IDENTIFIER.exec(identifiers[i]);
             if (match) return (match[1] || match[2] || match[3]);
         }
         return;
@@ -176,14 +176,14 @@ ADSData.prototype = {
             return;
         }
 
-        var url = this.api_url+'?'+encodeQueryData(this.api_params);
+        var url = this.api_url+'?'+bib_lib.encodeQueryData(this.api_params);
         var auth = 'Bearer '+this.api_key;
 
         $.ajax({
             type: 'GET',
             async: true,
-            timeout: API_TIMEOUT,
-            url: urlproxy(url),
+            timeout: bib_lib.API_TIMEOUT,
+            url: bib_lib.urlproxy(url),
             beforeSend: function(xhr){
                 xhr.setRequestHeader('Authorization', auth);
             },
@@ -204,7 +204,7 @@ ADSData.prototype = {
 
     async_load: function(callback){
         this.ready = {};
-        this.aid = get_current_article();
+        this.aid = bib_lib.get_current_article();
         this.load_data('arXiv:'+this.aid, 'base', callback);
         this.load_data('citations(arXiv:'+this.aid+')', 'citations', callback);
         this.load_data('references(arXiv:'+this.aid+')', 'references', callback);

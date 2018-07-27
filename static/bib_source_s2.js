@@ -8,8 +8,8 @@ function S2Data() {
 }
 
 S2Data.prototype = {
-    url_logo: asset_url('static/source-s2.png'),
-    url_icon: asset_url('static/icon-s2.png'),
+    url_logo: bib_lib.asset_url('static/source-s2.png'),
+    url_icon: bib_lib.asset_url('static/icon-s2.png'),
 
     shortname: 'S2',
     longname: 'Semantic Scholar',
@@ -18,8 +18,8 @@ S2Data.prototype = {
     api_url: 'https://api.semanticscholar.org/v1/',
     api_params: 'include_unknown_references=true',
 
-    url_paper: function(id) {return urlproxy(this.api_url+'paper/arXiv:'+id+'?'+this.api_params);},
-    url_paperId: function(id) {return urlproxy(this.api_url+'paper/'+id+'?'+this.api_params);},
+    url_paper: function(id) {return bib_lib.urlproxy(this.api_url+'paper/arXiv:'+id+'?'+this.api_params);},
+    url_paperId: function(id) {return bib_lib.urlproxy(this.api_url+'paper/'+id+'?'+this.api_params);},
     url_author: function(id) {return this.api_url+'author/'+id;},
 
     add_api_url: function(data){
@@ -56,10 +56,10 @@ S2Data.prototype = {
         this.add_api_url(data);
         this.add_url_arxiv(data);
         this.add_url_doi(data);
-        data.searchline = this.searchline(data);
-        data.outbound = this.outbound_names(data);
         data.index = index;
         data.arxivid = data.arxivId;
+        data.searchline = this.searchline(data);
+        data.outbound = this.outbound_names(data);
     },
 
     add_counts: function(data){
@@ -87,7 +87,7 @@ S2Data.prototype = {
     },
 
     async_load: function(callback){
-        this.aid = get_current_article();
+        this.aid = bib_lib.get_current_article();
         var url = this.url_paper(this.aid);
 
         if (url in this.cache){
@@ -97,9 +97,9 @@ S2Data.prototype = {
 
         $.ajax({
             type: 'GET',
-            url: urlproxy(url),
+            url: bib_lib.urlproxy(url),
             async: true,
-            timeout: API_TIMEOUT,
+            timeout: bib_lib.API_TIMEOUT,
             success: $.proxy(
                 function(data){
                    this.data = this.transform_result(data);

@@ -1,7 +1,23 @@
+(function(exports){
+
 // number of papers per page
-var D = null;
+var ui = null;
 var MAX_AUTHORS = 10;
 var PAGE_LENGTH = 10;
+
+var COOKIE_ACTIVE = 'biboverlay_active';
+var LocalCookies = Cookies.noConflict();
+
+function min(a, b){return (a < b) ? a : b;}
+function max(a, b){return (a > b) ? a : b;}
+
+function make_delay(callback, ms){
+    var timer = 0;
+    return function(){
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+}
 
 function BibTexModal(doi, arxivid){
     this.src = doi ? 'doi' : 'arxiv';
@@ -15,8 +31,8 @@ function BibTexModal(doi, arxivid){
 
 BibTexModal.prototype = {
     create_modal: function(){
-        this.idm = random_id();
-        this.idc = random_id();
+        this.idm = bib_lib.random_id();
+        this.idc = bib_lib.random_id();
 
         var buttons = $('<div>').addClass('modal-button-container');
         var labels = $('<div>').addClass('modal-button-container');
@@ -125,8 +141,8 @@ BibTexModal.prototype = {
             type: 'GET',
             async: true,
             dataType: 'text',
-            timeout: API_TIMEOUT,
-            url: urlproxy(url),
+            timeout: bib_lib.API_TIMEOUT,
+            url: bib_lib.urlproxy(url),
             beforeSend: $.proxy(function(xhr){
                 xhr.setRequestHeader('Accept', 'text/bibliography; style='+this.typ);
             }, this),
@@ -181,7 +197,7 @@ BibTexModal.prototype = {
 function outbound_links(ref, ignore){
     function _img(n){
         return $('<img>')
-            .attr('src', asset_url('static/icon-'+n+'.png'))
+            .attr('src', bib_lib.asset_url('static/icon-'+n+'.png'))
             .css('height', '18')
             .css('width', 'auto');
     }
@@ -224,7 +240,7 @@ function outbound_links(ref, ignore){
         'scholar':  function(ref){
             return _link(
                 'scholar', 'Google Scholar',
-                'https://scholar.google.com/scholar?' + encodeQueryData({'q': ref.title})
+                'https://scholar.google.com/scholar?' + bib_lib.encodeQueryData({'q': ref.title})
             );
         },
     };
@@ -262,12 +278,12 @@ function ColumnView(ds, datakey, htmlid){
     this.filter_text = '';
 
     this.ids = {
-        filter: random_id(),
-        sorter: random_id(),
-        header: random_id(),
-        paging: random_id(),
-        papers: random_id(),
-        filter_val: random_id()
+        filter: bib_lib.random_id(),
+        sorter: bib_lib.random_id(),
+        header: bib_lib.random_id(),
+        paging: bib_lib.random_id(),
+        papers: bib_lib.random_id(),
+        filter_val: bib_lib.random_id()
     };
 
     this.recalculate();
@@ -311,8 +327,8 @@ ColumnView.prototype = {
             return $('<div>').addClass('bib-filter');
 
         var meta = this;
-        var changer50 = makeDelay($.proxy(meta.change_filter, meta), 50);
-        var changer250 = makeDelay($.proxy(meta.change_filter, meta), 250);
+        var changer50 = make_delay($.proxy(meta.change_filter, meta), 50);
+        var changer250 = make_delay($.proxy(meta.change_filter, meta), 250);
 
         var div = $('<div>')
             .addClass('bib-filter')
@@ -636,7 +652,7 @@ ColumnView.prototype = {
                         .addClass('bib-col-title')
                         .text('*')
                         .attr('title',
-                                'Only displaying the '+API_ARTICLE_COUNT+' most cited articles. '+
+                                'Only displaying the '+bib_lib.API_ARTICLE_COUNT+' most cited articles. '+
                                 'For all articles, follow this link to '+this.ds.longname+'.')
                         .attr('href', this.data.header_url)
                         .attr('target', '_blank')
@@ -655,7 +671,7 @@ ColumnView.prototype = {
         var text0 = this.data.header+' ('+this.data.length+')';
         var text1 = this.data.header+' ('+this.fdata.length+'/'+this.length+')';
         text = (this.length != this.fdata.length) ? text1 : text0;
-        foot = (this.data.length == API_ARTICLE_COUNT) ? star : null;
+        foot = (this.data.length == bib_lib.API_ARTICLE_COUNT) ? star : null;
 
         var header = $('<div>')
             .addClass('bib-col-header')
@@ -907,7 +923,7 @@ Overlay.prototype = {
     },
 
     load_default_source: function(){
-        var pcat = get_categories()[0][0];
+        var pcat = bib_lib.get_categories()[0][0];
         var key = this.sync_key(pcat);
 
         try {
@@ -934,7 +950,7 @@ Overlay.prototype = {
     },
 
     save_default_source: function(){
-        var pcat = get_categories()[0][0];
+        var pcat = bib_lib.get_categories()[0][0];
 
         var data = {};
         data[this.sync_key(pcat)] = this.ds.shortname;
@@ -967,11 +983,11 @@ Overlay.prototype = {
     },
 
     load: function(ds){
-        this.datasets = [new S2Data(), new InspireData(), new ADSData()];
+        this.datasets = [new S2Data()];//, new InspireData(), new ADSData()];
         this.available = [];
         this.unavailable = [];
 
-        var cats = get_categories();
+        var cats = bib_lib.get_categories();
         if (!cats || cats.length === 0)
             return;
 
@@ -993,6 +1009,10 @@ Overlay.prototype = {
         if (this.available.length > 0){
             this.load_default_source();
         }
+    },
+
+    destroy: function(){
+        $('.delete').remove();
     }
 };
 
@@ -1027,7 +1047,7 @@ function wrap_object(obj, error){
             function(x, t, m) {
                 switch (t) {
                     case 'timeout':
-                        var n = Number.parseFloat(API_TIMEOUT/1000).toFixed(1);
+                        var n = Number.parseFloat(bib_lib.API_TIMEOUT/1000).toFixed(1);
                         throw new Error('Query timed out ('+n+' sec limit)');
                     case 'parseerror':
                         throw new Error('Query returned malformed data');
@@ -1052,10 +1072,76 @@ function wrap_object(obj, error){
     }();
 }
 
-function gogogo(){
-    var ui = new Overlay();
-    ui.load();
-    D = ui;
+function cookie_save(active){
+    LocalCookies.set(COOKIE_ACTIVE, active);
 }
 
-gogogo();
+function cookie_load(){
+    var active = LocalCookies.get(COOKIE_ACTIVE);
+
+    /* let's define this cookie after the first usage */
+    if (active === undefined)
+        active = true;
+
+    if (active === 'true') active = true;
+    if (active === 'false') active = false;
+
+    LocalCookies.set(COOKIE_ACTIVE, active);
+    return active;
+}
+
+function footer_create(){
+    $('.endorsers')
+        .append($('<span> | </span>'))
+        .append(
+            $('<a id="biboverlay_toggle" href="javascript:bib.toggleBibOverlay();" >Disable BibOverlay</a>')
+        )
+        .append($('<span> (</span>'))
+        .append($('<a href="/help/biboverlay/">What is BibOverlay?</a>'))
+        .append($('<span>)</span>'))
+}
+
+function footer_toggle(active){
+    $('#biboverlay_toggle').text((active ? 'Disable' : 'Enable') + ' BibOverlay');
+}
+
+function toggleBibOverlay(){
+    var active = cookie_load();
+
+    if (active && ui){
+        ui.destroy();
+        ui = null;
+    }
+    if (!active){
+        ui = new Overlay();
+        ui.load();
+    }
+
+    active = !active;
+    cookie_save(active);
+    footer_toggle(active);
+}
+
+function loadBibOverlay(){
+    footer_create();
+
+    var active = cookie_load();
+    if (active){
+        ui = new Overlay();
+        ui.load();
+    }
+
+    footer_toggle(active);
+}
+
+/*function u(){return ui;}
+function c(){return LocalCookies;}
+exports.u = u;
+exports.c = c;*/
+
+exports.loadBibOverlay = loadBibOverlay;
+exports.toggleBibOverlay = toggleBibOverlay;
+
+}(typeof exports === 'undefined' ? this.bib = {} : exports));
+
+bib.loadBibOverlay();

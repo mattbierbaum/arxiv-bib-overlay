@@ -6,8 +6,8 @@
         var date = random_id();
         var base = 'http://127.0.0.1:8000/static/';*/
 
-        var date = '20180726-0'
-        var base = 'https://static.arxiv.org/bib-overlay/';
+        var date = '20180727-0'
+        var base = 'https://static.arxiv.org/biboverlay/';
         function load(filename){
             /*
              This is a bit complicated in order to have deferred, ordered
@@ -52,6 +52,7 @@
         var filenames = [
             'style.css',
             'jquery-3.2.1.min.js',
+            'js.cookie-2.2.0.min.js',
             'bib_lib.js',
             'bib_source_s2.js',
             'bib_source_inspire.js',
