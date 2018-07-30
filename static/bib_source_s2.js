@@ -48,7 +48,7 @@ S2Data.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
-        if (ref.doi || ref.arxivid) outs.push('cite');
+        if (ref.doi || ref.arxivId) outs.push('cite');
         return outs;
     },
 
@@ -57,9 +57,9 @@ S2Data.prototype = {
         this.add_url_arxiv(data);
         this.add_url_doi(data);
         data.index = index;
-        data.arxivid = data.arxivId;
         data.searchline = this.searchline(data);
         data.outbound = this.outbound_names(data);
+        this.cache[data.api] = data;
     },
 
     add_counts: function(data){
@@ -128,9 +128,10 @@ S2Data.prototype = {
     sorters: {
         'paper': {'name': 'Paper order', 'func': function(i){return i.index;}},
         'influence': {'name': 'Influence', 'func': function(i){return i.isInfluential;}},
+        'author': {'name': 'First author', 'func': function(i){return bib_lib.tolastname(i.authors[0]);}},
         'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
         'year': {'name': 'Year', 'func': function(i){return i.year;}},
     },
-    sorters_order: ['influence', 'title', 'year'],
+    sorters_order: ['influence', 'title', 'author', 'year'],
     sorters_default: 'influence',
 };

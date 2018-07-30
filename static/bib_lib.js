@@ -5,11 +5,6 @@ var API_TIMEOUT = 30*1000;
 //var URL_ASSET_BASE = 'https://mattbierbaum.github.io/arxiv-bib-overlay/';
 var URL_ASSET_BASE = 'https://static.arxiv.org/biboverlay/';
 
-function Message(message){
-    this.message = message;
-    this.name = 'Message';
-}
-
 function random_id(){
     return String(Math.random()).substring(2,12);
 }
@@ -121,6 +116,15 @@ var RE_IDENTIFIER = new RegExp(
     ')'                                              // end OR group
 );
 
+function tolastname(ref){
+    if (typeof ref === 'undefined')
+        return '';
+
+    var name = ref.name || '';
+    var parts = name.split(' ');
+    return parts[parts.length-1];
+}
+
 Array.prototype.remove = function(element){
     var index = this.indexOf(element);
     if (index > -1) {
@@ -139,6 +143,7 @@ exports.random_id = random_id;
 exports.encodeQueryData = encodeQueryData;
 exports.urlproxy = urlproxy;
 exports.asset_url = asset_url;
+exports.tolastname = tolastname;
 
 exports.Message = Message;
 

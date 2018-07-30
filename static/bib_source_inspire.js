@@ -131,7 +131,7 @@ InspireData.prototype = {
         if (ref.url_arxiv) outs.push('arxiv');
         if (ref.url_doi) outs.push('doi');
         outs.push('scholar');
-        if (ref.doi || ref.arxivid) outs.push('cite');
+        if (ref.doi || ref.arxivId) outs.push('cite');
         return outs;
     },
 
@@ -149,7 +149,7 @@ InspireData.prototype = {
             'api': this.url_paper_api(doc.recid.toString()),
             'url': this.url_paper(doc.recid),
             'doi': this.string_to_array(doc.doi || '')[0],
-            'arxivid': arxivid,
+            'arxivId': arxivid,
             'url_doi': doc.doi ? 'https://doi.org/'+doc.doi : '',
             'url_arxiv': this.url_arxiv(arxivid),
         };
@@ -256,7 +256,7 @@ InspireData.prototype = {
         'citations': {'name': 'Citations', 'func': function(i){return i.citation_count;}},
         'influence': {'name': 'ADS read count', 'func': function(i){return i.read_count;}},
         'title': {'name': 'Title', 'func': function(i){return i.title.toLowerCase();}},
-        'author': {'name': 'First author', 'func': function(i){return i.authors[0].name || '';}},
+        'author': {'name': 'First author', 'func': function(i){return bib_lib.tolastname(i.authors[0]);}},
         'year': {'name': 'Year', 'func': function(i){return i.year;}}
     },
     sorters_order: ['citations', 'influence', 'title', 'author', 'year'],

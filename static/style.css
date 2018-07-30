@@ -188,6 +188,10 @@
     content: '';
 }
 
+.bib-authors a.nolink {
+    text-decoration: none;
+}
+
 .bib-cites {
     margin-left: 0.7em;
     font-size: 0.9em;

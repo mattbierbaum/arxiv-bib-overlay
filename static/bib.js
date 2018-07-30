@@ -8,6 +8,11 @@ var PAGE_LENGTH = 10;
 var COOKIE_ACTIVE = 'biboverlay_active';
 var LocalCookies = Cookies.noConflict();
 
+function Message(message){
+    this.message = message;
+    this.name = 'Message';
+}
+
 function min(a, b){return (a < b) ? a : b;}
 function max(a, b){return (a > b) ? a : b;}
 
@@ -236,7 +241,7 @@ function outbound_links(ref, ignore){
         'inspire':  function(ref){return _linkex('inspire', 'Inspire HEP', ref.url);},
         'arxiv':    function(ref){return _link('arxiv', 'ArXiv article', ref.url_arxiv);},
         'doi':      function(ref){return _linkex('doi', 'Journal article', ref.url_doi);},
-        'cite':     function(ref){return _modal('cite', 'Citation entry', ref.doi, ref.arxivid);},
+        'cite':     function(ref){return _modal('cite', 'Citation entry', ref.doi, ref.arxivId);},
         'scholar':  function(ref){
             return _link(
                 'scholar', 'Google Scholar',
@@ -587,7 +592,7 @@ ColumnView.prototype = {
         }
 
         var known = (ref.paperId.length > 1);
-        var classes = !known ? 'unknown' : (ref.isInfluential ? 'influential' : 'notinfluential');
+        var classes = ref.isInfluential ? 'influential' : 'notinfluential';
         var cite_text = ref.citation_count ? '(citations: '+ref.citation_count+')' : '';
 
         var paper = $('<div>')
@@ -607,34 +612,38 @@ ColumnView.prototype = {
                     .append($('<span>').addClass('citations').text(cite_text))
             );
 
-        if (known) {
-            this.ds.get_paper(ref.api,
-                $.proxy(function(data) {
-                    var len = min(data.authors.length, MAX_AUTHORS);
-                    var elem = $('<div>').addClass('bib-authors');
+        this.ds.get_paper(ref.api,
+            $.proxy(function(data) {
+                var len = min(data.authors.length, MAX_AUTHORS);
+                var elem = $('<div>').addClass('bib-authors');
 
-                    for (var j=0; j<len; j++){
+                for (var j=0; j<len; j++){
+                    if (!data.authors[j].name)
+                        continue;
+
+                    var a = $('<a>')
+                        .appendTo(elem)
+                        .attr('target', '_blank')
+                        .text(data.authors[j].name);
+
+                    if (data.authors[j].url)
+                        a.attr('href', data.authors[j].url);
+                    else
+                        a.addClass('nolink');
+                }
+
+                if (len == MAX_AUTHORS)
+                    elem.append(
                         $('<a>')
-                            .appendTo(elem)
-                            .attr('href', data.authors[j].url)
+                            .text('...')
+                            .attr('href', data.url)
                             .attr('target', '_blank')
-                            .text(data.authors[j].name);
-                    }
+                    );
 
-                    if (len == MAX_AUTHORS)
-                        elem.append(
-                            $('<a>')
-                                .text('...')
-                                .attr('href', data.url)
-                                .attr('target', '_blank')
-                        );
-
-                    paper.append(elem);
-                    paper.append(outbound_links(data));
-                }, paper),
-                'Could not find paper "'+ref.title+'" via S2 API'
-            );
-        }
+                paper.append(elem);
+                paper.append(outbound_links(data));
+            }, paper)
+        );
 
         return paper;
     },
@@ -989,7 +998,7 @@ Overlay.prototype = {
     },
 
     load: function(ds){
-        this.datasets = [new S2Data()];//, new InspireData(), new ADSData()];
+        this.datasets = [new S2Data(), new InspireData(), new ADSData()];
         this.available = [];
         this.unavailable = [];
 
@@ -1140,10 +1149,8 @@ function loadBibOverlay(){
     footer_toggle(active);
 }
 
-/*function u(){return ui;}
-function c(){return LocalCookies;}
-exports.u = u;
-exports.c = c;*/
+exports.u = function(){return ui;}
+exports.c = function(){return LocalCookies;}
 
 exports.loadBibOverlay = loadBibOverlay;
 exports.toggleBibOverlay = toggleBibOverlay;
