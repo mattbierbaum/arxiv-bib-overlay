@@ -745,13 +745,15 @@ Overlay.prototype = {
     id_citations: 'col-citations',
 
     create_sidebar: function(){
-        $('<div>')
+        var sidebar = $('<div>')
             .addClass('delete')
             .addClass('bib-sidebar')
             .append($('<div>').addClass('bib-sidebar-paper nodisplay'))
             .append($('<div>').addClass('bib-sidebar-msgs nodisplay'))
-            .append($('<div>').addClass('bib-sidebar-source nodisplay'))
-            .insertBefore($('.bookmarks'));
+            .append($('<div>').addClass('bib-sidebar-source nodisplay'));
+
+        if (!$('.bib-sidebar').length)
+            sidebar.insertBefore($('.bookmarks'));
 
         // FIXME -- external reference to html ".bookmarks"
     },
@@ -891,6 +893,9 @@ Overlay.prototype = {
     },
 
     create_overlay: function(ds){
+        if (this.dsid !== ds.id)
+            return;
+
         this.destroy_spinner();
         this.populate_source();
         this.populate_sidebar(ds);
@@ -906,15 +911,17 @@ Overlay.prototype = {
     },
 
     create_spinner: function(){
-        $('<div>')
+        var spinner = $('<div>')
             .addClass('bib-pulse-container')
             .append(
                 $('<div>').addClass('bib-pulse')
                 .append($('<div>'))
                 .append($('<div>'))
                 .append($('<div>'))
-            )
-            .insertAfter('.submission-history');
+            );
+
+        if (!$('.bib-pulse-container').length)
+            spinner.insertAfter('.submission-history');
 
         // FIXME -- external reference to html ".submission-history"
     },
@@ -983,6 +990,7 @@ Overlay.prototype = {
         $('.delete').remove();
 
         this.ds = this.get_dataset(name);
+        this.dsid = this.ds.id;
         this.create_spinner();
         this.create_sidebar();
         this.populate_source();

@@ -7,6 +7,7 @@ function ADSData() {
     this.cache = {};
     this.data = {};
     this.aid = null;
+    this.id = bib_lib.random_id();
 }
 
 ADSData.prototype = {

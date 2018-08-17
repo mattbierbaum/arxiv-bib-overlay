@@ -145,6 +145,4 @@ exports.urlproxy = urlproxy;
 exports.asset_url = asset_url;
 exports.tolastname = tolastname;
 
-exports.Message = Message;
-
 }(typeof exports === 'undefined' ? this.bib_lib = {} : exports));
