@@ -1,12 +1,6 @@
 (function(exports){
 
-// number of papers per page
 var ui = null;
-var MAX_AUTHORS = 10;
-var PAGE_LENGTH = 10;
-
-var COOKIE_ACTIVE = 'biboverlay_active';
-var LocalCookies = Cookies.noConflict();
 
 function Message(message){
     this.message = message;
@@ -127,7 +121,7 @@ BibTexModal.prototype = {
     },
 
     query_arxiv: function(){
-        var url = 'https://export.arxiv.org/api/query?id_list='+this.arxivid;
+        var url = bib_config.API_ARXIV_METADATA + this.arxivid;
         $.ajax({
             url: url,
             dataType: 'xml',
@@ -141,12 +135,12 @@ BibTexModal.prototype = {
     },
 
     query_doi: function(){
-        var url = 'https://dx.doi.org/'+this.doi;
+        var url = bib_config.API_CROSSREF_CITE + this.doi;
         $.ajax({
             type: 'GET',
             async: true,
             dataType: 'text',
-            timeout: bib_lib.API_TIMEOUT,
+            timeout: bib_config.API_TIMEOUT,
             url: bib_lib.urlproxy(url),
             beforeSend: $.proxy(function(xhr){
                 xhr.setRequestHeader('Accept', 'text/bibliography; style='+this.typ);
@@ -202,7 +196,7 @@ BibTexModal.prototype = {
 function outbound_links(ref, ignore){
     function _img(n){
         return $('<img>')
-            .attr('src', bib_lib.asset_url('static/icon-'+n+'.png'))
+            .attr('src', bib_lib.asset_url('icon-'+n+'.png'))
             .css('height', '18')
             .css('width', 'auto');
     }
@@ -243,9 +237,9 @@ function outbound_links(ref, ignore){
         'doi':      function(ref){return _linkex('doi', 'Journal article', ref.url_doi);},
         'cite':     function(ref){return _modal('cite', 'Citation entry', ref.doi, ref.arxivId);},
         'scholar':  function(ref){
-            return _link(
+            return _linkex(
                 'scholar', 'Google Scholar',
-                'https://scholar.google.com/scholar?' + bib_lib.encodeQueryData({'q': ref.title})
+                bib_config.API_SCHOLAR_SEARCH + '?' + bib_lib.encodeQueryData({'q': ref.title})
             );
         },
     };
@@ -305,7 +299,7 @@ ColumnView.prototype = {
     },
 
     recalculate_pages: function(){
-        this.npages = Math.floor((this.fdata.length-1) / PAGE_LENGTH) + 1;
+        this.npages = Math.floor((this.fdata.length-1) / bib_config.PAGE_LENGTH) + 1;
         this.page = 1;
     },
 
@@ -614,7 +608,7 @@ ColumnView.prototype = {
 
         this.ds.get_paper(ref.api,
             $.proxy(function(data) {
-                var len = min(data.authors.length, MAX_AUTHORS);
+                var len = min(data.authors.length, bib_config.MAX_AUTHORS);
                 var elem = $('<div>').addClass('bib-authors');
 
                 for (var j=0; j<len; j++){
@@ -632,7 +626,7 @@ ColumnView.prototype = {
                         a.addClass('nolink');
                 }
 
-                if (len == MAX_AUTHORS)
+                if (len == bib_config.MAX_AUTHORS)
                     elem.append(
                         $('<a>')
                             .text('...')
@@ -661,7 +655,7 @@ ColumnView.prototype = {
                         .addClass('bib-col-title')
                         .text('*')
                         .attr('title',
-                                'Only displaying the '+bib_lib.API_ARTICLE_COUNT+' most cited articles. '+
+                                'Only displaying the '+bib_config.API_ARTICLE_COUNT+' most cited articles. '+
                                 'For all articles, follow this link to '+this.ds.longname+'.')
                         .attr('href', this.data.header_url)
                         .attr('target', '_blank')
@@ -680,7 +674,7 @@ ColumnView.prototype = {
         var text0 = this.data.header+' ('+this.data.length+')';
         var text1 = this.data.header+' ('+this.fdata.length+'/'+this.length+')';
         text = (this.length != this.fdata.length) ? text1 : text0;
-        foot = (this.data.length == bib_lib.API_ARTICLE_COUNT) ? star : null;
+        foot = (this.data.length == bib_config.API_ARTICLE_COUNT) ? star : null;
 
         var header = $('<div>')
             .addClass('bib-col-header')
@@ -706,8 +700,8 @@ ColumnView.prototype = {
         var papers = $('<div>').attr('id', this.ids.papers);
 
         var len = this.fdata.length;
-        var start = PAGE_LENGTH * (this.page-1);
-        for (var i=start; i<min(start+PAGE_LENGTH, len); i++)
+        var start = bib_config.PAGE_LENGTH * (this.page-1);
+        for (var i=start; i<min(start+bib_config.PAGE_LENGTH, len); i++)
             papers.append(this.paper_line(this.fdata[i]));
 
         return papers;
@@ -838,7 +832,7 @@ Overlay.prototype = {
             );
 
         var authorlist = $('<ul>').addClass('bib-sidebar-authors');
-        for (var i=0; i<min(ds.data.authors.length, MAX_AUTHORS); i++){
+        for (var i=0; i<min(ds.data.authors.length, bib_config.MAX_AUTHORS); i++){
             authorlist.append(
                 $('<li>').append(
                     $('<a>')
@@ -849,7 +843,7 @@ Overlay.prototype = {
             );
         }
 
-        if (ds.data.authors.length > MAX_AUTHORS)
+        if (ds.data.authors.length > bib_config.MAX_AUTHORS)
             authorlist.append($('<li>').append(
                 $('<a>').text('...').attr('href', ds.data.url).attr('target', '_blank')
             ));
@@ -1070,7 +1064,7 @@ function wrap_object(obj, error){
             function(x, t, m) {
                 switch (t) {
                     case 'timeout':
-                        var n = Number.parseFloat(bib_lib.API_TIMEOUT/1000).toFixed(1);
+                        var n = Number.parseFloat(bib_config.API_TIMEOUT/1000).toFixed(1);
                         throw new Error('Query timed out ('+n+' sec limit)');
                     case 'parseerror':
                         throw new Error('Query returned malformed data');
@@ -1095,12 +1089,14 @@ function wrap_object(obj, error){
     }();
 }
 
+var LocalCookies = Cookies.noConflict();
+
 function cookie_save(active){
-    LocalCookies.set(COOKIE_ACTIVE, active);
+    LocalCookies.set(bib_config.COOKIE_ACTIVE, active);
 }
 
 function cookie_load(){
-    var active = LocalCookies.get(COOKIE_ACTIVE);
+    var active = LocalCookies.get(bib_config.COOKIE_ACTIVE);
 
     /* let's define this cookie after the first usage */
     if (active === undefined)
@@ -1109,7 +1105,7 @@ function cookie_load(){
     if (active === 'true') active = true;
     if (active === 'false') active = false;
 
-    LocalCookies.set(COOKIE_ACTIVE, active);
+    LocalCookies.set(bib_config.COOKIE_ACTIVE, active);
     return active;
 }
 

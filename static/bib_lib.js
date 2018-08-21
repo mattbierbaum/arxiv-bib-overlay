@@ -1,38 +1,66 @@
 (function(exports){
 
-var API_ARTICLE_COUNT = 200;
-var API_TIMEOUT = 30*1000;
-//var URL_ASSET_BASE = 'https://mattbierbaum.github.io/arxiv-bib-overlay/';
-var URL_ASSET_BASE = 'https://static.arxiv.org/biboverlay/';
+var RE_IDENTIFIER = new RegExp(
+    '(?:'+                                           // begin OR group
+      '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
+        '|'+                                             // OR
+      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
+        '|'+
+      '(?:^(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)$)'+   // new-form with no preamble
+    ')'                                              // end OR group
+);
+
+var RE_ARXIVID_URL = new RegExp(
+    '^http(?:s)?://(?:.*\.)?arxiv.org/abs/'+             // we are on an abs page
+    '(?:'+                                           // begin OR group
+      '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+       // there is a new-form arxiv id
+        '|'+                                            // OR
+      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+ // old-form id (not allowed by S2)
+    ')'+                                             // end OR group
+    '(?:#.*)?'+                                 // anchor links on page
+    '(?:\\?.*)?$'                               // query parameter stuff
+);
+
+var RE_CATEGORY_FULL = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g);
+var RE_CATEGORY_MAJOR = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g);
 
 function random_id(){
     return String(Math.random()).substring(2,12);
 }
 
-function minor_to_major(category){
-    // extract the major category from a full minor category
-    var re = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g);
-
-    var match = re.exec(category);
-    while (match !== null)
-        return match[1];
-    return '';
+function allmatches(string, regex, index){
+    var matches = [];
+    var match = regex.exec(string);
+    while (match !== null){
+        matches.push(match[index]);
+        match = regex.exec(string);
+    }
+    return matches;
 }
 
-function get_minor_categories(){
+//=============================================================
+// category extraction methods
+function minor_to_major(category){
+    // extract the major category from a full minor category
+    var match = allmatches(category, RE_CATEGORY_MAJOR, 1);
+    return match ? match[0] : '';
+}
+
+function get_minor_categories_primary(){
+    var txt = $('.primary-subject').text();
+    return allmatches(txt, RE_CATEGORY_FULL, 1);
+}
+
+function get_minor_categories_all(){
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     // also, (hep-th)
     var txt = $('.metatable').find('.subjects').text();
-    var re = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g);
+    return allmatches(txt, RE_CATEGORY_FULL, 1);
+}
 
-    var matches = [];
-    var match = re.exec(txt);
-    while (match !== null){
-        matches.push(match[1]);
-        match = re.exec(txt);
-    }
-    return matches;
+function get_minor_categories(){
+    return get_minor_categories_primary() || get_minor_categories_all();
 }
 
 function get_categories(){
@@ -44,19 +72,11 @@ function get_categories(){
     return out;
 }
 
-function get_current_article(){
+//=============================================================
+// article id extraction functions
+function get_current_article_url(){
     var url = $(location).attr('href');
-    var re_url = new RegExp(
-        '^http(?:s)?://arxiv.org/abs/'+             // we are on an abs page
-        '(?:'+                                           // begin OR group
-          '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+       // there is a new-form arxiv id
-            '|'+                                            // OR
-          '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+ // old-form id (not allowed by S2)
-        ')'+                                             // end OR group
-        '(?:#.*)?'+                                 // anchor links on page
-        '(?:\\?.*)?$'                               // query parameter stuff
-    );
-    var match = re_url.exec(url);
+    var match = RE_ARXIVID_URL.exec(url);
 
     if (!match){
         console.log("No valid match could be found for article ID");
@@ -73,12 +93,24 @@ function get_current_article(){
     return aid;
 }
 
+function get_current_article_meta(){
+    // FIXME -- directly references abs element
+    var obj = $('[name="citation_arxiv_id"]');
+    return obj ? obj.attr('content') : null;
+}
+
+function get_current_article(){
+    return get_current_article_meta() || get_current_article_url();
+}
+
+//=============================================================
+// article id extraction functions
 function asset_url(url){
     var output = '';
     try {
-        output = chrome.extension.getURL(url);
+        output = chrome.extension.getURL(bib_config.EXTENSION_ASSET_BASE + url);
     } catch (err) {
-        output = URL_ASSET_BASE + url;
+        output = bib_config.URL_ASSET_BASE + url;
     }
     return output;
 }
@@ -102,19 +134,10 @@ function encodeQueryData(data) {
 }
 
 function urlproxy(url){
+    if (bib_config.URL_PROXY)
+        return bib_config.URL_PROXY + '?url=' + encodeURIComponent(url);
     return url;
-    //return 'http://tmper.co:9999/?url='+encodeURIComponent(url);
 }
-
-var RE_IDENTIFIER = new RegExp(
-    '(?:'+                                           // begin OR group
-      '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)'+   // there is a new-form arxiv id
-        '|'+                                             // OR
-      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)'+   // old-form id (not allowed by S2)
-        '|'+
-      '(?:^(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)$)'+   // new-form with no preamble
-    ')'                                              // end OR group
-);
 
 function tolastname(ref){
     if (typeof ref === 'undefined')
@@ -132,8 +155,6 @@ Array.prototype.remove = function(element){
     }
 };
 
-exports.API_ARTICLE_COUNT = API_ARTICLE_COUNT;
-exports.API_TIMEOUT = API_TIMEOUT;
 exports.RE_IDENTIFIER = RE_IDENTIFIER;
 
 exports.get_categories = get_categories;

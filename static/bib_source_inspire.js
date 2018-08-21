@@ -11,8 +11,8 @@ function InspireData() {
 }
 
 InspireData.prototype = {
-    url_logo: bib_lib.asset_url('static/source-inspire.png'),
-    url_icon: bib_lib.asset_url('static/icon-inspire.png'),
+    url_logo: bib_lib.asset_url('source-inspire.png'),
+    url_icon: bib_lib.asset_url('icon-inspire.png'),
 
     shortname: 'Inspire',
     longname: 'Inspire HEP',
@@ -36,7 +36,7 @@ InspireData.prototype = {
             'prepublication',
             'creation_date',
         ],
-        rg: bib_lib.API_ARTICLE_COUNT,      // records in groups of
+        rg: bib_config.API_ARTICLE_COUNT,      // records in groups of
         sf: 'number_of_citations',  // sort field: citation count
         so: 'a'                     // sort order: descending
         //jrec: 250     // jump to record
@@ -215,7 +215,7 @@ InspireData.prototype = {
             url: bib_lib.urlproxy(url),
             dataType: 'text',
             async: true,
-            timeout: bib_lib.API_TIMEOUT,
+            timeout: bib_config.API_TIMEOUT,
             error: this.query_error,
             success: $.proxy(
                 function (data){

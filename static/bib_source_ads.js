@@ -11,8 +11,8 @@ function ADSData() {
 }
 
 ADSData.prototype = {
-    url_logo: bib_lib.asset_url('static/source-ads.png'),
-    url_icon: bib_lib.asset_url('static/icon-ads.png'),
+    url_logo: bib_lib.asset_url('source-ads.png'),
+    url_icon: bib_lib.asset_url('icon-ads.png'),
 
     shortname: 'ADS',
     longname: 'NASA ADS',
@@ -29,7 +29,7 @@ ADSData.prototype = {
             'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
             'year', 'doi', 'citation_count', 'read_count', 'identifier'
         ],
-        'rows': bib_lib.API_ARTICLE_COUNT,
+        'rows': bib_config.API_ARTICLE_COUNT,
         'sort': 'citation_count desc',
     },
 
@@ -183,7 +183,7 @@ ADSData.prototype = {
         $.ajax({
             type: 'GET',
             async: true,
-            timeout: bib_lib.API_TIMEOUT,
+            timeout: bib_config.API_TIMEOUT,
             url: bib_lib.urlproxy(url),
             beforeSend: function(xhr){
                 xhr.setRequestHeader('Authorization', auth);

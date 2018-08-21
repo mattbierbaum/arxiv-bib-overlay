@@ -9,8 +9,8 @@ function S2Data() {
 }
 
 S2Data.prototype = {
-    url_logo: bib_lib.asset_url('static/source-s2.png'),
-    url_icon: bib_lib.asset_url('static/icon-s2.png'),
+    url_logo: bib_lib.asset_url('source-s2.png'),
+    url_icon: bib_lib.asset_url('icon-s2.png'),
 
     shortname: 'S2',
     longname: 'Semantic Scholar',
@@ -100,7 +100,7 @@ S2Data.prototype = {
             type: 'GET',
             url: bib_lib.urlproxy(url),
             async: true,
-            timeout: bib_lib.API_TIMEOUT,
+            timeout: bib_config.API_TIMEOUT,
             success: $.proxy(
                 function(data){
                    this.data = this.transform_result(data);
