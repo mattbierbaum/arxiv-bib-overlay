@@ -1,0 +1,175 @@
+* Getting started with running the bib overlay
+
+To get the bib-overlay JS/CSS served locally to an example arXiv page:
+
+1. Install node v8 or greater https://nodejs.org/en/download/ 
+2. git clone the arxiv-bib-overlay repo
+3. Install and run:
+   cd arxiv-bib-overlay
+   npm install; npm run start
+
+* Updating dependencies
+
+We are keeping version specific in the package.json to avoid semantic chagnes even
+when they should not exist. Do not go willy nilly updating packges without testing.
+
+To update dependencies, update the version of the package you want to update in the
+package.json and run npm install.
+
+** Where did yarn go?
+We are no longer using yarn. npm v5 vastly improved npm's install to
+deal with many of the problems addressed by yarn. npm now works mostly
+like yarn: faster downloads, --save is default and npm install uses
+package-lock.json by default.
+
+* Setup VSCode to develop mod UI
+
+VSCode is the perfered IDE for working with this project due it including support 
+for typescript.
+
+1. Install vscode
+   https://code.visualstudio.com/
+2. Open modui workspace
+   Start up vscode and do file -> open workspace Then open arxiv-bib-overlay
+
+* About Mod UI
+
+The mod UI is a react single page web app for arXiv moderators to use
+to work with submissions.
+
+The general structure of the Mod UI state is a JS object that contains
+the state of the moderator's queue and some UI state. The React
+Components we've written render the UI based on this state
+object. MobX is used so changes to the state object trigger changes to
+the React components.
+
+* Principles to adhere to when working on Mod UI
+# Linting and types
+
+Aim for zero lint errors, zero type errors and TS types on the
+properties of all react components.
+
+Failures in the linter and type check will prevent npm run build or
+npm run start from completing.
+
+The code style is configured in tslint.json. 
+The rules can be looked up here:
+https://palantir.github.io/tslint/rules/
+
+# Keep it simple as possible.
+
+Keep the code as simple as possible. The code solutions to problems
+should suit the complexity of the problem being solved. One example of
+this is using MobX instead of Redux. 
+
+Keep the development tools as simple as possible. If you want to do
+something with the development environment, look to do it with
+create-react-app first. If that is not possible, do it as simply as
+you can. One example of this is using Jest instead of a combination of
+test tools that exactly suits our tastes.
+
+# Configuration of Dev env is in the directory modui
+
+Node/JS development has a practice of keeping all of the configuration
+of a dev env in the worksapce directory. So all tools that correctly
+use the package.json tsconfig.json, tslint.json etc should be
+configured with no additional work from the developers.
+
+# Should always be able to easily npm run start the app
+
+* Reading list to get going on Mod UI
+About es6
+http://2ality.com/2015/08/getting-started-es6.html
+
+React: how the UI gets rendered
+https://reactjs.org/tutorial/tutorial.html
+Then Quick Start docs:
+https://reactjs.org/docs/hello-world.html
+
+MobX: how we keep the UI state up-to-date
+https://mobx.js.org/getting-started.html
+
+At this point you'll need to know that we are mostly using
+class based React components so we can use MobX decorators.
+
+Typescript: JS with types:
+https://www.typescriptlang.org/docs/handbook/basic-types.html
+https://www.typescriptlang.org/docs/handbook/variable-declarations.html
+https://www.typescriptlang.org/docs/handbook/interfaces.html
+https://www.typescriptlang.org/docs/handbook/classes.html
+https://www.typescriptlang.org/docs/handbook/jsx.html
+
+Just "The Hello world of generics" from:
+https://www.typescriptlang.org/docs/handbook/generics.html
+
+Just "Type guards and type assertions" from
+https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-type-assertions
+
+If you are going to do HTTP requests read about fetch() and Promises
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises
+https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+* JS alphabet soup cheat sheet
+JS: javascript
+
+ES6: ECMAScript 6, that is JS with arrow functions, import and a bunch
+of other things we now think of as normal.
+
+ES2015: same as ES6
+
+TypeScript: JS with type inference
+
+TS: same as TypeScript
+
+Node or Node.js: JS interpreter for use outside of browser.
+
+npm: node package manager, installs node packages for use in JS and
+runs build scripts.
+
+webpack: node package to take your JS code, and all the libraries it
+depends on, and pack it into a single JS file for easy use on HTML
+pages. Also compiles like Babel.
+ 
+Babel: A library to convert es6 to older versions of JS, also can be
+setup to do TS to older versions of JS.
+
+JSX: JS files with HTML templates interspersed. Similar to JSP or
+Jinja. Provided by React library.
+
+npm: A package management and build tool for JS. We are using yarn
+instead.
+
+TSX: Like JSX but with TypeScript.
+
+React: DOM rendering library from Facebook. Excels at only updating
+DOM elements that need to be updated. That is, DOM elements are built
+from input properties and React will only update DOM elements when
+the input properties change.
+
+MobX: Library so that a basic JS object can be watched for changes by
+React.
+
+Redux: a state library for React (and others). We don't use it.
+
+Yarn: A package management and build tool with slightly better package
+management than npm.
+
+* LaTeX rendering
+
+Currently we are using KaTeX via [react-latex](https://www.npmjs.com/package/react-latex). 
+Another branch(ARXIVNG-345-react-mathjax) 
+has tentative support via MathJax, but isn't functional. 
+
+# Notes on KaTeX
+
+1. Should render faster than MathJax, but currently doesn't support
+as many math expressions/symbols. However, in one batch of more than 
+a thousan submissions (titles + abstracts), only one expression had 
+an error, as evidenced by output in console.log. In this case, the 
+TeX was displayed instead, as one would expect.
+2. No configuration was done to get KaTeX working, support should be minimal.
+3. The fonts are included currently directly in the repo. We might want to add 
+the font filetypes to `.gitattributes` as binary files, or store them in git-lfs later.
+The other option is to use a git submodule (since they actually come from an [existing
+git submodule](https://github.com/KaTeX/katex-fonts)), 
+but generally we have found the use of git submodules to be onerous.
