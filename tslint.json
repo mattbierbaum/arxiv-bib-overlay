@@ -8,6 +8,7 @@
             "statements"
         ],
         "ban": false,
+        "arrow-parens": false,
         "class-name": true,
         "comment-format": false,
         "curly": true,
@@ -86,8 +87,76 @@
         "no-unused-variable": [true, {"ignore-pattern": "^_"}]
     },
 
-    "jsRules":{
-        "object-literal-sort-keys": false
+    "jsRules":{        
+        "align": [
+            true,
+            "parameters",
+            "arguments",
+            "statements"
+        ],
+        "ban": false,
+        "arrow-parens": false,
+        "class-name": true,
+        "comment-format": false,
+        "curly": true,
+        "eofline": false,
+        "forin": true,
+        "indent": [ true, "spaces" ],
+        "interface-name": [true, "never-prefix"],
+        "jsdoc-format": true,
+        "jsx-alignment" : false,
+        "jsx-no-lambda": false,
+        "jsx-no-multiline-js": false,
+        "label-position": true,
+        "max-line-length": [ true, 120 ],    
+        "no-arg": true,
+        "no-bitwise": true,
+        "no-console": false,
+        "no-consecutive-blank-lines": true,
+        "no-construct": true,
+        "no-debugger": true,
+        "no-duplicate-variable": true,
+        "no-empty": true,
+        "no-eval": true,
+        "no-shadowed-variable": true,
+        "no-string-literal": true,
+        "no-switch-case-fall-through": true,
+        "no-trailing-whitespace": false,
+        "no-unused-expression": true,
+        "no-use-before-declare": true,
+        "one-line": [
+            true,
+            "check-catch",
+            "check-else",
+            "check-open-brace",
+            "check-whitespace"
+        ],
+        "quotemark": [true, "single", "avoid-escape", "avoid-template"],
+        "radix": true,
+        "semicolon": [true, "never"],
+        "switch-default": true,
+        "trailing-comma": [false],
+        "triple-equals": [ true, "allow-null-check" ],        
+        "object-literal-sort-keys": false,        
+        "variable-name": [true, 
+            "ban-keywords", 
+            "check-format", 
+            "allow-leading-underscore", 
+            "allow-snake-case",
+            "allow-pascal-case"],
+        "whitespace": [
+            true,
+            "check-branch",
+            "check-decl",
+            "check-module",
+            "check-operator",
+            "check-separator",
+            "check-type",
+            "check-typecast"
+        ],
+        "max-classes-per-file":false,
+        "member-access": false,
+        "no-unused-variable": [true, {"ignore-pattern": "^_"}]
     },
     "linterOptions": {
     "exclude": [

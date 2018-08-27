@@ -124,8 +124,8 @@ BibTexModal.prototype = {
         var url = bib_config.API_ARXIV_METADATA + this.arxivid;
         $.ajax({
             url: url,
-            dataType: 'xml',
-            success: $.proxy(
+          dataType: 'xml',
+          success: $.proxy(
                 function(data){
                     data = this.format_bibtex_arxiv($('feed', data));
                     this.display_content(data);
@@ -990,6 +990,9 @@ Overlay.prototype = {
         this.populate_source();
         this.save_default_source();
         this.ds.async_load($.proxy(this.create_overlay, this));
+      //BrianC
+      //do someting like this.bs.fetch_all( arxiv_id )
+      //  .then( (data) => { this.create_overlay( {base:data[0],citations:data[1],references:data[3]} ) 
     },
 
     get_dataset: function(name){
