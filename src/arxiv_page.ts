@@ -1,5 +1,7 @@
+/** Functions to interact with the arxiv page ex. getting the arXiv ID of the page. */
 import { EXTENSION_ASSET_BASE, URL_ASSET_BASE } from './bib_config'
 
+/** FIX ME: Brian C has not fixed or eliminated JQuery */
 function $(...args: any[]) {
     console.log( 'JQuery not yet fixed up' )
     return {} as any
