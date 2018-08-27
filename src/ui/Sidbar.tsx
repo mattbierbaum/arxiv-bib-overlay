@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
+import '../App.css'
 import { BibModel } from '../model/BibModel'
 
 @observer
@@ -10,7 +11,7 @@ export class Sidebar extends React.Component<{ bibModel: BibModel}, {}> {
             ! this.props.bibModel.paper ||
             ! this.props.bibModel.paper.authors
         ) {
-            return <div/>
+            return <div>loading bibs...</div>
         }
         const au_lis = this.props.bibModel.paper.authors.map(
             au => <li><a href={au.url} target='_blank'>{au.name}</a></li>)

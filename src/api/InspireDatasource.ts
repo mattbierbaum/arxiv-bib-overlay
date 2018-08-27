@@ -1,11 +1,11 @@
+import icon from '../assets/icon-inspire.png'
+import sourceLogo from '../assets/source-inspire.png'
 import { API_ARTICLE_COUNT } from '../bib_config'
 import { encodeQueryData, urlproxy } from '../bib_lib'
-import {  BasePaper, Paper } from './document'
+import {  BasePaper, DataSource, Paper } from './document'
 import { InspireToDoc } from './inspire_to_doc'
 
-//type fetchCallback = (d: InspireDatasource) => void
-
-export class InspireDatasource {
+export class InspireDatasource implements DataSource {
     ready = {}    
     cache: { [key: string]: Paper} = {}
     aid: string
@@ -19,13 +19,12 @@ export class InspireDatasource {
 
     data: BasePaper
     
-    url_logo = ''
-    url_icon = ''
-
     shortname = 'Inspire'
     longname = 'Inspire HEP'
     categories = new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])
     homepage = 'https://inspirehep.net'
+    icon = icon
+    logo = sourceLogo
     pagelength = 250
     api_url = 'https://inspirehep.net/search'
     api_params = {
@@ -50,16 +49,15 @@ export class InspireDatasource {
         jrec: 0     // jump to record
     }
 
-    sorters = {
-        paper: {name: 'Paper order',
-                  func: (i) => i.index  },
-        citations: {name: 'Citations',
-                      func: (i) => i.citation_count},
-        influence: {name: 'ADS read count', func: (i) => i.read_count},
-        title: {name: 'Title', func: (i) => i.title.toLowerCase() },
-        author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() },
-        year: {name: 'Year', func: (i) => i.year}
-    }
+    sorters = new Map([
+        ['paper', {name: 'Paper order', func: (i) => i.index  }],
+        ['citations', {name: 'Citations', func: (i) => i.citation_count}],
+        ['influence', {name: 'ADS read count', func: (i) => i.read_count}],
+        ['title', {name: 'Title', func: (i) => i.title.toLowerCase() }],
+        ['author', {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() }],
+        ['year', {name: 'Year', func: (i) => i.year}]
+    ])
+    
     sorters_order = ['citations', 'influence', 'title', 'author', 'year']
     sorters_default = 'citations'
     

@@ -1,6 +1,6 @@
 import { RE_IDENTIFIER } from '../arxiv_page'
 import { Author, Paper } from './document'
-import { InspireDatasource } from './inspire_fetch'
+import { InspireDatasource } from './InspireDatasource'
 
 /* Class to convert JSON from Inspire to a Document.  */
 export class InspireToDoc {
