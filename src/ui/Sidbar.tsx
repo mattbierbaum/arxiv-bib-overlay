@@ -1,12 +1,18 @@
+import { observer } from 'mobx-react'
 import * as React from 'react'
-import { Document } from '../api/document'
+import { BibModel } from '../model/BibModel'
 
-export class Sidebar extends React.Component<{doc: Document}, {}> {
+@observer
+export class Sidebar extends React.Component<{ bibModel: BibModel}, {}> {
     public render() {        
-        if ( ! this.props.doc || ! this.props.doc.authors ) {
+        
+        if ( ! this.props.bibModel || 
+            ! this.props.bibModel.paper ||
+            ! this.props.bibModel.paper.authors
+        ) {
             return <div/>
         }
-        const au_lis = this.props.doc.authors.map(
+        const au_lis = this.props.bibModel.paper.authors.map(
             au => <li><a href={au.url} target='_blank'>{au.name}</a></li>)
         
         return (

@@ -1,13 +1,13 @@
 import { API_ARTICLE_COUNT } from '../bib_config'
 import { encodeQueryData, urlproxy } from '../bib_lib'
-import {  BaseDocument, Document } from './document'
+import {  BasePaper, Paper } from './document'
 import { InspireToDoc } from './inspire_to_doc'
 
 //type fetchCallback = (d: InspireDatasource) => void
 
 export class InspireDatasource {
     ready = {}    
-    cache: { [key: string]: Document} = {}
+    cache: { [key: string]: Paper} = {}
     aid: string
     
     //JSON objects from Inspire API
@@ -17,7 +17,7 @@ export class InspireDatasource {
         references: object[]
     }
 
-    data: BaseDocument
+    data: BasePaper
     
     url_logo = ''
     url_icon = ''
@@ -96,7 +96,7 @@ export class InspireDatasource {
     //     }
     // }
 
-    populate( base: BaseDocument, citations: Document[], references: Document[] ): void {        
+    populate( base: BasePaper, citations: Paper[], references: Paper[] ): void {        
         const output = base
         output.citations = {
             documents: citations,
@@ -155,7 +155,7 @@ export class InspireDatasource {
     //     },     this/*, query, obj, callback, index, docs*/)
     // }
 
-    get_paper(url: string, callback: (t: Document) => void) {
+    get_paper(url: string, callback: (t: Paper) => void) {
         return callback(this.cache[url])
     }
 

@@ -1,5 +1,5 @@
 import { RE_IDENTIFIER } from '../arxiv_page'
-import { Author, Document } from './document'
+import { Author, Paper } from './document'
 import { InspireDatasource } from './inspire_fetch'
 
 /* Class to convert JSON from Inspire to a Document.  */
@@ -84,7 +84,7 @@ export class InspireToDoc {
         return [json.title, auths, json.venue, json.year].join(' ').toLowerCase()
     }
 
-    outbound_names(ref: Document) {        
+    outbound_names(ref: Paper) {        
         const outs = [this.fetchConfig.shortname.toLocaleLowerCase()]
         if (ref.url_arxiv) { outs.push('arxiv') }
         if (ref.url_doi) { outs.push('doi') }
@@ -97,7 +97,7 @@ export class InspireToDoc {
        This will throw exceptions if the JSON is not as expected */
     reformat_document(json: any, index: number) {
         const arxivid = this.doc_arxiv_id(json)
-        const newdoc: Document = new Document(arxivid)
+        const newdoc: Paper = new Paper(arxivid)
         
         newdoc.title = this.doc_title(json)
         newdoc.authors = this.doc_authors(json)
@@ -118,10 +118,10 @@ export class InspireToDoc {
         return newdoc
     }
 
-    reformat_documents(jsons: any): Document[] {        
+    reformat_documents(jsons: any): Paper[] {        
         if (!jsons) { return [] }
         
-        const output: Document[] = []
+        const output: Paper[] = []
         for (let i = 0; i < jsons.length; i++) {
             const d = this.reformat_document(jsons[i], i)
             this.fetchConfig.cache[d.api] = d

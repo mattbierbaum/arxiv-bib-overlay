@@ -11,7 +11,7 @@ export class Author {
 
 }
 
-export class Document {
+export class Paper {
     title: string
     authors: Author[]
     year: string
@@ -36,15 +36,15 @@ export class Document {
 
 }
 
-export class DocumentGroup {
-    documents: Document[]
+export class PaperGroup {
+    documents: Paper[]
     header: string
     header_url: string
     description?: string
     count?: number
 }
 
-export class BaseDocument extends Document {
-    citations?: DocumentGroup
-    references?: DocumentGroup
+export class BasePaper extends Paper {
+    citations?: PaperGroup
+    references?: PaperGroup
 }
