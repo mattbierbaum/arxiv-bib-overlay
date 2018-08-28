@@ -10,11 +10,11 @@ import scholarIcon from '../assets/icon-scholar.png'
 import { API_SCHOLAR_SEARCH } from '../bib_config'
 import { encodeQueryData } from '../bib_lib'
 
-const _link = ( name: string, desc: string, url: string|null, icon: any) => 
+const _link = ( name: string, desc: string, url: string|undefined, icon: any) => 
     ! url ? null : (<span><a className={name} title={desc} href={url}><img src={icon}/></a></span>)
 
-const _modal = ( name: string, desc: string, doi: string, arxivId: string, icon: any) =>
-    (<span><a className={name} title={desc} href='TODO:implement model'><img src={icon}/></a></span>)
+const _modal = ( name: string, desc: string, doi: string, arxivId: string | undefined, icon: any) =>
+    ! arxivId ? null : (<span><a className={name} title={desc} href='TODO:implement model'><img src={icon}/></a></span>)
 
 /** Renders list of outbound links for a paper. */
 export class Outbound extends React.Component<{paper: Paper}, {}> {

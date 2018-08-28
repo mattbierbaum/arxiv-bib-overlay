@@ -1,13 +1,31 @@
 import { RE_IDENTIFIER } from '../arxiv_page'
+import { encodeQueryData } from '../bib_lib'
 import { Author, Paper } from './document'
 import { InspireDatasource } from './InspireDatasource'
 
-/* Class to convert JSON from Inspire to a Document.  */
-export class InspireToDoc {
+/* Class to convert JSON from Inspire to a Paper.  */
+export class InspireToPaper {
     fetchConfig: InspireDatasource
     
     constructor(fetch_config: InspireDatasource) {
         this.fetchConfig = fetch_config
+    }
+
+    //BDC Candidate for lib?
+    url_arxiv(arxivid: string) {
+        return arxivid ? 'https://arxiv.org/abs/' + arxivid : undefined
+    }
+
+    url_paper(id: string) {
+        return this.fetchConfig.homepage + '/record/' + id
+    }
+    
+    url_paper_api(id: string) {
+        return this.fetchConfig.api_url + '?' + encodeQueryData({p: 'recid:' + id, of: 'recjson'})
+    }
+
+    url_author(name: string, recid: number) {
+        return this.fetchConfig.homepage + '/author/profile/' + name + '?' + encodeQueryData({recid})
     }
 
     //BDC Candidate for lib?
@@ -62,7 +80,7 @@ export class InspireToDoc {
 
         const toAuth = (item) => {
             const name = [item.first_name, item.last_name].join(' ')
-            const url = this.fetchConfig.url_author(item.full_name, json.recid)
+            const url = this.url_author(item.full_name, json.recid)
             return {name, url, }
         }
         return json.authors.map(toAuth)            
@@ -107,12 +125,12 @@ export class InspireToDoc {
         newdoc.recid = json.recid.toString()
         newdoc.paperId = json.recid.toString()
         newdoc.index = index
-        newdoc.api = this.fetchConfig.url_paper_api(json.recid.toString())
-        newdoc.url = this.fetchConfig.url_paper(json.recid)
+        newdoc.api = this.url_paper_api(json.recid.toString())
+        newdoc.url = this.url_paper(json.recid)
         newdoc.doi = this.string_to_array(json.doi || '')[0]
         newdoc.arxivId = arxivid
         newdoc.url_doi = json.doi ? 'https://doi.org/' + json.doi : ''
-        newdoc.url_arxiv = this.fetchConfig.url_arxiv(arxivid)
+        newdoc.url_arxiv = this.url_arxiv(arxivid)
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         return newdoc

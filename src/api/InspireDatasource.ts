@@ -3,19 +3,12 @@ import sourceLogo from '../assets/source-inspire.png'
 import { API_ARTICLE_COUNT } from '../bib_config'
 import { encodeQueryData, urlproxy } from '../bib_lib'
 import {  BasePaper, DataSource, Paper } from './document'
-import { InspireToDoc } from './inspire_to_doc'
+import { InspireToPaper } from './InspireFromJson'
 
 export class InspireDatasource implements DataSource {
     ready = {}    
     cache: { [key: string]: Paper} = {}
     aid: string
-    
-    //JSON objects from Inspire API
-    rawdata: {
-        base: object
-        citations: object[]
-        references: object[]
-    }
 
     data: BasePaper
     
@@ -25,7 +18,7 @@ export class InspireDatasource implements DataSource {
     homepage = 'https://inspirehep.net'
     icon = icon
     logo = sourceLogo
-    pagelength = 250
+
     api_url = 'https://inspirehep.net/search'
     api_params = {
         p:  'a query',  // pattern (query)
@@ -65,34 +58,9 @@ export class InspireDatasource implements DataSource {
     // t1: "http://inspirehep.net/search?p=refersto:recid:451648&of=recjson&rg=250",
     // t2: "http://inspirehep.net/search?p=citedby:recid:451648&of=recjson&rg=250&ot=title,year,authors"
 
-    json_to_doc = new InspireToDoc(this)        
+    json_to_doc = new InspireToPaper(this)        
     
-    //BDC Candidate for lib?
-    url_arxiv(arxivid: string) {
-        return arxivid ? 'https://arxiv.org/abs/' + arxivid : null
-    }
-
-    url_paper(id: string) {
-        return this.homepage + '/record/' + id
-    }
-    
-    url_paper_api(id: string) {
-        return this.api_url + '?' + encodeQueryData({p: 'recid:' + id, of: 'recjson'})
-    }
-
-    url_author(name: string, recid: number) {
-        return this.homepage + '/author/profile/' + name + '?' + encodeQueryData({recid})
-    }
-
-    // /** Loads data from this.rawdata into this */
-    // load_data_callback(callback: (t: InspireDatasource) => void) {
-    //     if ('base' in this.ready && 'citations' in this.ready && 'references' in this.ready) {            
-    //         this.populate( this.json_to_doc.reformat_document(this.rawdata.base.docs[0]),
-    //                        this.json_to_doc.reformat_documents(this.rawdata.citations.docs),
-    //                        this.json_to_doc.reformat_documents(this.rawdata.references.docs))                
-    //         callback(this)
-    //     }
-    // }
+    pagelength = 250
 
     populate( base: BasePaper, citations: Paper[], references: Paper[] ): void {        
         const output = base
@@ -112,61 +80,6 @@ export class InspireDatasource implements DataSource {
         }
         this.data = output             
     }
-
-    // load_all(query: string, obj: 'base' | 'citations' | 'references', callback: fetchCallback, index: number, docs) {
-    //     const params = { ...this.api_params }
-    //     params.p = query
-    //     params.jrec = index * this.pagelength
-    //     const url = this.api_url + '?' + encodeQueryData(params)        
-        
-    //     if (obj in this.rawdata) {
-    //         this.ready[obj] = true
-    //         this.load_data_callback(callback)
-    //         return
-    //     }
-
-    //     $.ajax({
-    //         type: 'GET',
-    //         url: urlproxy(url),
-    //         dataType: 'text',
-    //         async: true,
-    //         //timeout: API_TIMEOUT,
-    //         //error: this.query_error,
-    //         success: (data) => {
-    //                 if (data) {
-    //                     data = JSON.parse(data)
-    //                     /*if (data.length >= this.pagelength){
-    //                         this.load_all(query, obj, callback, index+1, $.merge(docs, data))
-    //                     } else {*/
-    //                     this.ready[obj] = true
-    //                     this.rawdata[obj] = {}
-    //                     this.rawdata[obj].docs = [].concat(docs, data) //BrianC: was $.merge( docs,data)
-    //                     this.load_data_callback(callback)
-    //                     //}
-    //                 } else {
-    //                     this.ready[obj] = true
-    //                     this.rawdata[obj] = {}
-    //                     this.rawdata[obj].docs = docs
-    //                     this.load_data_callback(callback)
-    //                 }
-    //         }
-    //     },     this/*, query, obj, callback, index, docs*/)
-    // }
-
-    get_paper(url: string, callback: (t: Paper) => void) {
-        return callback(this.cache[url])
-    }
-
-    // /* Starts 3 requests to inspire, and joins results in load_data_callback() */
-    // async_load(arixv_id: string, callback: fetchCallback) {
-    //     this.ready = {}
-    //     //this.aid = get_current_article()
-    //     this.aid = arixv_id
-    //     this.load_all('eprint:' + this.aid, 'base', callback, 0, [])
-    //     this.load_all('refersto:eprint:' + this.aid, 'citations', callback, 0, [])
-    //     this.load_all('citedby:eprint:' + this.aid, 'references', callback, 0, [])
-
-    // }
 
     fetch_params( query: string, index: number ): string {
         const params = { ...this.api_params }

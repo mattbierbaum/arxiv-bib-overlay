@@ -1,11 +1,15 @@
 import { action, observable } from 'mobx'
+import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 
 export class BibModel {    
     @observable
-    inspireDs: InspireDatasource = new InspireDatasource()
+    inspireDs = new InspireDatasource()
     
+    @observable
+    adsDs = new AdsDatasource()
+
     @observable
     currentDs: DataSource
 

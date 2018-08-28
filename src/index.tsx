@@ -1,7 +1,6 @@
 import DevTools from 'mobx-react-devtools'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import './index.css'
 import { BibModel } from './model/BibModel'
 import registerServiceWorker from './registerServiceWorker'
 import { BibMain } from './ui/BibMain'

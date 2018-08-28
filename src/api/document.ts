@@ -23,14 +23,14 @@ export class Paper {
     api: string
     url: string
     doi: string
-    arxivId: string
+    arxivId?: string 
     url_doi: string
-    url_arxiv: string | null
+    url_arxiv?: string
 
     searchline: string
-    outbound: string[]
-
-    constructor( arxivId: string) {
+    outbound: string[]    
+    
+    constructor( arxivId?: string) {
         this.arxivId = arxivId
     }
 
@@ -59,11 +59,11 @@ export interface DataSource {
     cache: { [key: string]: Paper}
     aid: string
     
-    rawdata: {
-        base: object
-        citations: object[]
-        references: object[]
-    }
+    // rawdata: {
+    //     base: object
+    //     citations: object[]
+    //     references: object[]
+    // }
 
     data: BasePaper
     
@@ -77,7 +77,7 @@ export interface DataSource {
     longname: string 
     categories: Set<string> //= new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])
     homepage: string
-    pagelength: number
+
     api_url: string
     api_params: object
 
