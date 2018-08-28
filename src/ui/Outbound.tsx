@@ -1,30 +1,45 @@
 import * as React from 'react'
 import { Paper } from '../api/document'
+import adsIcon from '../assets/icon-ads.png'
+import arxivIcon from '../assets/icon-arxiv.png'
+import citeIcon from '../assets/icon-cite.png'
+import doiIcon from '../assets/icon-doi.png'
+import inspireIcon from '../assets/icon-inspire.png'
+import s2Icon from '../assets/icon-s2.png'
+import scholarIcon from '../assets/icon-scholar.png'
+import { API_SCHOLAR_SEARCH } from '../bib_config'
+import { encodeQueryData } from '../bib_lib'
 
-/** Renders outbound links for a paper. */
+const _link = ( name: string, desc: string, url: string|null, icon: any) => 
+    ! url ? null : (<span><a className={name} title={desc} href={url}><img src={icon}/></a></span>)
+
+const _modal = ( name: string, desc: string, doi: string, arxivId: string, icon: any) =>
+    (<span><a className={name} title={desc} href='TODO:implement model'><img src={icon}/></a></span>)
+
+/** Renders list of outbound links for a paper. */
 export class Outbound extends React.Component<{paper: Paper}, {}> {
-    render() {
-        // TODO not impelemented 
-        // This is just place holder example html
-        return (
-        <div className = 'bib-outbound' >
-            <span className='exitarrow movearrow'>↳ </span>
-
-            <span><a className='inspire' title='Inspire HEP' 
-                href='https://inspirehep.net/record/110328' target='_blank'>
-            <img src='/bib-overlay/static/icon-inspire.png'/></a></span>
-
-            <span><a className='doi' title='Journal article'
-                    href='https://doi.org/10.1103/PhysRevD.15.2752' target='_blank'>
-            <img src='/bib-overlay/static/icon-doi.png' /></a></span>
-
-            <span><a className='scholar' title='Google Scholar'
-                    href='https://scholar.google.com/scholar?q=blablalba'>
-            <img src='/bib-overlay/static/icon-scholar.png' /></a></span>
-
-            <span><a className='cite' title='Citation entry'>
-            <img src='/bib-overlay/static/icon-cite.png' /></a></span>
-        </div>
-        )
+    
+    make_link = {
+        ads(ref: Paper) {return _link('ads', 'NASA ADS', ref.url, adsIcon )},
+        s2(ref: Paper) {return _link('s2', 'Semantic Scholar', ref.url, s2Icon)},
+        inspire(ref: Paper) {return _link('inspire', 'Inspire HEP', ref.url, inspireIcon)},
+        arxiv(ref: Paper) {return _link('arxiv', 'ArXiv article', ref.url_arxiv, arxivIcon)},
+        doi(ref: Paper) {return _link('doi', 'Journal article', ref.url_doi, doiIcon)},
+        cite(ref: Paper) {return _modal('cite', 'Citation entry', ref.doi, ref.arxivId, citeIcon)},
+        scholar(ref: Paper) {
+            return _link( 'scholar', 'Google Scholar',
+                          API_SCHOLAR_SEARCH + '?' + encodeQueryData({q: ref.title}), scholarIcon)},
     }
+    
+    render() {
+        const ref = this.props.paper
+        const outbounds: JSX.Element[] = ref.outbound.map( ob_style  => this.make_link[ob_style](ref) )
+
+        return(
+            <div className = 'bib-outbound' >
+                <span className='exitarrow movearrow'>↳ </span>
+                {outbounds}
+            </div>            
+        )
+    }   
 }
