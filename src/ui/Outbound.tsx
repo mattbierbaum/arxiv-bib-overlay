@@ -11,10 +11,11 @@ import { API_SCHOLAR_SEARCH } from '../bib_config'
 import { encodeQueryData } from '../bib_lib'
 
 const _link = ( name: string, desc: string, url: string|undefined, icon: any) => 
-    ! url ? null : (<span><a className={name} title={desc} href={url}><img src={icon}/></a></span>)
+    ! url ? null : (<span key={name + url}><a className={name} title={desc} href={url}><img src={icon}/></a></span>)
 
 const _modal = ( name: string, desc: string, doi: string, arxivId: string | undefined, icon: any) =>
-    ! arxivId ? null : (<span><a className={name} title={desc} href='TODO:implement model'><img src={icon}/></a></span>)
+    ! arxivId ? null : (<span key={name + arxivId}>
+    <a className={name} title={desc} href='TODO:implement model'><img src={icon}/></a></span>)
 
 /** Renders list of outbound links for a paper. */
 export class Outbound extends React.Component<{paper: Paper}, {}> {

@@ -15,7 +15,7 @@ export class PaperDiv extends React.Component<{paper: Paper}, {}> {
             <span className='citations'>(citations: {paper.citation_count})</span>
           </span>
           <div className='bib-authors'>
-            { paper.authors.map( au => (<a href={au.url}>{au.name}</a>))}            
+            { paper.authors.map( au => (<a key={au.url} href={au.url}>{au.name}</a>))}            
           </div>
           <Outbound paper={this.props.paper}/>
         </div>

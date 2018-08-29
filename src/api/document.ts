@@ -42,6 +42,7 @@ export class PaperGroup {
     header_url: string
     description?: string
     count?: number
+    sorting: SorterConfig
 }
 
 export class BasePaper extends Paper {
@@ -49,9 +50,15 @@ export class BasePaper extends Paper {
     references?: PaperGroup
 }
 
+export interface SorterConfig {
+    sorters: {[name: string]: Sorter}
+    sorters_order: string[]
+    sorters_default: string
+}
+
 export interface Sorter {
     name: string
-    func(paper: Paper): string | number
+    func: (paper: Paper) => string | number
 }
 
 export interface DataSource {    
@@ -81,9 +88,7 @@ export interface DataSource {
     api_url: string
     api_params: object
 
-    sorters: Map<string, Sorter>        
-    sorters_order: string[]
-    sorters_default: string    
+    sorting: SorterConfig
 
     fetch_all(arxiv_id: string): Promise<DataSource>
 }    

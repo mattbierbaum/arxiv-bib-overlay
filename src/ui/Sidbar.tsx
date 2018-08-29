@@ -13,7 +13,7 @@ export class Sidebar extends React.Component<{ bibModel: BibModel}, {}> {
         }
         
         const au_lis = this.props.bibModel.paper.authors.map( au => 
-          <li><a href={au.url} target='_blank'>{au.name}</a></li> )
+          <li key={au.url}><a href={au.url}>{au.name}</a></li> )
         
         return (
           <div className='delete bib-sidebar'>          

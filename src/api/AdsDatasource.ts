@@ -38,50 +38,55 @@ export class AdsDatasource implements DataSource {
         rows: API_ARTICLE_COUNT,
         sort: 'citation_count desc',        
     }
-
+    
     // TODO investigate Sorters, sort_order and sorters_default, these just copied from InspireDatasource
-    sorters = new Map([
-        ['paper', {name: 'Paper order', func: (i) => i.index  }],
-        ['citations', {name: 'Citations', func: (i) => i.citation_count}],
-        ['influence', {name: 'ADS read count', func: (i) => i.read_count}],
-        ['title', {name: 'Title', func: (i) => i.title.toLowerCase() }],
-        ['author', {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() }],
-        ['year', {name: 'Year', func: (i) => i.year}]
-    ])    
-    sorters_order = ['citations', 'influence', 'title', 'author', 'year']
-    sorters_default = 'citations'
+    sorting = {
+        sorters: {
+            paper: {name: 'Paper order', func: (i) => i.index  },
+            citations: {name: 'Citations', func: (i) => i.citation_count},
+            influence: {name: 'ADS read count', func: (i) => i.read_count},
+            title: {name: 'Title', func: (i) => i.title.toLowerCase() },
+            author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() },
+            year: {name: 'Year', func: (i) => i.year}
+        },
 
-    ads_url_ui = `${this.base_url}/#search/`
+    sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
+        sorters_default: 'citations'
+    }
 
-    json_to_doc = new AdsToPaper(this)
+ads_url_ui = `${this.base_url}/#search/`
 
-    populate( base: BasePaper, citations: Paper[], references: Paper[] ): void {        
+json_to_doc = new AdsToPaper(this)
+
+populate( base: BasePaper, citations: Paper[], references: Paper[] ): void {        
         const output = base
         output.citations = {
             documents: citations,
             header: 'Citations',
             header_url: output.url + '/citations',
             description: '',
-            count: output.citation_count
+            count: output.citation_count,
+            sorting: this.sorting,
         }        
         output.references = {
             documents: references,
             header: 'References',
             header_url: output.url + '/references',
             description: '',
-            count: references.length
+            count: references.length,
+            sorting: this.sorting
         }
         this.data = output             
     }
 
-    fetch_params( query: string, index: number ): string {                
+fetch_params( query: string, index: number ): string {                
         const params = { ...this.api_params }        
         params.p = query        
         return encodeQueryData(params)
     }
     
     /** Fetch for a query and return a Promise with Object parsed from JSON. */
-    fetch_docs(query: string, index: number ): Promise<any> {              
+fetch_docs(query: string, index: number ): Promise < any > {              
         const url = this.api_url + '?' + this.fetch_params(query , index)
         //TODO need          var auth = 'Bearer '+this.api_key;
         // and add that s a request header        
@@ -92,7 +97,7 @@ export class AdsDatasource implements DataSource {
     }   
     
     /** Fetches base, citations and references, then populates this InspireDatasource. */
-    fetch_all(arxiv_id: string): Promise<AdsDatasource> {
+fetch_all(arxiv_id: string): Promise < AdsDatasource > {
         this.aid = arxiv_id
         return Promise.all(
             [this.fetch_docs(`'arXiv:${arxiv_id}`,  0),

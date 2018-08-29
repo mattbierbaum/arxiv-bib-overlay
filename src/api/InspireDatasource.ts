@@ -42,18 +42,19 @@ export class InspireDatasource implements DataSource {
         jrec: 0     // jump to record
     }
 
-    sorters = new Map([
-        ['paper', {name: 'Paper order', func: (i) => i.index  }],
-        ['citations', {name: 'Citations', func: (i) => i.citation_count}],
-        ['influence', {name: 'ADS read count', func: (i) => i.read_count}],
-        ['title', {name: 'Title', func: (i) => i.title.toLowerCase() }],
-        ['author', {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() }],
-        ['year', {name: 'Year', func: (i) => i.year}]
-    ])
-    
-    sorters_order = ['citations', 'influence', 'title', 'author', 'year']
-    sorters_default = 'citations'
-    
+    sorting = {
+        sorters: {
+            paper: {name: 'Paper order', func: (i) => i.index  },
+            citations: {name: 'Citations', func: (i) => i.citation_count},
+            influence: {name: 'ADS read count', func: (i) => i.read_count},
+            title: {name: 'Title', func: (i) => i.title.toLowerCase() },
+            author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() },
+            year: {name: 'Year', func: (i) => i.year}
+        },    
+        sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
+        sorters_default: 'citations',
+    }
+
     // t0: "http://inspirehep.net/search?p=hep-th/9711201&of=recjson&ot=recid,number_of_citations,authors,title,year",
     // t1: "http://inspirehep.net/search?p=refersto:recid:451648&of=recjson&rg=250",
     // t2: "http://inspirehep.net/search?p=citedby:recid:451648&of=recjson&rg=250&ot=title,year,authors"
@@ -69,14 +70,16 @@ export class InspireDatasource implements DataSource {
             header: 'Citations',
             header_url: output.url + '/citations',
             description: '',
-            count: output.citation_count
+            count: output.citation_count,
+            sorting: this.sorting,
         }        
         output.references = {
             documents: references,
             header: 'References',
             header_url: output.url + '/references',
             description: '',
-            count: references.length
+            count: references.length,
+            sorting: this.sorting,
         }
         this.data = output             
     }
