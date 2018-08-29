@@ -65,12 +65,6 @@ export interface DataSource {
     ready: object
     cache: { [key: string]: Paper}
     aid: string
-    
-    // rawdata: {
-    //     base: object
-    //     citations: object[]
-    //     references: object[]
-    // }
 
     data: BasePaper
     
@@ -82,9 +76,10 @@ export interface DataSource {
 
     shortname: string
     longname: string 
-    categories: Set<string> //= new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])
     homepage: string
 
+    categories: Set<string> //= new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])
+        
     api_url: string
     api_params: object
 

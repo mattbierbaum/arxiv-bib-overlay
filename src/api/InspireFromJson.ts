@@ -77,11 +77,11 @@ export class InspireToPaper {
 
     doc_authors(json: any): Author[] {
         if (!json.authors) { return [] }
-
         const toAuth = (item) => {
-            const name = [item.first_name, item.last_name].join(' ')
-            const url = this.url_author(item.full_name, json.recid)
-            return {name, url, }
+            const au = new Author()
+            au.name = [item.first_name, item.last_name].join(' ')
+            au.url = this.url_author(item.full_name, json.recid)
+            return au
         }
         return json.authors.map(toAuth)            
     }

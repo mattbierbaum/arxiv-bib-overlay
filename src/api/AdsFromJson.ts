@@ -10,7 +10,7 @@ export class AdsToPaper {
     constructor( fetchConfig: AdsDatasource) {
         this.fetchConfig = fetchConfig
     }
-    
+
     ads_url_part(field: string, value: string) {
         return this.fetchConfig.ads_url_ui + encodeQueryData({q: field + ':"' + value + '"'})
     }
@@ -39,14 +39,13 @@ export class AdsToPaper {
     }
 
     reformat_authors(auths: any): Author[] {
-        if (!auths) { return [] }
-
-        const toAuth = (item) => {
-            const name = this.reverse_author(item)
-            const url = this.ads_url_author(item)            
-            return { name, url, }
-        }
-        return auths.map(toAuth)
+        if (!auths) { return [] }        
+        return auths.map((item) => {
+            const au = new Author()
+            au.name = this.reverse_author(item)
+            au.url = this.ads_url_author(item)            
+            return au
+        })
     }
 
     reformat_title(title: any) {
