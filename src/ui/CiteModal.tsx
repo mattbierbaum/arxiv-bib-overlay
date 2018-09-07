@@ -7,6 +7,9 @@ import { API_ARXIV_METADATA, API_CROSSREF_CITE } from '../bib_config'
 
 export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     @observable
+    active: boolean = true
+
+    @observable
     source: 'arxiv' | 'doi' = 'arxiv'
 
     @observable
@@ -35,6 +38,13 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
 
     query_doi() {
         const url: string = API_CROSSREF_CITE + this.props.paper.doi
+
+        fetch(url)
+            .then(resp => resp.json())
+            .then(json => {
+                this.content = this.format_bibtex_doi(json)
+            })
+
         return url
         /*$.ajax({
             type: 'GET',
@@ -59,12 +69,17 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
         if (!paper.doi && !paper.arxivId)
             return
 
+        if (!this.active)
+            return (<div></div>)
+
+        this.query_doi()
+
         return (
     	    <div className='modal'>
                 <div className='modal-content'>
                     <div className='modal-title'>
                         <h2>Export formatted citation</h2>
-                        <span className='modal-close'>&times;</span>
+                        <span className='modal-close' onClick={() => {this.active = false;}}>&times;</span>
                     </div>
                     <div className='modal-buttons'>
                         <div className='modal-button-group'>
