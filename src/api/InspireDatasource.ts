@@ -6,7 +6,6 @@ import {  BasePaper, DataSource, Paper } from './document'
 import { InspireToPaper } from './InspireFromJson'
 
 export class InspireDatasource implements DataSource {
-    ready = {}    
     cache: { [key: string]: Paper} = {}
     aid: string
 
@@ -18,6 +17,7 @@ export class InspireDatasource implements DataSource {
     homepage = 'https://inspirehep.net'
     icon = icon
     logo = sourceLogo
+    pagelength = 250
 
     api_url = 'https://inspirehep.net/search'
     api_params = {
@@ -55,13 +55,7 @@ export class InspireDatasource implements DataSource {
         sorters_default: 'citations',
     }
 
-    // t0: "http://inspirehep.net/search?p=hep-th/9711201&of=recjson&ot=recid,number_of_citations,authors,title,year",
-    // t1: "http://inspirehep.net/search?p=refersto:recid:451648&of=recjson&rg=250",
-    // t2: "http://inspirehep.net/search?p=citedby:recid:451648&of=recjson&rg=250&ot=title,year,authors"
-
     json_to_doc = new InspireToPaper(this)        
-    
-    pagelength = 250
 
     populate( base: BasePaper, citations: Paper[], references: Paper[] ): void {        
         const output = base

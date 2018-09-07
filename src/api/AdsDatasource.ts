@@ -8,7 +8,6 @@ import {  BasePaper, DataSource, Paper } from './document'
 
 /** Class to fetch references from ADS. */
 export class AdsDatasource implements DataSource {
-    ready = {}
     cache: {[key: string]: Paper} = {}
     aid: string 
 

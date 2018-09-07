@@ -107,7 +107,6 @@ export class InspireToPaper {
         if (ref.url_arxiv) { outs.push('arxiv') }
         if (ref.url_doi) { outs.push('doi') }
         outs.push('scholar')
-        if (ref.doi || ref.arxivId) { outs.push('cite') }
         return outs
     }
 

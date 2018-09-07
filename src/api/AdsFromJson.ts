@@ -97,7 +97,6 @@ export class AdsToPaper {
         if (ref.url_arxiv) { outs.push('arxiv') }
         if (ref.url_doi) { outs.push('doi') }
         outs.push('scholar')
-        if (ref.doi || ref.arxivId) { outs.push('cite') }
         return outs
     }
 
@@ -113,26 +112,8 @@ export class AdsToPaper {
         newdoc.paperId = json.bincode || ''
         newdoc.year = json.year || ''
         newdoc.venue = json.pub || ''
-        //newdoc.identifier = json.identifier || ''
         newdoc.citation_count = json.citation_count
 
-        // const newdoc = {
-        //     title: this.reformat_title(json.title),
-        //     authors: this.reformat_authors(json.author),
-        //     api: this.ads_url_bibcode(json.bibcode),
-        //     url: this.ads_url_bibcode(json.bibcode),
-        //     url_arxiv: this.ads_url_arxiv(json.identifier),
-        //     url_doi: this.ads_url_doi(json),
-        //     arxivId: this.get_eprint(json.identifier),
-        //     doi: (json.doi || [''])[0],
-        //     paperId: json.bibcode || '',
-        //     year: json.year || '',
-        //     venue: json.pub || '',
-        //     identifier: json.identifier || '',
-        //     citation_count: json.citation_count,
-        //     read_count: json.read_count,
-        //     index,
-        // }
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         return newdoc
@@ -149,6 +130,4 @@ export class AdsToPaper {
         }
         return output
     }
-
 }
-    

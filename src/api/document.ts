@@ -17,15 +17,18 @@ export class Paper {
     year: string
     venue: string
     citation_count: number
-    recid: string
-    paperId: string
     index: number
     api: string
     url: string
-    doi: string
-    arxivId?: string 
-    url_doi: string
+    doi: string | undefined
+    arxivId: string | undefined
+    url_doi?: string
     url_arxiv?: string
+
+    // elements that are specific to a certain datasource, should
+    // possibly be subclasses for each ADS, S2...
+    recid?: string
+    paperId?: string
 
     searchline: string
     outbound: string[]    
@@ -62,7 +65,6 @@ export interface Sorter {
 }
 
 export interface DataSource {    
-    ready: object
     cache: { [key: string]: Paper}
     aid: string
 
