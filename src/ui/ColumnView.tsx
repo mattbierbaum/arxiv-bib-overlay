@@ -58,9 +58,9 @@ export class ColumnView extends React.Component<{ paperGroup: PaperGroup, name: 
         </span>        
       </div>    
       <div className='bib-utils'>
-        <div className='center'>{this.create_paging_div()}</div>
-        <div className='center'>{this.create_sorter_div()}</div>        
         <div className='center'>{this.create_filter_div()}</div>
+        <div className='center'>{this.create_sorter_div()}</div>        
+        <div className='center'>{this.create_paging_div()}</div>
       </div>
       <div>
         {papers.map(paper => <PaperDiv key={paper.recid || paper.url} paper={paper}/>)}

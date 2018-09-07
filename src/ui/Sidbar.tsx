@@ -6,23 +6,22 @@ import { Outbound } from './Outbound'
 
 @observer
 export class Sidebar extends React.Component<{ bibModel: BibModel}, {}> {
-    public render() {        
-        
+    public render() {
+
         if ( ! this.props.bibModel || ! this.props.bibModel.paper || ! this.props.bibModel.paper.authors) {
             return <div>loading bibs...</div>
         }
-        
-        const au_lis = this.props.bibModel.paper.authors.map( au => 
+
+        const au_lis = this.props.bibModel.paper.authors.map( au =>
           <li key={au.url}><a href={au.url}>{au.name}</a></li> )
-        
+
         return (
-          <div className='delete bib-sidebar'>          
+          <div className='delete bib-sidebar'>
             <div className='bib-sidebar-paper' >
               <h3>Citations for authors</h3>
-              <ul className='bib-sidebar-authors'>{au_lis}</ul>            
-              <Outbound paper={this.props.bibModel.paper}/>                        
+              <ul className='bib-sidebar-authors'>{au_lis}</ul>
+              <Outbound paper={this.props.bibModel.paper}/>
             </div>
-            
             <div className='bib-sidebar-msgs nodisplay'></div>
             <div className='bib-sidebar-source topborder'>
               <span>Data source:  </span>
@@ -33,4 +32,3 @@ export class Sidebar extends React.Component<{ bibModel: BibModel}, {}> {
       )
     }
   }
-  

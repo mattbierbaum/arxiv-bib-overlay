@@ -14,7 +14,7 @@ const bibModel: BibModel = new BibModel()
 // @ts-ignore Putting this on the document to access in the browser console
 document.bibs = bibModel
 
-bibModel.currentDs = bibModel.inspireDs
+bibModel.currentDs = bibModel.adsDs
 
 ReactDOM.render(
   <BibMain bibModel={bibModel}  />, 
