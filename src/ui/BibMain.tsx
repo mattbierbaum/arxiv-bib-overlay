@@ -1,8 +1,9 @@
-import { observer } from 'mobx-react'
-import * as React from 'react'
 import '../App.css'
+import * as React from 'react'
+import { observer } from 'mobx-react'
 import { BibModel } from '../model/BibModel'
 import { ColumnView } from './ColumnView'
+import { spinner } from './Spinner'
 
 @observer
 export class BibMain extends React.Component<{bibModel: BibModel}, {}> {
@@ -11,7 +12,7 @@ export class BibMain extends React.Component<{bibModel: BibModel}, {}> {
         const ds = bibModel.currentDs
 
         if (! this.props.bibModel.references && ! this.props.bibModel.citations) {
-            return (<div>loading...</div>)
+            return spinner()
         } else {
             return(
                 <div className='bib-main'>
