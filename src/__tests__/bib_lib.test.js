@@ -1,4 +1,4 @@
-import { InspireDatasource } from '../api/inspire_fetch'
+import { InspireDatasource } from '../api/InspireDatasource'
 
 describe( 'encoding ', () => {
     const ds = new InspireDatasource() 

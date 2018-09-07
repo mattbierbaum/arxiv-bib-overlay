@@ -1,8 +1,8 @@
-import { InspireToDoc } from '../api/inspire_to_doc'
-import { InspireDatasource } from '../api/inspire_fetch'
+import { InspireToPaper } from '../api/InspireFromJson'
+import { InspireDatasource } from '../api/InspireDatasource'
 
 describe( 'InspireToDoc', () => {
-    const itd = new InspireToDoc( new InspireDatasource() )
+    const itd = new InspireToPaper( new InspireDatasource() )
 
     it('constructs', () => {
         expect( itd ).not.toBeFalsy()
