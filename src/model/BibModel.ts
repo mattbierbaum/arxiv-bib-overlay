@@ -32,7 +32,7 @@ export class BibModel {
         //load the first
         //copy results into this.paper this.citations this.references
         
-        this.inspireDs.fetch_all('0801.1021')
+        this.adsDs.fetch_all('0801.1021')
             .then(ds => this.populateFromDsResult(ds) )        
     }
 

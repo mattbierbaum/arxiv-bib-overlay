@@ -83,8 +83,7 @@
             "check-typecast"
         ],
         "max-classes-per-file":false,
-        "member-access": false,
-        "no-unused-variable": [true, {"ignore-pattern": "^_"}]
+        "member-access": false
     },
 
     "jsRules":{        
@@ -102,7 +101,7 @@
         "eofline": false,
         "forin": true,
         "indent": [ true, "spaces" ],
-        "interface-name": [true, "never-prefix"],
+        "interface-name": [false, "never-prefix"],
         "jsdoc-format": true,
         "jsx-alignment" : false,
         "jsx-no-lambda": false,
@@ -155,8 +154,7 @@
             "check-typecast"
         ],
         "max-classes-per-file":false,
-        "member-access": false,
-        "no-unused-variable": [true, {"ignore-pattern": "^_"}]
+        "member-access": false
     },
     "linterOptions": {
     "exclude": [
