@@ -14,8 +14,9 @@ import { cite_modal } from './CiteModal'
 const imgstyle = {height: '18px', width: 'auto'}
 
 const _link = (name: string, desc: string, url: string|undefined, icon: any) => {
-    if (!url)
-        return null 
+    if (!url) {
+        return null
+    } 
     return (
         <span key={name + url}>
             <a className={name} title={desc} href={url}>
@@ -26,8 +27,9 @@ const _link = (name: string, desc: string, url: string|undefined, icon: any) => 
 }
 
 const _modal = (name: string, desc: string, paper: Paper, icon: any) => {
-    if (!paper.arxivId && !paper.doi)
+    if (!paper.arxivId && !paper.doi) {
         return (<div></div>)
+    }
     return (
         <span key={name + paper.arxivId}>
             <a className={name} title={desc} onClick={() => cite_modal(paper)}>
@@ -46,7 +48,7 @@ const make_link = {
     cite(ref: Paper) {return _modal('cite', 'Citation entry', ref, citeIcon)},
     scholar(ref: Paper) {
         return _link('scholar', 'Google Scholar',
-            API_SCHOLAR_SEARCH + '?' + encodeQueryData({q: ref.title}), scholarIcon
+                     API_SCHOLAR_SEARCH + '?' + encodeQueryData({q: ref.title}), scholarIcon
         )
     },
 }
@@ -68,13 +70,13 @@ export class Outbound extends React.Component<{paper: Paper}, {}> {
 export class OutboundCite extends React.Component<{paper: Paper}, {}> {
     render() {
         const ref = this.props.paper
-        const outbound: JSX.Element = make_link['cite'](ref)
+        const outbound: JSX.Element = make_link.cite(ref)
 
         if (!ref.doi && !ref.arxivId) {
-            return (<div className="bib-outbound"></div>)
+            return (<div className='bib-outbound'></div>)
         }
         return (
-            <div className="bib-outbound">
+            <div className='bib-outbound'>
                 {outbound}
             </div>
         )

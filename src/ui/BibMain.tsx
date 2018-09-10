@@ -1,6 +1,6 @@
-import '../App.css'
-import * as React from 'react'
 import { observer } from 'mobx-react'
+import * as React from 'react'
+import '../App.css'
 import { BibModel } from '../model/BibModel'
 import { ColumnView } from './ColumnView'
 import { spinner } from './Spinner'
