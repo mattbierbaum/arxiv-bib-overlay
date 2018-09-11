@@ -1,13 +1,15 @@
 import { computed, observable } from 'mobx'
 import { observer } from 'mobx-react'
 import * as React from 'react'
-import { Paper, PaperGroup, SorterConfig } from '../api/document'
-import { PAGE_LENGTH } from '../bib_config'
+import { DataSource, Paper, PaperGroup, SorterConfig } from '../api/document'
+import { get_current_article } from '../arxiv_page'
+import { API_ARTICLE_COUNT, PAGE_LENGTH } from '../bib_config'
 import { sorter } from './ColumnSorter'
 import { PaperDiv } from './PaperDiv'
 
 @observer
-export class ColumnView extends React.Component<{paperGroup: PaperGroup, name: string}, {}> {
+export class ColumnView extends React.Component<{dataSource: DataSource, paperGroup: PaperGroup,
+    name: string}, {}> {
     /**
      * Filtered sorted papers for this column.
      * @computed makes it so this value will trigger a render change when
@@ -46,6 +48,7 @@ export class ColumnView extends React.Component<{paperGroup: PaperGroup, name: s
     render() {
         const filt = this.fdata
         const group = this.props.paperGroup
+        const datasource = this.props.dataSource
         const papers = (group && this.pdata) || []
         if (!this.props.paperGroup) {
             return null
@@ -58,14 +61,40 @@ export class ColumnView extends React.Component<{paperGroup: PaperGroup, name: s
             count_msg = `(${group.count})`
         }
 
+        const mailto = (
+            'mailto:' + datasource.email +
+            '?subject=Reference and citation data for arXiv article ' +
+            get_current_article()
+        )
+
+        const aside = (
+            `Only displaying the ${API_ARTICLE_COUNT} most cited articles.` +
+            `For all articles, follow this link to ${datasource}.`
+        )
+        const star = (
+            group.documents.length === API_ARTICLE_COUNT ?
+            <a title={aside} href={group.header_url} target='_blank' className='bib-star'>*</a> : null
+        )
+
         return (
             <div className='bib-col' id={'col-' + this.props.name.toLocaleLowerCase()}>
               <div className='bib-col-header'>
                 <span className='bib-col-center'>
                 <a className='bib-col-title' href={group.header_url}>
-                {this.props.name} {count_msg}
+                {this.props.name} {count_msg} {star}
                 </a>
                 </span>
+                <div className='bib-branding bib-col-center'>
+                  <div className='bib-col-aside bib-branding-info'>
+                    <span>Data provided by:</span><br/>
+                    <span>(<a href={mailto}>report data issues</a>)</span>
+                  </div>
+                  <div className='bib-branding-logo'>
+                    <a target='_blank' href={datasource.homepage}>
+                      <img src={datasource.logo} height='32px' width='auto'/>
+                    </a>
+                  </div>
+                </div>
               </div>
               <div className='bib-utils'>
                 <div className='center'>{this.create_filter_div()}</div>
@@ -137,7 +166,7 @@ export class ColumnView extends React.Component<{paperGroup: PaperGroup, name: s
               {this.sort_options(this.props.paperGroup.sorting)}
               </select>
 
-              <span className='sort-arrow sort-label'>
+              <span className='bib-sort-arrow sort-label'>
               <a onClick={(_) => this.sort_order = this.sort_order === 'up' ? 'down' : 'up'}>
                 <span className={this.sort_order !== 'up' ? 'disabled' : ''}
                   title='Sort ascending'>▲</span>
@@ -195,7 +224,10 @@ export class ColumnView extends React.Component<{paperGroup: PaperGroup, name: s
             return <li className={classname}><span>{txt}</span></li>
         }
         const _link = (n: number, txt?: string) => {
-            return ( <li><a onClick={(e) => this.page = n}>{(txt === undefined) ? n : txt}</a></li> )
+            return (
+                <li><a href='javascript:;' onClick={(e) => this.page = n}>
+                {(txt === undefined) ? n : txt}</a></li>
+            )
         }
         const _inclink = (dir: -1|1) => { /* << >> links */
             const txt = (dir < 0) ? langle : rangle
@@ -232,10 +264,12 @@ export class ColumnView extends React.Component<{paperGroup: PaperGroup, name: s
         page_links.push(_inclink(+1))
 
         return (
-            <div className= 'center' >
-              <span>Pages:</span>
-              <ul className='bib-page-list'>{page_links}</ul>
-              {this.page_dropdown_select( L )}
+            <div className='center'>
+              <span>
+                <span>Pages:</span>
+                <ul className='bib-page-list'>{page_links}</ul>
+                {this.page_dropdown_select(L)}
+              </span>
             </div >
         )
     }

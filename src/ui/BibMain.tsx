@@ -11,19 +11,17 @@ export class BibMain extends React.Component<{bibModel: BibModel}, {}> {
         const bibModel = this.props.bibModel
         const ds = bibModel.currentDs
 
-        if (! this.props.bibModel.references && ! this.props.bibModel.citations) {
+        if (!this.props.bibModel.references && !this.props.bibModel.citations) {
             return spinner()
         } else {
             return(
                 <div className='bib-main'>
-                  <h1 className='bib-header'>
-                    <span><a href={ds.homepage}><img src={ds.logo}/></a></span>
-                  </h1>            
                   <div className='bib-col2'>
-                    <ColumnView name='References' paperGroup={bibModel.references}/>
-                    <ColumnView name='Citations' paperGroup={bibModel.citations}/>
+                    <ColumnView name='References' paperGroup={bibModel.references} dataSource={ds}/>
+                    <ColumnView name='Citations' paperGroup={bibModel.citations} dataSource={ds}/>
                   </div>
-                </div >)
+                </div>
+            )
         }        
     }
 }

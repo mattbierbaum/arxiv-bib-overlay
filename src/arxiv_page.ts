@@ -1,12 +1,6 @@
 /** Functions to interact with the arxiv page ex. getting the arXiv ID of the page. */
 import { EXTENSION_ASSET_BASE, URL_ASSET_BASE } from './bib_config'
 
-/** FIX ME: Brian C has not fixed or eliminated JQuery */
-function $(...args: any[]) {
-    console.log( 'JQuery not yet fixed up' )
-    return {} as any
-}
-
 export const RE_IDENTIFIER = new RegExp(
     '(?:' +                                           // begin OR group
       '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)' +   // there is a new-form arxiv id
@@ -45,6 +39,13 @@ function allmatches(str: string , regex: RegExp, index: number): string[] {
     return matches
 }
 
+function element_text(obj: HTMLElement): string {
+    if (obj && obj.textContent) {
+        return obj.textContent
+    }
+    return ''
+}
+
 //=============================================================
 // category extraction methods
 function minor_to_major(category: string) {
@@ -54,14 +55,17 @@ function minor_to_major(category: string) {
 }
 
 function get_minor_categories_primary(): string[] {
-    return allmatches($('.primary-subject').text(), RE_CATEGORY_FULL, 1)
+    const obj = document.body.querySelector('.primary-subject') as HTMLElement
+    const txt = element_text(obj)
+    return allmatches(txt, RE_CATEGORY_FULL, 1)
 }
 
 function get_minor_categories_all() {
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     // also, (hep-th)
-    const txt = $('.metatable').find('.subjects').text()
+    const obj = document.body.querySelector('.metatable .subjects') as HTMLElement
+    const txt = element_text(obj)
     return allmatches(txt, RE_CATEGORY_FULL, 1)
 }
 
@@ -76,7 +80,7 @@ export function get_categories() {
 //=============================================================
 // article id extraction functions
 function get_current_article_url() {
-    const url = $(location).attr('href')
+    const url = document.location.href
     const match = RE_ARXIVID_URL.exec(url)
 
     if (!match) {
@@ -94,9 +98,8 @@ function get_current_article_url() {
 }
 
 function get_current_article_meta() {
-    // FIXME -- directly references abs element
-    const obj = $('[name="citation_arxiv_id"]')
-    return obj ? obj.attr('content') : null
+    const obj = document.head.querySelector('[name="citation_arxiv_id"]') as HTMLMetaElement
+    return obj ? obj.content : null
 }
 
 export function get_current_article() {

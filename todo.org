@@ -2,13 +2,13 @@
 * DONE get loading from Inspire working
 * DONE get sorting working
 * DONE get paging working
+* DONE test with ADS
+* DONE convert S2 data source
+* DONE get 'filter' on ColumnView working
+* DONE ask Matt about what is in static/biboverlay.js
 * TODO rename document.ts and add docs
-* TODO test with ADS
-* TODO convert S2 data source
 * TODO get paper id and categories from html
 * TODO get avaiable/unavaiable loading from datasources working 
-* TODO get 'filter' on ColumnView working
 * TODO try as a browser plugin
 * TODO try as a bookmarklet
-* TODO ask Matt about what is in static/biboverlay.js
 * TODO Remove static directory
