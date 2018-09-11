@@ -88,7 +88,7 @@ export class AdsDatasource implements DataSource {
 
         return fetch(url, headers)
             .then(resp => resp.json())
-            .then(json => this.json_to_doc.reformat_documents(json))
+            .then(json => this.json_to_doc.reformat_documents(json.response.docs))
     }
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
@@ -96,10 +96,11 @@ export class AdsDatasource implements DataSource {
         this.aid = arxiv_id
         return Promise.all([
             this.fetch_docs(`arXiv:${arxiv_id}`,  0),
-            this.fetch_docs(`citations(arXiv:${arxiv_id})`, 0 ),
-            this.fetch_docs(`references(arXiv:${arxiv_id})`, 0 )
+            this.fetch_docs(`citations(arXiv:${arxiv_id})`, 0),
+            this.fetch_docs(`references(arXiv:${arxiv_id})`, 0)
         ]).then((results) => {
             const [base, citations, references] = results
+            console.log(results)
             this.populate(base[0], citations, references)
             return this
         })

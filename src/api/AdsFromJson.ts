@@ -15,11 +15,17 @@ export class AdsToPaper {
         return this.fetchConfig.ads_url_ui + encodeQueryData({q: field + ':"' + value + '"'})
     }
     
-    ads_url_author(name: string) {return this.ads_url_part('author', name)}
+    ads_url_author(name: string) {
+        return this.ads_url_part('author', name)
+    }
 
-    ads_url_title(name: string) {return this.ads_url_part('title', name)}
+    ads_url_title(name: string) {
+        return this.ads_url_part('title', name)
+    }
 
-    ads_url_bibcode_search(bib: string) {return this.ads_url_part('bibcode', bib)}
+    ads_url_bibcode_search(bib: string) {
+        return this.ads_url_part('bibcode', bib)
+    }
 
     ads_url_bibcode(bib: string) {
         return `${this.fetchConfig.base_url}/#abs/${bib}`        
@@ -61,34 +67,24 @@ export class AdsToPaper {
         return this.fetchConfig.homepage + '/link_gateway/' + doc.bibcode + '/doi:' + doc.doi
     }
 
-    /*
-        doc_arxiv_id(json: any) {
-        let match
-        const reports = json.primary_report_number
-        if (reports && typeof reports === 'string') {
-            match = RE_IDENTIFIER.exec(reports)
-            if (match) { return (match[1] || match[2]) }
-        } else if (reports) {            
-            for ( const report of reports) {
-                match = RE_IDENTIFIER.exec(report)
-                if (match) { return (match[1] || match[2]) }
-            }
-        }
-    }*/
-
     get_eprint(identifiers: string[]) {
         if (!identifiers) { return }
         const firstMatchReducer =  (acc, id) => {
-            if ( acc ) { return acc } //once first is found, ignore rest
+             //once first is found, ignore rest
+            if (acc) {
+                return acc
+             }
             const match = RE_IDENTIFIER.exec(id)
-            if (match) { return (match[1] || match[2] || match[3]) }
+            if (match) {
+                return (match[1] || match[2] || match[3])
+            }
         }
         return identifiers.reduce(firstMatchReducer, undefined)        
     }
 
     searchline(doc: Paper) {        
-        const auths = doc.authors.reduce( (acc, au) => acc + au.name +  ' ', '' )
-        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase()
+        const auths = doc.authors.reduce((acc, au) => acc + au.name +  ' ', '')
+        return [doc.title, auths, doc.venue, doc.year].join(' ').toLocaleLowerCase()
     }
 
     outbound_names(ref: Paper) {
@@ -101,6 +97,7 @@ export class AdsToPaper {
     }
 
     reformat_document(json: any, index: number): Paper {
+        console.log(json)
         const arxivid = this.get_eprint(json.identifier)
         const newdoc: Paper = new Paper(arxivid)
         newdoc.title = this.reformat_title(json.title)
@@ -109,6 +106,7 @@ export class AdsToPaper {
         newdoc.url = newdoc.api
         newdoc.url_arxiv = this.ads_url_arxiv(json.identifier)
         newdoc.doi = (json.doi || [''])[0]
+        newdoc.url_doi = this.ads_url_doi(json)
         newdoc.paperId = json.bincode || ''
         newdoc.year = json.year || ''
         newdoc.venue = json.pub || ''
@@ -124,9 +122,7 @@ export class AdsToPaper {
 
         const output: Paper[] = []
         for (let i = 0; i < docs.length; i++) {
-            const d = this.reformat_document(docs[i], i)
-            //this.cache[d.api] = d
-            output.push(d)
+            output.push(this.reformat_document(docs[i], i))
         }
         return output
     }
