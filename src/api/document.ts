@@ -76,6 +76,7 @@ export interface DataSource {
     /** Icon image, use in TSX like <img src={ds.icon}/> */     
     icon: any
 
+    email: string
     shortname: string
     longname: string 
     homepage: string

@@ -13,6 +13,7 @@ export class S2Datasource implements DataSource {
     logo = sourceLogo
     icon = icon
 
+    email = 'help@semanticscholar.org'
     shortname = 'S2'
     longname = 'Semantic Scholar'
     categories = new Set(['cs', 'stat.ML'])

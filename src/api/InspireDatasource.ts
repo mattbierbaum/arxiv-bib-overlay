@@ -10,7 +10,8 @@ export class InspireDatasource implements DataSource {
     aid: string
 
     data: BasePaper
-    
+
+    email = 'feedback@inspirehep.net'
     shortname = 'Inspire'
     longname = 'Inspire HEP'
     categories = new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])

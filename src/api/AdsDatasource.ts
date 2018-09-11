@@ -15,6 +15,7 @@ export class AdsDatasource implements DataSource {
     icon = sourceIcon
     logo = sourceLogo
 
+    email = 'adshelp@cfa.harvard.edu'
     shortname = 'ADS'
     longname = 'NASA ADS'
     categories = new Set([
