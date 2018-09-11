@@ -3,10 +3,10 @@ import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 
-export class BibModel {    
+export class BibModel {
     @observable
     inspireDs = new InspireDatasource()
-    
+
     @observable
     adsDs = new AdsDatasource()
 
@@ -14,7 +14,7 @@ export class BibModel {
     currentDs: DataSource
 
     @observable
-    avaiableDs: DataSource[]
+    availableDs: DataSource[]
 
     @observable
     paper: Paper
@@ -26,24 +26,24 @@ export class BibModel {
     references: PaperGroup
 
     @action
-    loadFromPaper( arxivId: string, categories: string): void {    
+    loadFromPaper(arxivId: string, categories: string): void {
         //TODO:
         //Figure out which DS are avaiable
         //load the first
         //copy results into this.paper this.citations this.references
-        
-        this.adsDs.fetch_all('0801.1021')
-            .then(ds => this.populateFromDsResult(ds) )        
+
+        this.adsDs.fetch_all(arxivId)
+            .then(ds => this.populateFromDsResult(ds) )
     }
 
-    populateFromDsResult( ds: DataSource ): void {
+    populateFromDsResult(ds: DataSource): void {
         this.currentDs = ds
-        
-        this.paper = ds.data        
-        if ( ds.data.citations ) {
-            this.citations = ds.data.citations        
+
+        this.paper = ds.data
+        if (ds.data.citations) {
+            this.citations = ds.data.citations
         }
-        if ( ds.data.references) {
+        if (ds.data.references) {
             this.references = ds.data.references
         }
     }

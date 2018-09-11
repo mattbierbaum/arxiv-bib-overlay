@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom'
 import { BibModel } from './model/BibModel'
 import registerServiceWorker from './registerServiceWorker'
 import { BibMain } from './ui/BibMain'
-import { Sidebar } from './ui/Sidbar'
+import { Sidebar } from './ui/Sidebar'
 
 // FIX ME: get paper id from page
 //const paper_id = '0704.0001'
@@ -15,6 +15,7 @@ const bibModel: BibModel = new BibModel()
 document.bibs = bibModel
 
 bibModel.currentDs = bibModel.adsDs
+bibModel.availableDs = [bibModel.adsDs, bibModel.inspireDs]
 
 ReactDOM.render(
   <BibMain bibModel={bibModel}  />, 

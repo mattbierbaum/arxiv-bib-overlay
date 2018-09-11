@@ -250,6 +250,7 @@
 }
 
 .bib-outbound {
+    display: inline-block;
     margin-top: 3px;
 }
 
@@ -421,7 +422,7 @@ h1.bib-header span {
     padding: 0.5em 0 0 0;
 }
 .bib-sidebar-title {}
-.bib-sidebar-title-link {
+.bib-sidebar-title a {
     position: relative;
     font-weight: bold;
     font-size: 14px;
