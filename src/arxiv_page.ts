@@ -36,7 +36,7 @@ function allmatches(str: string , regex: RegExp, index: number): string[] {
         matches.push(match[index])
         match = regex.exec(str)
     }
-    return matches
+    return matches || ['']
 }
 
 function element_text(obj: HTMLElement): string {
@@ -48,7 +48,7 @@ function element_text(obj: HTMLElement): string {
 
 //=============================================================
 // category extraction methods
-function minor_to_major(category: string) {
+function minor_to_major(category: string): string {
     // extract the major category from a full minor category
     const match = allmatches(category, RE_CATEGORY_MAJOR, 1)
     return match ? match[0] : ''
@@ -60,7 +60,7 @@ function get_minor_categories_primary(): string[] {
     return allmatches(txt, RE_CATEGORY_FULL, 1)
 }
 
-function get_minor_categories_all() {
+function get_minor_categories_all(): string[] {
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     // also, (hep-th)
@@ -73,36 +73,36 @@ function get_minor_categories(): string[] {
     return get_minor_categories_primary() || get_minor_categories_all()
 }
 
-export function get_categories() {
-    return get_minor_categories().map( (cat) => [minor_to_major(cat), cat] )
+export function get_categories(): string[][] {
+    return get_minor_categories().map((cat) => [minor_to_major(cat), cat])
 }
 
 //=============================================================
 // article id extraction functions
-function get_current_article_url() {
+function get_current_article_url(): string {
     const url = document.location.href
     const match = RE_ARXIVID_URL.exec(url)
 
     if (!match) {
         console.log('No valid match could be found for article ID')
-        return
+        return ''
     }
 
     const aid = match[0]    
     if (!aid || aid.length <= 5) {
         console.log('No valid article ID extracted from the browser location.')
-        return
+        return ''
     }
 
     return aid
 }
 
-function get_current_article_meta() {
+function get_current_article_meta(): string {
     const obj = document.head.querySelector('[name="citation_arxiv_id"]') as HTMLMetaElement
-    return obj ? obj.content : null
+    return obj ? obj.content : ''
 }
 
-export function get_current_article() {
+export function get_current_article(): string {
     return get_current_article_meta() || get_current_article_url()
 }
 
