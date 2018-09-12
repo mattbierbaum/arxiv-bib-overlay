@@ -1,38 +1,20 @@
-import DevTools from 'mobx-react-devtools'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import { get_categories, get_current_article } from './arxiv_page'
 import { BibModel } from './model/BibModel'
 import registerServiceWorker from './registerServiceWorker'
-import { BibMain } from './ui/BibMain'
+import { BibMain, pageElementMain, pageElementSidebar } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
 
-// FIX ME: get paper id from page
-//const paper_id = '0704.0001'
-//const categories = 
-
+const arxivid: string = get_current_article()
+const categories: string[][] = get_categories()
 const bibModel: BibModel = new BibModel()
-// @ts-ignore Putting this on the document to access in the browser console
-document.bibs = bibModel
 
-bibModel.currentDs = bibModel.adsDs
-bibModel.availableDs = [bibModel.adsDs, bibModel.inspireDs]
-
-ReactDOM.render(
-  <BibMain bibModel={bibModel}  />, 
-  document.getElementById('bib-main') as HTMLElement
-)
-
-ReactDOM.render(
-  <div>
-     <DevTools />
-    <Sidebar bibModel={bibModel} />
-    </div> , 
-  document.getElementById('bib-sidebar') as HTMLElement
-)
+ReactDOM.render(<BibMain bibModel={bibModel}/>, pageElementMain())
+ReactDOM.render(<Sidebar bibModel={bibModel}/>, pageElementSidebar())
 
 registerServiceWorker()
+bibModel.configureSources(arxivid, categories)
 
-//Kicsk off async request
-bibModel.loadFromPaper('0801.1021', 'unknown for now')
-// bibModel.inspireDs.fetch_all('0801.1021')
-//   .then(ds => { bibModel.currentDs = ds; bibModel.paper = ds.data })
+// @ts-ignore Putting this on the document to access in the browser console
+document.bibs = bibModel

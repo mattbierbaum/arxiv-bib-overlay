@@ -124,6 +124,7 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
         }
 
         const hasarxiv = !(paper.arxivId == null)
+        const hasdoi = !(paper.doi == null || paper.doi === '')
         const hasmla = !(this.source === 'arxiv')
 
         return (
@@ -145,8 +146,9 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
                             <input id='doi' type='radio' name='article' value='doi'
                                 checked={this.source === 'doi'}
                                 onChange={this.change_source.bind(this)}
+                                disabled={!hasdoi}
                             />
-                            <label htmlFor='doi'>Journal article</label> <br/>
+                            <label htmlFor='doi' className={hasdoi ? '' : 'disabled'}>Journal article</label> <br/>
                         </div>
                         <div className='modal-button-group'>
                             <h4>Reference format:</h4>

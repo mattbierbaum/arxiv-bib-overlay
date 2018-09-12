@@ -5,18 +5,46 @@ import { BibModel } from '../model/BibModel'
 import { ColumnView } from './ColumnView'
 import { spinner } from './Spinner'
 
+function pageElement(name: string, container: string,  insertbefore: string): HTMLElement {
+    const onpage = document.getElementById(name)
+    if (onpage) {
+        return onpage
+    }
+
+    const main = document.createElement('div')
+    main.id = name
+    main.className = name
+
+    const elemContainer = document.getElementsByClassName(container)[0]
+    const elemInsertBefore = document.getElementsByClassName(insertbefore)[0]
+    elemContainer.insertBefore(main, elemInsertBefore)
+    return main as HTMLElement
+}
+
+export function pageElementMain(): HTMLElement {
+    return pageElement('bib-main', 'leftcolumn', 'submission-history')
+}
+
+export function pageElementSidebar(): HTMLElement {
+    return pageElement('bib-sidebar', 'extra-services', 'bookmarks')
+}
+
 @observer
 export class BibMain extends React.Component<{bibModel: BibModel}, {}> {
     render() {                
         const bib = this.props.bibModel
-        const ds = bib.currentDs
+        const ds = bib.currentDS
 
-        const sources = bib.availableDs.map(
+        if (!ds) {
+            return spinner()
+        }
+
+        const sources = bib.availableDS.map(
             (i): JSX.Element => {
-                if (bib.currentDs === i) {
+                if (bib.currentDS === i) {
                     return <span className='bib-selected'>{i.longname}</span>
                 } else {
-                    return <span><a href='javascript:;' onClick={() => {bib.currentDs = i}}>{i.longname}</a></span>
+                    return <span><a href='javascript:;' onClick={() => bib.setDS(i)}>{i.longname}</a></span>
                 }
             }
         ).reduce(

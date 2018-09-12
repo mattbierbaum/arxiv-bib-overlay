@@ -2,19 +2,24 @@ import { action, observable } from 'mobx'
 import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
+import { S2Datasource } from '../api/S2Datasource'
 
 export class BibModel {
-    @observable
-    inspireDs = new InspireDatasource()
+    arxivId: string = ''
+    categories: string[][]
 
     @observable
-    adsDs = new AdsDatasource()
+    allDS: DataSource[] = [
+        new InspireDatasource(),
+        new AdsDatasource(),
+        new S2Datasource()
+    ]
 
     @observable
-    currentDs: DataSource
+    availableDS: DataSource[]
 
     @observable
-    availableDs: DataSource[]
+    currentDS: DataSource
 
     @observable
     paper: Paper
@@ -26,18 +31,24 @@ export class BibModel {
     references: PaperGroup
 
     @action
-    loadFromPaper(arxivId: string, categories: string): void {
-        //TODO:
-        //Figure out which DS are avaiable
-        //load the first
-        //copy results into this.paper this.citations this.references
-
-        this.adsDs.fetch_all(arxivId)
-            .then(ds => this.populateFromDsResult(ds) )
+    setDS(dataSource: DataSource): void {
+        this.currentDS = dataSource
+        this.currentDS.fetch_all(this.arxivId)
+            .then(ds => this.populateFromDSResult(ds))
     }
 
-    populateFromDsResult(ds: DataSource): void {
-        this.currentDs = ds
+    @action
+    configureSources(arxivId: string, categories: string[][]): void {
+        const primary = categories[0][0]
+        this.arxivId = arxivId
+        this.categories = categories
+
+        this.availableDS = this.allDS.filter((ds) => ds.categories.has(primary))
+        this.setDS(this.availableDS[0])
+    }
+
+    populateFromDSResult(ds: DataSource): void {
+        this.currentDS = ds
 
         this.paper = ds.data
         if (ds.data.citations) {

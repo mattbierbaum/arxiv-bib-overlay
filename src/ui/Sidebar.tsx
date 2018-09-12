@@ -24,7 +24,6 @@ export class Sidebar extends React.Component<{bibModel: BibModel}, {}> {
         }
 
         return (
-          <div className='bib-sidebar'>
             <div className='bib-sidebar-paper' >
               <div className='bib-sidebar-title'>
                 <span>
@@ -35,7 +34,6 @@ export class Sidebar extends React.Component<{bibModel: BibModel}, {}> {
               <Outbound paper={this.props.bibModel.paper}/>
               <OutboundCite paper={this.props.bibModel.paper}/>
             </div>
-          </div>
-      )
+        )
     }
   }
