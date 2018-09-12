@@ -97,7 +97,6 @@ export class AdsToPaper {
     }
 
     reformat_document(json: any, index: number): Paper {
-        console.log(json)
         const arxivid = this.get_eprint(json.identifier)
         const newdoc: Paper = new Paper(arxivid)
         newdoc.title = this.reformat_title(json.title)
