@@ -1,7 +1,5 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
-//import { API_ARTICLE_COUNT } from '../bib_config'
-//import { encodeQueryData } from '../bib_lib'
 import { BasePaper, DataSource, Paper } from './document'
 import { S2ToPaper } from './S2FromJson'
 
@@ -54,7 +52,7 @@ export class S2Datasource implements DataSource {
         }
 
         if (json.references) {
-            output.citations = {
+            output.references = {
                 documents: json.references.map((doc) => this.json_to_doc.reformat_document(doc, 0)),
                 header: 'References',
                 header_url: `${json.url}#citedPapers`,
@@ -66,45 +64,6 @@ export class S2Datasource implements DataSource {
 
         this.data = output
     }
-
-        /*async_load: function(callback){
-        this.aid = bib_lib.get_current_article();
-        var url = this.url_paper(this.aid);
-
-        if (url in this.cache){
-            callback(this);
-            return;
-        }
-
-        $.ajax({
-            type: 'GET',
-            url: bib_lib.urlproxy(url),
-            async: true,
-            timeout: bib_config.API_TIMEOUT,
-            success: $.proxy(
-                function(data){
-                   this.data = this.transform_result(data);
-                   this.cache[url] = this.data;
-                   callback(this);
-                }, this
-            ),
-            error: this.query_error,
-        });
-    }
-
-    get_paper: function(url, callback){
-        if (url in this.cache)
-            return callback(this.cache[url]);
-
-        $.get(url, $.proxy(
-            function(data){
-                data = this.transform_result(data);
-                this.cache[url] = data;
-                callback(data);
-            }, this)
-        )
-        .fail(function(err) {});
-    }*/
 
     fetch_all(arxiv_id: string): Promise<S2Datasource> {
         this.aid = arxiv_id
