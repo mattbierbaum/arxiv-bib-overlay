@@ -7,6 +7,7 @@ import * as xpath from 'xpath'
 import { Paper } from '../api/document'
 import '../App.css'
 import { API_ARXIV_METADATA, API_CROSSREF_CITE } from '../bib_config'
+import { pageElementModal } from './BibMain'
 
 @observer
 export class CiteModal extends React.Component<{ paper: Paper }, {}> {
@@ -176,5 +177,8 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
 }
 
 export function cite_modal(paper: Paper) {
-    ReactDOM.render(<CiteModal paper={paper} key={paper.api} />, document.getElementById('modal'))
+    ReactDOM.render(
+        <CiteModal paper={paper} key={paper.api} />,
+        pageElementModal()
+    )
 }

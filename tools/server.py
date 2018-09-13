@@ -4,6 +4,7 @@ import json
 import string
 from http.server import HTTPServer, SimpleHTTPRequestHandler, test
 
+PORT = 8001
 build_path = os.path.join(os.path.abspath(os.path.curdir), 'build')
 script_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,7 +20,7 @@ def bookmarklet_text(template, manifest):
     filenames = list(json.load(open(manifest)).values())
 
     tpl = AtTemplate(open(template).read())
-    return tpl.substitute(filenames=filenames)
+    return tpl.substitute(filenames=filenames, port=PORT)
 
 class FlexibleBookmarklet(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -37,4 +38,4 @@ class FlexibleBookmarklet(SimpleHTTPRequestHandler):
         SimpleHTTPRequestHandler.end_headers(self)
 
 if __name__ == '__main__':
-    test(FlexibleBookmarklet, HTTPServer, port=8001)
+    test(FlexibleBookmarklet, HTTPServer, port=PORT)

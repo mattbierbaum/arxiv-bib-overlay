@@ -29,6 +29,10 @@ export function pageElementSidebar(): HTMLElement {
     return pageElement('bib-sidebar', 'extra-services', 'bookmarks')
 }
 
+export function pageElementModal(): HTMLElement {
+    return pageElement('bib-modal', 'extra-services', 'bookmarks')
+}
+
 @observer
 export class BibMain extends React.Component<{bibModel: BibModel}, {}> {
     render() {                

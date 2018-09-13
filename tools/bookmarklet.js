@@ -5,7 +5,7 @@
         }
 
         var date = random_id();
-        var base = 'http://127.0.0.1:8000/static/';
+        var base = 'http://127.0.0.1:@{port}/build/';
 
         function load(filename, callback){
             /*
@@ -50,6 +50,7 @@
             head.insertBefore(elem, head.lastChild);
         }
 
-        var filenames = @{filenames}.forEach(function(i){load.apply(this, i);});
+        var filenames = @{filenames}.forEach(function(i){load(i);});
+        console.log(@{filenames})
     }
 )();
