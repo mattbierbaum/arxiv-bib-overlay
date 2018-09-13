@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
+import { MAX_AUTHORS } from '../bib_config'
 import { BibModel } from '../model/BibModel'
 import { Outbound, OutboundCite } from './Outbound'
 import { spinner } from './Spinner'
@@ -14,7 +15,7 @@ export class Sidebar extends React.Component<{bibModel: BibModel}, {}> {
             return spinner()
         }
 
-        const au_list = bib.paper.authors.map(
+        const auth_elements = bib.paper.authors.map(
             au => <li key={au.url}><a href={au.url} target='_blank'>{au.name}</a></li>
         )
 
@@ -23,14 +24,20 @@ export class Sidebar extends React.Component<{bibModel: BibModel}, {}> {
             paper_title = paper_title.substring(0, 20) + '...'
         }
 
+        let auth_list = auth_elements
+        if (auth_list.length > MAX_AUTHORS) {
+            auth_list = auth_list.slice(0, MAX_AUTHORS)
+            auth_list.push(
+                <li key={bib.paper.url}><a href={bib.paper.url} target='_blank'>...</a></li>
+            )
+        }
+
         return (
             <div className='bib-sidebar-paper' >
               <div className='bib-sidebar-title'>
-                <span>
-                  <a href={bib.paper.url} target='_blank'>{paper_title}</a>
-                </span>
+                <span><a href={bib.paper.url} target='_blank'>{paper_title}</a></span>
               </div>
-              <ul className='bib-sidebar-authors'>{au_list}</ul>
+              <ul className='bib-sidebar-authors'>{auth_list}</ul>
               <Outbound paper={this.props.bibModel.paper}/>
               <OutboundCite paper={this.props.bibModel.paper}/>
             </div>
