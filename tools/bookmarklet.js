@@ -51,6 +51,5 @@
         }
 
         var filenames = @{filenames}.forEach(function(i){load(i);});
-        console.log(@{filenames})
     }
 )();
