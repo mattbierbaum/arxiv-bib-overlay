@@ -581,6 +581,10 @@ h1.bib-header span {
     font-size: 2em;
 }
 
+.modal textarea {
+    border-width: 2px;
+}
+
 .cite:hover {
     cursor: pointer;
 }

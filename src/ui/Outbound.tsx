@@ -13,14 +13,14 @@ import { cite_modal } from './CiteModal'
 
 const imgstyle = {height: '18px', width: 'auto'}
 
-const _link = (name: string, desc: string, url: string|undefined, icon: any) => {
+const _link = (name: string, desc: string, url: string|undefined, icon: any, external: boolean = true) => {
     if (!url) {
         return null
     } 
     return (
         <span key={name + url}>
-            <a className={name} title={desc} href={url}>
-                <img src={icon} style={imgstyle}/>
+            <a className={name} title={desc} href={url} target={external ? '_blank' : '_self'}>
+                <img alt={desc} src={icon} style={imgstyle}/>
             </a>
         </span>
     )
@@ -33,7 +33,7 @@ const _modal = (name: string, desc: string, paper: Paper, icon: any) => {
     return (
         <span key={name + paper.arxivId}>
             <a className={name} title={desc} onClick={() => cite_modal(paper)}>
-                <img src={icon} style={imgstyle}/>
+                <img alt={desc} src={icon} style={imgstyle}/>
             </a>
         </span>
     )
@@ -43,7 +43,7 @@ const make_link = {
     ads(ref: Paper) {return _link('ads', 'NASA ADS', ref.url, adsIcon )},
     s2(ref: Paper) {return _link('s2', 'Semantic Scholar', ref.url, s2Icon)},
     inspire(ref: Paper) {return _link('inspire', 'Inspire HEP', ref.url, inspireIcon)},
-    arxiv(ref: Paper) {return _link('arxiv', 'ArXiv article', ref.url_arxiv, arxivIcon)},
+    arxiv(ref: Paper) {return _link('arxiv', 'ArXiv article', ref.url_arxiv, arxivIcon, false)},
     doi(ref: Paper) {return _link('doi', 'Journal article', ref.url_doi, doiIcon)},
     cite(ref: Paper) {return _modal('cite', 'Citation entry', ref, citeIcon)},
     scholar(ref: Paper) {

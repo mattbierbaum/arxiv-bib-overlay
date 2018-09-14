@@ -91,7 +91,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
                   </div>
                   <div className='bib-branding-logo'>
                     <a target='_blank' href={datasource.homepage}>
-                      <img src={datasource.logo} height='32px' width='auto'/>
+                      <img alt={datasource.longname} src={datasource.logo} height='32px' width='auto'/>
                     </a>
                   </div>
                 </div>
@@ -111,8 +111,8 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
     create_filter_div() {
         return (
             <div className='bib-filter'>
-              <span className='bib-filter-label'>Filter: </span>
-              <input type='search' className='bib-filter-input' value={this.filter_text}
+              <label htmlFor='bib-filter-input' className='bib-filter-label'>Filter: </label>
+              <input type='search' id='bib-filter-input' className='bib-filter-input' value={this.filter_text}
                 onChange={(e) => this.filter_text = e.target.value}/>
             </div>
         )
@@ -225,7 +225,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         }
         const _link = (n: number, txt?: string) => {
             return (
-                <li><a href='javascript:;' onClick={(e) => this.page = n}>
+                <li><a title={`Page ${n}`} href={`javascript:${n};`} onClick={(e) => this.page = n}>
                 {(txt === undefined) ? n : txt}</a></li>
             )
         }
