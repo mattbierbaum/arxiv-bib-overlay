@@ -38,7 +38,7 @@ export class Paper {
     recid?: string
     paperId?: string
 
-    constructor( arxivId?: string) {
+    constructor(arxivId?: string) {
         this.arxivId = arxivId
     }
 }

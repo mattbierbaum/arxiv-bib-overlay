@@ -43,7 +43,7 @@ export class InspireToPaper {
             match = RE_IDENTIFIER.exec(reports)
             if (match) { return (match[1] || match[2]) }
         } else if (reports) {            
-            for ( const report of reports) {
+            for (const report of reports) {
                 match = RE_IDENTIFIER.exec(report)
                 if (match) { return (match[1] || match[2]) }
             }
@@ -88,9 +88,9 @@ export class InspireToPaper {
 
     doc_venue(json: any) {        
         const pubs = json.publication_info
-        if (!pubs || ! Array.isArray( pubs )) { return '' }
-        const pubsWt = pubs.find( pub => pub.title )
-        if ( pubsWt ) {
+        if (!pubs || ! Array.isArray(pubs)) { return '' }
+        const pubsWt = pubs.find(pub => pub.title)
+        if (pubsWt) {
             return pubsWt.title.split('.').join(' ')            
         } else {
             return ''
@@ -141,7 +141,6 @@ export class InspireToPaper {
         const output: Paper[] = []
         for (let i = 0; i < jsons.length; i++) {
             const d = this.reformat_document(jsons[i], i)
-            this.fetchConfig.cache[d.api] = d
             output.push(d)
         }        
         return output

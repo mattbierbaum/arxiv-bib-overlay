@@ -7,7 +7,7 @@ import { Author, Paper } from './document'
 export class AdsToPaper {
     fetchConfig: AdsDatasource
 
-    constructor( fetchConfig: AdsDatasource) {
+    constructor(fetchConfig: AdsDatasource) {
         this.fetchConfig = fetchConfig
     }
 

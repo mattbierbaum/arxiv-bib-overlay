@@ -1,17 +1,18 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
-import { BasePaper, DataSource, Paper } from './document'
+import { encodeQueryData } from '../bib_lib'
+import { BasePaper, DataSource } from './document'
 import { S2ToPaper } from './S2FromJson'
 
 export class S2Datasource implements DataSource {
     data: BasePaper
-    cache: { [key: string]: Paper } = {}
+    loaded: boolean = false
     aid: string
 
     logo = sourceLogo
     icon = icon
 
-    email = 'help@semanticscholar.org'
+    email = 'feedback@semanticscholar.org'
     shortname = 'S2'
     longname = 'Semantic Scholar'
     categories = new Set(['cs', 'stat.ML'])
@@ -34,7 +35,8 @@ export class S2Datasource implements DataSource {
     json_to_doc = new S2ToPaper(this)
 
     url_paper(arxivid: string) {
-        return `${this.api_url}paper/arXiv:${arxivid}?${this.api_params}`
+        const params = encodeQueryData(this.api_params)
+        return `${this.api_url}paper/arXiv:${arxivid}?${params}`
     }
 
     populate(json: any) {
@@ -66,13 +68,58 @@ export class S2Datasource implements DataSource {
     }
 
     fetch_all(arxiv_id: string): Promise<S2Datasource> {
+        if (this.loaded) {
+            return new Promise<S2Datasource>((resolve, reject) => resolve(this))
+        }
+
         this.aid = arxiv_id
 
         return fetch(this.url_paper(this.aid))
+            .then(resp => error_check(resp))
             .then(resp => resp.json())
             .then(json => {
                 this.populate(json)
+                this.loaded = true
                 return this
             })
     }
 }
+
+function error_check(response: Response) {
+    /*switch (t) {
+        case 'timeout':
+            var n = Number.parseFloat(bib_config.API_TIMEOUT/1000).toFixed(1);
+            throw new Error('Query timed out ('+n+' sec limit)');
+        case 'parseerror':
+            throw new Error('Query returned malformed data');
+        case 'nocontent':
+            throw new Error('Query returned no data');
+        default:
+            break;
+    }*/
+
+    console.log(response)
+    if (response.status === 200) {
+        return response
+    }
+
+    switch (response.status) {
+        case 0:
+            throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')
+        case 404:
+            throw new Error('No data available yet')
+        case 500:
+            throw new Error('Query error 500: internal server error')
+        default:
+            throw new Error('Query error ' + response.status)
+    }
+}
+
+//function error_handle(err) {
+//    console.log(err)
+//}
+
+//function error_check(response) {
+//    console.log(response)
+//    return response
+//}

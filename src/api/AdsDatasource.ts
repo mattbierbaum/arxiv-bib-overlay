@@ -7,7 +7,7 @@ import {  BasePaper, DataSource, Paper } from './document'
 
 /** Class to fetch references from ADS. */
 export class AdsDatasource implements DataSource {
-    cache: {[key: string]: Paper} = {}
+    loaded: boolean = false
     aid: string
 
     data: BasePaper
@@ -76,14 +76,14 @@ export class AdsDatasource implements DataSource {
         this.data = output
     }
 
-    fetch_params( query: string, index: number ): string {
+    fetch_params(query: string, index: number): string {
         const params = { ...this.api_params }
         params.q = query
         return encodeQueryData(params)
     }
 
     /* Fetch for a query and return a Promise with Object parsed from JSON. */
-    fetch_docs(query: string, index: number ): Promise <any> {
+    fetch_docs(query: string, index: number): Promise <any> {
         const url = `${this.api_url}?${this.fetch_params(query , index)}`
         const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
 
@@ -94,6 +94,10 @@ export class AdsDatasource implements DataSource {
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
     fetch_all(arxiv_id: string): Promise <AdsDatasource> {
+        if (this.loaded) {
+            return new Promise<AdsDatasource>((resolve, reject) => resolve(this))
+        }
+
         this.aid = arxiv_id
         return Promise.all([
             this.fetch_docs(`arXiv:${arxiv_id}`,  0),
@@ -102,6 +106,7 @@ export class AdsDatasource implements DataSource {
         ]).then((results) => {
             const [base, citations, references] = results
             this.populate(base[0], citations, references)
+            this.loaded = true
             return this
         })
     }
