@@ -2,7 +2,7 @@ import { URL_PROXY } from './bib_config'
 
 // BDC functions to access arxiv abs page info moved to arxiv_page.ts
 
-export function encodeQueryData( data: {[key: string]: (string | string[] | number)} ) {
+export function encodeQueryData(data: {[key: string]: (string | string[] | number)}) {
     const ret: string[] = []    
     for (const key of Object.getOwnPropertyNames(data)) {
         const val = data[key]

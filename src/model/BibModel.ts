@@ -3,6 +3,7 @@ import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
+import { state, Status } from './State'
 
 export class BibModel {
     arxivId: string = ''
@@ -32,9 +33,10 @@ export class BibModel {
 
     @action
     setDS(dataSource: DataSource): void {
-        this.currentDS = dataSource
-        this.currentDS.fetch_all(this.arxivId)
+        state.state = Status.LOADING
+        dataSource.fetch_all(this.arxivId)
             .then(ds => this.populateFromDSResult(ds))
+            .catch(error => this.populateFromDSError(error))
     }
 
     @action
@@ -48,6 +50,7 @@ export class BibModel {
     }
 
     populateFromDSResult(ds: DataSource): void {
+        state.state = Status.LOADED
         this.currentDS = ds
 
         this.paper = ds.data
@@ -57,5 +60,10 @@ export class BibModel {
         if (ds.data.references) {
             this.references = ds.data.references
         }
+    }
+
+    populateFromDSError(error: Error): void {
+        state.error(error.message)
+
     }
 }

@@ -2,17 +2,16 @@ import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
 import { MAX_AUTHORS } from '../bib_config'
-import { BibModel } from '../model/BibModel'
+import { State } from '../model/State'
 import { Outbound, OutboundCite } from './Outbound'
-import { spinner } from './Spinner'
 
 @observer
-export class Sidebar extends React.Component<{bibModel: BibModel}, {}> {
+export class Sidebar extends React.Component<{state: State}, {}> {
     public render() {
-        const bib = this.props.bibModel
+        const bib = this.props.state.bibmodel
 
         if (!bib || !bib.paper || !bib.paper.authors) {
-            return spinner()
+            return null
         }
 
         const auth_elements = bib.paper.authors.map(
@@ -38,8 +37,8 @@ export class Sidebar extends React.Component<{bibModel: BibModel}, {}> {
                 <span><a href={bib.paper.url} target='_blank'>{paper_title}</a></span>
               </div>
               <ul className='bib-sidebar-authors'>{auth_list}</ul>
-              <Outbound paper={this.props.bibModel.paper}/>
-              <OutboundCite paper={this.props.bibModel.paper}/>
+              <Outbound paper={bib.paper}/>
+              <OutboundCite paper={bib.paper}/>
             </div>
         )
     }
