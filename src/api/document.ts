@@ -12,31 +12,35 @@ export class Author {
 }
 
 export class Paper {
+    // Items provided directly from the data provider, though they may come in
+    // an format that we later convert to our desired format.
     title: string
     authors: Author[]
     year: string
     venue: string
-    citation_count: number
-    index: number
-    api: string
-    url: string
     doi: string | undefined
     arxivId: string | undefined
+    citation_count: number
+
+    // Items sometimes constructed, sometimes provided by the data provider
+    url: string     // url to paper in external service
+    api: string     // url to get more information via external service 
+
+    // Computed from other parts of the Paper object
     url_doi?: string
     url_arxiv?: string
+    searchline: string
+    outbound: string[]
+    index: number
 
     // elements that are specific to a certain datasource, should
     // possibly be subclasses for each ADS, S2...
     recid?: string
     paperId?: string
 
-    searchline: string
-    outbound: string[]    
-    
     constructor( arxivId?: string) {
         this.arxivId = arxivId
     }
-
 }
 
 export class PaperGroup {
@@ -64,29 +68,29 @@ export interface Sorter {
     func: (paper: Paper) => string | number
 }
 
-export interface DataSource {    
-    cache: { [key: string]: Paper}
+export interface DataSource {
+    loaded: boolean
     aid: string
 
     data: BasePaper
-    
-    /** Logo image, use in TSX like <img src={ds.logo}/> */     
+
+    /** Logo image, use in TSX like <img src={ds.logo}/> */
     logo: any
 
-    /** Icon image, use in TSX like <img src={ds.icon}/> */     
+    /** Icon image, use in TSX like <img src={ds.icon}/> */
     icon: any
 
     email: string
     shortname: string
-    longname: string 
+    longname: string
     homepage: string
 
-    categories: Set<string> //= new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])
-        
+    categories: Set<string>
+
     api_url: string
     api_params: object
 
     sorting: SorterConfig
 
     fetch_all(arxiv_id: string): Promise<DataSource>
-}    
+}
