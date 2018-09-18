@@ -90,20 +90,66 @@
     margin-left: 8px
 }
 
+.bib-utils {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    margin-top: 1em;
+    /*display: table;*/
+    margin: 0.7em auto 1.5em auto;
+}
+
+.bib-utils > div {
+    margin-right: 1em;
+    margin-bottom: 0.25em;
+}
+
+.bib-pager {
+    min-width: 350px;
+}
+
+.bib-page-list {
+    list-style: none;
+    padding: 0;
+    display: inline;
+}
+
+.bib-page-list > li {
+    display: inline-block;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    min-width: 1.2em;
+    text-align: center;
+}
+
 .bib-sorter {
     margin-top: 0.25em;
+}
+
+.bib-sorter > label {
+    margin-right: 0.1em;
+}
+
+.bib-sort-arrow {
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+}
+
+.bib-sort-arrow a {
+    text-decoration: none;
+}
+
+.bib-sort-arrow a:hover {
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .bib-filter {
     margin-top: 0.25em;
 }
 
-.bib-filter-label {
+.bib-filter > label {
     margin: 0.1em;
-}
-
-.lbl {
-    text-align: right;
 }
 
 .bib-fiter-input {
@@ -278,47 +324,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.bib-utils {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    margin-top: 1em;
-    /*display: table;*/
-    margin: 0.7em auto 1.5em auto;
-}
-
-.bib-utils > div {
-    margin-right: 1em;
-    margin-bottom: 0.25em;
-}
-
-.bib-page-list {
-    list-style: none;
-    padding: 0;
-    display: inline;
-}
-
-.bib-page-list > li {
-    display: inline-block;
-    margin-left: 0.25em;
-    margin-right: 0.25em;
-    min-width: 1.2em;
-    text-align: center;
-}
-
-.bib-sort-label {
-    margin: 0.1em;
-}
-
-.bib-sort-arrow a {
-    text-decoration: none;
-}
-
-.bib-sort-arrow a:hover {
-    text-decoration: none;
-    cursor: pointer;
 }
 
 .disabled {
