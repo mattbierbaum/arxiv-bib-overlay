@@ -88,6 +88,7 @@ export class AdsDatasource implements DataSource {
         const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
 
         return fetch(url, headers)
+            .then(resp => error_check(resp))
             .then(resp => resp.json())
             .then(json => this.json_to_doc.reformat_documents(json.response.docs))
     }
@@ -109,5 +110,22 @@ export class AdsDatasource implements DataSource {
             this.loaded = true
             return this
         })
+    }
+}
+
+function error_check(response: Response) {
+    if (response.status === 200) {
+        return response
+    }
+
+    switch (response.status) {
+        case 0:
+            throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')
+        case 404:
+            throw new Error('No data available yet')
+        case 500:
+            throw new Error('Query error 500: internal server error')
+        default:
+            throw new Error('Query error ' + response.status)
     }
 }

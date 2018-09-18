@@ -86,19 +86,6 @@ export class S2Datasource implements DataSource {
 }
 
 function error_check(response: Response) {
-    /*switch (t) {
-        case 'timeout':
-            var n = Number.parseFloat(bib_config.API_TIMEOUT/1000).toFixed(1);
-            throw new Error('Query timed out ('+n+' sec limit)');
-        case 'parseerror':
-            throw new Error('Query returned malformed data');
-        case 'nocontent':
-            throw new Error('Query returned no data');
-        default:
-            break;
-    }*/
-
-    console.log(response)
     if (response.status === 200) {
         return response
     }
@@ -114,12 +101,3 @@ function error_check(response: Response) {
             throw new Error('Query error ' + response.status)
     }
 }
-
-//function error_handle(err) {
-//    console.log(err)
-//}
-
-//function error_check(response) {
-//    console.log(response)
-//    return response
-//}

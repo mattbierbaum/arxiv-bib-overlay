@@ -56,7 +56,7 @@ export class S2ToPaper {
         newdoc.year = json.year
         newdoc.venue = json.venue
         newdoc.citation_count = json.citation_count
-        newdoc.url = json.url
+        newdoc.url = json.url || null
         newdoc.doi = json.doi
         newdoc.arxivId = json.arxivId
 
