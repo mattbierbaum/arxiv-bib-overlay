@@ -6,9 +6,16 @@
 * DONE convert S2 data source
 * DONE get 'filter' on ColumnView working
 * DONE ask Matt about what is in static/biboverlay.js
-* TODO rename document.ts and add docs
-* TODO get paper id and categories from html
-* TODO get avaiable/unavaiable loading from datasources working 
-* TODO try as a browser plugin
-* TODO try as a bookmarklet
-* TODO Remove static directory
+* DONE get paper id and categories from html
+* DONE get avaiable/unavaiable loading from datasources working 
+* DONE try as a browser plugin
+* DONE try as a bookmarklet
+* DONE webpack doi icon
+* DONE error handling for no data present S2
+
+AFTER S2 RELEASE:
+* better understanding of webpack
+* data provider switching animation
+* error handling (look into react error boundaries)
+* rename document.ts and add docs
+* Remove static directory

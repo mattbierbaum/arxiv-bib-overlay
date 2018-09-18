@@ -1,17 +1,26 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { get_categories, get_current_article } from './arxiv_page'
-import { state } from './model/State'
+import { cookie_load } from './cookies'
+import { state, Status } from './model/State'
 import registerServiceWorker from './registerServiceWorker'
 import { BibMain, pageElementMain, pageElementSidebar } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
 
-const arxivid: string = get_current_article()
-const categories: string[][] = get_categories()
+const active = cookie_load()
+state.state = active ? Status.INIT : Status.DISABLED
 
 ReactDOM.render(<BibMain state={state}/>, pageElementMain())
 ReactDOM.render(<Sidebar state={state}/>, pageElementSidebar())
 
 registerServiceWorker()
-state.bibmodel.configureSources(arxivid, categories)
-//state.bibmodel.configureSources('1703.00001', [['cs', 'cs.ML']])
+if (active) {
+    state.bibmodel.configureFromAbtract()
+    //state.bibmodel.configureSources('1603.04467', [['cs', 'cs.ML']])
+    //state.bibmodel.configureSources(arxivid, categories)
+    //state.bibmodel.configureSources('1703.00001', [['cs', 'cs.ML']])
+    //state.bibmodel.configureSources('1603.04891', [['cs', 'cs.ML']])
+    //state.bibmodel.configureSources('hep-th/9711200', [['hep-th', 'hep-th']])
+}
+
+// @ts-ignore -- for debugging purposes
+document.state = state

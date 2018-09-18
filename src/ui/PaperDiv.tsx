@@ -14,6 +14,7 @@ export class PaperDiv extends React.Component<{paper: Paper}, {}> {
             auths.push(<a key={paper.url} href={paper.url} target='_blank'>...</a>)
         }
 
+        const citeline = paper.citation_count ? `(citations: ${paper.citation_count})` : ''
         return (
             <div className='bib-paper-container'>
               <div className='bib-cite'>
@@ -25,7 +26,7 @@ export class PaperDiv extends React.Component<{paper: Paper}, {}> {
                   <span className='jinfo'>
                     <span className='venue'>{paper.venue}</span>
                     <span className='year'>{paper.year}</span>
-                    <span className='citations'>(citations: {paper.citation_count})</span>
+                    <span className='citations'>{citeline}</span>
                   </span>
                   <div className='bib-authors'>{auths}</div>
                 </div>

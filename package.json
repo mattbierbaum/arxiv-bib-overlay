@@ -1,8 +1,9 @@
 {
   "name": "arxiv-bib-overlay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
+    "js-cookie": "^2.2.0",
     "mobx": "^5.1.0",
     "mobx-react": "^5.2.5",
     "mobx-react-devtools": "^6.0.3",
@@ -10,8 +11,8 @@
     "react-dom": "^16.4.2",
     "react-scripts-ts": "2.17.0",
     "tslint": "^5.11.0",
-    "xpath": "^0.0.27",
-    "xmldom": "^0.1.27"
+    "xmldom": "^0.1.27",
+    "xpath": "^0.0.27"
   },
   "scripts": {
     "start": "PORT=8000 react-scripts-ts start",

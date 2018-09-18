@@ -49,7 +49,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         const filt = this.fdata
         const group = this.props.paperGroup
         const datasource = this.props.dataSource
-        const papers = (group && this.pdata) || []
+        const papers = group ? this.pdata : []
         if (!this.props.paperGroup) {
             return null
         }
@@ -102,29 +102,31 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
                 <div className='center'>{this.create_paging_div()}</div>
               </div>
               <div>
-                {papers.map(paper => <PaperDiv key={paper.recid || paper.url} paper={paper}/>)}
+                {papers.map(paper => <PaperDiv paper={paper}/>)}
               </div>
             </div>
         )
+                //{papers.map(paper => <PaperDiv key={paper.api || paper.recid || paper.url} paper={paper}/>)}
     }
 
     create_filter_div() {
         return (
             <div className='bib-filter'>
               <label htmlFor='bib-filter-input' className='bib-filter-label'>Filter: </label>
-              <input type='search' id='bib-filter-input' className='bib-filter-input' value={this.filter_text}
+              <input type='search' name='bib-filter-input' id='bib-filter-input'
+                className='bib-filter-input' value={this.filter_text}
                 onChange={(e) => this.filter_text = e.target.value}/>
             </div>
         )
     }
 
-    sortPapers( paperGroup: PaperGroup, data: Paper[] ): Paper[] {
-        if ( !paperGroup || ! data) { return [] }
+    sortPapers(paperGroup: PaperGroup, data: Paper[]): Paper[] {
+        if (!paperGroup || ! data) { return [] }
 
         const field = this.sort_field || paperGroup.sorting.sorters_default
         const sorters = this.props.paperGroup.sorting.sorters
 
-        if ( sorters[field] && sorters[field].func ) {
+        if (sorters[field] && sorters[field].func) {
             return sorter(data, sorters[field].func, this.sort_order)
         } else {
             console.log(`Could not sort: no sort entry in sorter for '${field}'
@@ -159,8 +161,8 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
 
         return(
             <div className='bib-sorter'>
-              <span className='sort-label'>Sort by: </span>
-              <select className='sort_field'
+              <label htmlFor='sort_field' className='sort-label'>Sort: </label>
+              <select className='sort_field' id='sort_field' name='sort_field'
                 onChange={(e) => {this.sort_field = e.target.value}}
                 value={this.sort_field}>
               {this.sort_options(this.props.paperGroup.sorting)}
@@ -210,7 +212,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
      * This makes the numbers easier to navigate and more visually appealing.
      */
     create_paging_div() {
-        if ( ! this.fdata ) {return null}
+        if (!this.fdata) {return null}
 
         const B = 1              /* number of buffer pages on each side of current */
         const P = this.page      /* shortcut to current page */
@@ -250,12 +252,14 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             // the first number (1) and dots if list too long
             page_links.push(_pagelink(1))
             page_links.push(_pagelink(2, P <= 1 + 2 + B))
+
             // limit the beginning and end numbers to be appropriate ranges
             const i0 = Math.min(L - 2 - 2 * B, Math.max(1 + 2, P - B))
             const i1 = Math.max(1 + 2 + 2 * B, Math.min(L - 2, P + B))
             for (let i = i0; i <= i1; i++) {
                 page_links.push(_pagelink(i))
             }
+
             // the last number (-1) and dots if list too long
             page_links.push(_pagelink(L - 1, P >= L - 2 - B))
             page_links.push(_pagelink(L - 0))
@@ -264,7 +268,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         page_links.push(_inclink(+1))
 
         return (
-            <div className='center'>
+            <div className='center bib-pager'>
               <span>
                 <span>Pages:</span>
                 <ul className='bib-page-list'>{page_links}</ul>

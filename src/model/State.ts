@@ -5,7 +5,8 @@ export enum Status {
     LOADED = 'loaded',
     LOADING = 'loading',
     FAILED = 'failed',
-    INIT = 'init'
+    INIT = 'init',
+    DISABLED = 'disabled'
 }
 
 export class State {
@@ -34,6 +35,11 @@ export class State {
     @computed
     get isloading(): boolean {
         return this.state === Status.LOADING
+    }
+
+    @computed
+    get isdisabled(): boolean {
+        return this.state === Status.DISABLED
     }
 
     @action

@@ -1,7 +1,8 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
-import { State } from '../model/State'
+import { cookie_save } from '../cookies'
+import { State, Status } from '../model/State'
 import { ColumnView } from './ColumnView'
 import { spinner } from './Spinner'
 
@@ -36,9 +37,10 @@ export function pageElementModal(): HTMLElement {
 @observer
 export class BibMain extends React.Component<{state: State}, {}> {
     generate_sources() {
+        const state = this.props.state
         const bib = this.props.state.bibmodel
 
-        if (!bib.availableDS) {
+        if (state.isdisabled || !bib.availableDS) {
             return null
         }
 
@@ -59,12 +61,29 @@ export class BibMain extends React.Component<{state: State}, {}> {
 
     generate_messages() {
         const state = this.props.state
+
+        if (state.isdisabled) {
+            return null
+        }
+
         const msglist = state.errors ? state.errors : state.messages
         const msgs = msglist.map(
             (i) => (<li className='msg'>{i.length < 80 ? i : i.slice(0, 80) + '...'}</li>)
         )
 
         return (<ul className='msgs'>{msgs}</ul>)
+    }
+
+    toggle() {
+        const state = this.props.state
+        if (state.isdisabled) {
+            state.state = Status.INIT
+            state.bibmodel.reconfigureSources()
+            cookie_save(true)
+        } else {
+            state.state = Status.DISABLED
+            cookie_save(false)
+        }
     }
 
     render() {
@@ -74,7 +93,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
 
         let body: JSX.Element | null = null
 
-        if (state.isfailed) {
+        if (state.isfailed || state.isdisabled) {
             body = null
         }
 
@@ -99,7 +118,8 @@ export class BibMain extends React.Component<{state: State}, {}> {
                   <div className='bib-sidebar-source'>{this.generate_sources()}</div>
                   <div className='bib-sidebar-msgs'>{this.generate_messages()}</div>
                 </div>
-                <span>[<a id='biboverlay_toggle' href='javascript:;'>Disable</a></span>
+                <span>[<a id='biboverlay_toggle' href='javascript:;'
+                    onClick={() => this.toggle()}>{state.isdisabled ? 'Enable' : 'Disable'}</a></span>
                 <span> (<a href='/help/bibex/'>What is this?</a>)]</span>
               </div>
               {body}

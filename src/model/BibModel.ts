@@ -3,6 +3,7 @@ import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
+import { get_categories, get_current_article } from '../arxiv_page'
 import { state, Status } from './State'
 
 export class BibModel {
@@ -34,9 +35,17 @@ export class BibModel {
     @action
     setDS(dataSource: DataSource): void {
         state.state = Status.LOADING
-        dataSource.fetch_all(this.arxivId)
+        this.currentDS = dataSource
+        this.currentDS.fetch_all(this.arxivId)
             .then(ds => this.populateFromDSResult(ds))
             .catch(error => this.populateFromDSError(error))
+    }
+
+    @action
+    configureFromAbtract() {
+        const arxivid: string = get_current_article()
+        const categories: string[][] = get_categories()
+        this.configureSources(arxivid, categories)
     }
 
     @action
@@ -49,9 +58,18 @@ export class BibModel {
         this.setDS(this.availableDS[0])
     }
 
+    @action
+    reconfigureSources(): void {
+        if (!this.currentDS) {
+            this.configureFromAbtract()
+        } else {
+            this.setDS(this.currentDS)
+        }
+    }
+
+    @action
     populateFromDSResult(ds: DataSource): void {
         state.state = Status.LOADED
-        this.currentDS = ds
 
         this.paper = ds.data
         if (ds.data.citations) {
@@ -62,8 +80,8 @@ export class BibModel {
         }
     }
 
+    @action
     populateFromDSError(error: Error): void {
         state.error(error.message)
-
     }
 }
