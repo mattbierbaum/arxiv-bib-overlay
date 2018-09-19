@@ -1,7 +1,7 @@
 import { action, observable } from 'mobx'
-import { AdsDatasource } from '../api/AdsDatasource'
+//import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
-import { InspireDatasource } from '../api/InspireDatasource'
+//import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
 import { state, Status } from './State'
@@ -12,8 +12,8 @@ export class BibModel {
 
     @observable
     allDS: DataSource[] = [
-        new InspireDatasource(),
-        new AdsDatasource(),
+        //new InspireDatasource(),
+        //new AdsDatasource(),
         new S2Datasource()
     ]
 
@@ -55,7 +55,10 @@ export class BibModel {
         this.categories = categories
 
         this.availableDS = this.allDS.filter((ds) => ds.categories.has(primary))
-        this.setDS(this.availableDS[0])
+
+        if (this.availableDS.length !== 0) {
+            this.setDS(this.availableDS[0])
+        }
     }
 
     @action

@@ -39,11 +39,17 @@ function allmatches(str: string , regex: RegExp, index: number): string[] {
     return matches || ['']
 }
 
-function element_text(obj: HTMLElement): string {
+function element_text(elem_selector: string): string {
+    const obj = document.body.querySelector(elem_selector) as HTMLElement
     if (obj && obj.textContent) {
         return obj.textContent
     }
     return ''
+}
+
+function meta_text(elem_name: string): string {
+    const obj = document.head.querySelector(`[name="${elem_name}"]`) as HTMLMetaElement
+    return obj ? obj.content : ''
 }
 
 //=============================================================
@@ -55,8 +61,7 @@ function minor_to_major(category: string): string {
 }
 
 function get_minor_categories_primary(): string[] {
-    const obj = document.body.querySelector('.primary-subject') as HTMLElement
-    const txt = element_text(obj)
+    const txt = element_text('.primary-subject')
     return allmatches(txt, RE_CATEGORY_FULL, 1)
 }
 
@@ -64,8 +69,7 @@ function get_minor_categories_all(): string[] {
     // find the entries in the table which look like
     // (cat.MIN) -> (cs.DL, math.AS, astro-ph.GD)
     // also, (hep-th)
-    const obj = document.body.querySelector('.metatable .subjects') as HTMLElement
-    const txt = element_text(obj)
+    const txt = element_text('.metatable .subjects')
     return allmatches(txt, RE_CATEGORY_FULL, 1)
 }
 
@@ -98,8 +102,7 @@ function get_current_article_url(): string {
 }
 
 function get_current_article_meta(): string {
-    const obj = document.head.querySelector('[name="citation_arxiv_id"]') as HTMLMetaElement
-    return obj ? obj.content : ''
+    return meta_text('citation_arxiv_id')
 }
 
 export function get_current_article(): string {
@@ -117,4 +120,13 @@ export function asset_url(url: string) {
         output = URL_ASSET_BASE + url
     }
     return output
+}
+
+//=============================================================
+// extract other article metadata from the abstract page
+export function get_article_info(): any {
+    return {
+        title: meta_text('citation_title'),
+        authors: meta_text('citation_authors')
+    }
 }

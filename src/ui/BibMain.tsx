@@ -40,8 +40,12 @@ export class BibMain extends React.Component<{state: State}, {}> {
         const state = this.props.state
         const bib = this.props.state.bibmodel
 
-        if (state.isdisabled || !bib.availableDS) {
+        if (state.isdisabled) {
             return null
+        }
+
+        if (!bib.availableDS || bib.availableDS.length === 0) {
+            return (<div><span>No data provider available</span></div>)
         }
 
         const sources = bib.availableDS.map(

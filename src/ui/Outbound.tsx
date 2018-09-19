@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Paper } from '../api/document'
+import { get_article_info } from '../arxiv_page'
 import adsIcon from '../assets/icon-ads.png'
 import arxivIcon from '../assets/icon-arxiv.png'
 import citeIcon from '../assets/icon-cite.png'
@@ -53,7 +54,6 @@ const make_link = {
     },
 }
     
-/** Renders list of outbound links for a paper. */
 export class Outbound extends React.Component<{paper: Paper}, {}> {
     render() {
         const ref = this.props.paper
@@ -81,4 +81,16 @@ export class OutboundCite extends React.Component<{paper: Paper}, {}> {
             </div>
         )
     }
+}
+
+export function OutboundScholar() {
+    const info = get_article_info()
+    const query = encodeQueryData({q: info.title})
+    const url = `${API_SCHOLAR_SEARCH}?${query}`
+
+    return (
+        <div className='bib-outbound' style={{margin: '0.3em'}}>
+            <a href={url}>Google Scholar</a>
+        </div>
+    )
 }

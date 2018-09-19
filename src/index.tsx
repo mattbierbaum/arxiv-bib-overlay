@@ -1,10 +1,17 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import { get_categories } from './arxiv_page'
 import { cookie_load } from './cookies'
 import { state, Status } from './model/State'
 import registerServiceWorker from './registerServiceWorker'
 import { BibMain, pageElementMain, pageElementSidebar } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
+
+function record_categories() {
+    const id = Math.random().toString().substring(2, 12)
+    const cats = get_categories().map((i) => i[1]).join('&')
+    fetch(`https://arxiv.org/bibex/category?${cats}&id=${id}`)
+}
 
 const active = cookie_load()
 state.state = active ? Status.INIT : Status.DISABLED
@@ -24,3 +31,4 @@ if (active) {
 
 // @ts-ignore -- for debugging purposes
 document.state = state
+record_categories()
