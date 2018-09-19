@@ -30,6 +30,7 @@
     "jest",
     "src/setupTests.ts",
     "tools",
-    "static"
+    "static",
+    "extension"
   ]
 }
