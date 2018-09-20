@@ -6,8 +6,8 @@ import * as xmldom from 'xmldom'
 import * as xpath from 'xpath'
 import { Paper } from '../api/document'
 import '../App.css'
+import { pageElementModal } from '../arxiv_page'
 import { API_ARXIV_METADATA, API_CROSSREF_CITE } from '../bib_config'
-import { pageElementModal } from './BibMain'
 
 // FIXME -- add https://crosscite.org/
 

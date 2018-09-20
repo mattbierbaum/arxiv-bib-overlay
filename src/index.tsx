@@ -1,10 +1,10 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { get_categories } from './arxiv_page'
+import { get_categories, pageElementMain, pageElementSidebar } from './arxiv_page'
 import { cookie_load } from './cookies'
 import { state, Status } from './model/State'
 //import registerServiceWorker from './registerServiceWorker'
-import { BibMain, pageElementMain, pageElementSidebar } from './ui/BibMain'
+import { BibMain } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
 
 function record_categories() {

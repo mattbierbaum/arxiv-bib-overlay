@@ -116,3 +116,33 @@ export function get_article_info(): any {
         authors: meta_text('citation_authors')
     }
 }
+
+//==============================================================
+// functions that return page elements related to the arxiv page
+function pageElement(name: string, container: string,  insertbefore: string): HTMLElement {
+    const onpage = document.getElementById(name)
+    if (onpage) {
+        return onpage
+    }
+
+    const main = document.createElement('div')
+    main.id = name
+    main.className = name
+
+    const elemContainer = document.getElementsByClassName(container)[0]
+    const elemInsertBefore = document.getElementsByClassName(insertbefore)[0]
+    elemContainer.insertBefore(main, elemInsertBefore)
+    return main as HTMLElement
+}
+
+export function pageElementMain(): HTMLElement {
+    return pageElement('bib-main', 'leftcolumn', 'submission-history')
+}
+
+export function pageElementSidebar(): HTMLElement {
+    return pageElement('bib-sidebar', 'extra-services', 'bookmarks')
+}
+
+export function pageElementModal(): HTMLElement {
+    return pageElement('bib-modal', 'extra-services', 'bookmarks')
+}
