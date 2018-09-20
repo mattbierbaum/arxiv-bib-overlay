@@ -14,8 +14,8 @@
 * DONE error handling for no data present S2
 
 AFTER S2 RELEASE:
+* DONE data provider switching animation
+* DONE Remove static directory
+* WIP error handling (look into react error boundaries)
+* WIP rename document.ts and add docs
 * better understanding of webpack
-* data provider switching animation
-* error handling (look into react error boundaries)
-* rename document.ts and add docs
-* Remove static directory

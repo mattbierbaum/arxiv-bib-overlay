@@ -9,6 +9,91 @@ information from different community-supported API sources. For the classic
 system, it places itself on the page by inserting elements with vanilla
 javascript and putting React components into those elements.
 
+### Value and goals
+
+To provide ease of navigation for an article's citation tree (forward and
+backward) to enable discovery of relevant research and context within the
+broader scientific community. These types of navigational tools are available
+within many journal interfaces and 3rd tools (Scholar, ADS, Inspire, etc) and
+provide immense value for researchers. In this project, we wish to provide
+similar functionality for arXiv users -- to navigate the citation tree within
+arXiv as well as to external resources including journals, bibliographic
+databases, and citation database tools.
+
+The main goals which we wish to cover are:
+
+1. Listing known references and citations for a given article with
+   comprehensive metadata (authors, year, journal, etc).
+
+2. Provide filtering and viewing tools on arXiv abstract pages to enable
+   easy access to parts of the citation tree.
+
+3. Facilitate navigation to these articles within arXiv, to external journals,
+   and to bibliographic databases as appropriate (as measured by community
+   engagement).
+
+Additionally, the following functionality is considered useful, though may not
+ultimately fall under the perview of this project:
+
+4. Provide tools to export article metadata in formats usable by bibliographic
+   tools.
+
+### Considerations and Barriers
+
+A number of potential issues have been raised in through the NG user survey and
+anecdotes concerning this project.
+
+1. *Citation count metrics* -- while useful in determining "how many times a
+   paper has been cited", there is continued debate concerning the relationship
+   of citation counts to popularity, scientific novelty, and usefulness. At the
+   same time, it is clear that 'citation count' is also intimately related to
+   social and political issues such as funding, tenure, and general
+   determination of qualification. Therefore, it remains unclear whether the
+   arXiv (which has historically not shown bibliographic information) should
+   display these potentially harmful metrics.
+
+2. *Privacy (3rd party)* -- using APIs from external partners raises issues of
+   user privacy, particular when the overlay may be enabled by default without
+   adequate notification to users. Calls to the external APIs will allow 3rd
+   parties to access individual reading habits (via IP / referrer url).
+
+3. *Privacy (arXiv)* -- should we track external data accesses and usage
+   patterns to better enable the more prevalent access patterns?
+
+4. *Performance* -- new data access patterns and loading, as well as dynamic
+   content creation, can cause undue degredation of loading times, scrolling
+   performance. While initial testing do not indicate such issues, it should be
+   monitored, especially for older hardware and browsers.
+
+5. *3rd party requirements* -- as data is supplied from 3rd parties, we should
+   recognize the extra API load that they will sustain and try to minimize our
+   impact on their services. Additionally, we should recognize that our extra
+   load may impact arXiv users' experience in site loading and reference
+   navigation as well.
+
+Requirements
+------------
+
+### User experience
+
+* Automatically load and display citation information from a given data source.
+* Selectable data source (when overlapping) and preference is automatically saved.
+* On/off toggle with saved preferences.
+* Outbound links for every entry when possible (to arxiv, doi, journal, scholar, etc)
+* Navigation of citations provided with sorting, paging, filtering.
+
+### Performance
+
+* Deferred loading -- use of the overlay should not impact existing content
+  loading, functionality, or responsiveness.
+
+* Minimal javascript -- parsing time (an maintenance overhead) and time to
+  perform overlay actions.
+
+* Templating? Currently building structures in JQuery, but presumably
+  templating would be more performant. Although, it could be the case that
+  rendering is the primary issue anyway so that is irrelevant.
+
 Development environment
 -----------------------
 
