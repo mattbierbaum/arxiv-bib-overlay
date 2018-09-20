@@ -76,6 +76,15 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             <a title={aside} href={group.header_url} target='_blank' className='bib-star'>*</a> : null
         )
 
+        const utils = (
+            <div className='bib-utils'>
+            <div className='center'>{this.create_filter_div()}</div>
+            <div className='center'>{this.create_sorter_div()}</div>
+            <div className='center'>{this.create_paging_div()}</div>
+            </div>
+        )
+        const utils_div = group.count === 0 ? null : utils
+
         return (
             <div className='bib-col' id={'col-' + this.props.name.toLocaleLowerCase()}>
               <div className='bib-col-header'>
@@ -96,11 +105,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
                   </div>
                 </div>
               </div>
-              <div className='bib-utils'>
-                <div className='center'>{this.create_filter_div()}</div>
-                <div className='center'>{this.create_sorter_div()}</div>
-                <div className='center'>{this.create_paging_div()}</div>
-              </div>
+              {utils_div}
               <div>
                 {papers.map(paper => <PaperDiv paper={paper}/>)}
               </div>

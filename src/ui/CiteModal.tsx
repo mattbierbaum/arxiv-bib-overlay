@@ -9,6 +9,18 @@ import '../App.css'
 import { API_ARXIV_METADATA, API_CROSSREF_CITE } from '../bib_config'
 import { pageElementModal } from './BibMain'
 
+// FIXME -- add https://crosscite.org/
+
+const provider_desc = {
+    arxiv: 'arXiv API',
+    doi: 'Crossref Citation Format'
+}
+
+const provider_url = {
+    arxiv: 'https://arxiv.org/help/api/index',
+    doi: 'https://www.crossref.org/labs/citation-formatting-service/'
+}
+
 @observer
 export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     @observable
@@ -169,6 +181,10 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
                     <div>
                         <h4>Formatted citation:</h4>
                         <textarea rows={15} cols={75} value={this.content}></textarea>
+                    </div>
+                    <div>
+                        <span>Data provided by: </span>
+                        <a href={provider_url[this.source]}>{provider_desc[this.source]}</a>
                     </div>
                 </div>
             </div>

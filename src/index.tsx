@@ -27,6 +27,7 @@ if (active) {
     //state.bibmodel.configureSources('1703.00001', [['cs', 'cs.ML']])
     //state.bibmodel.configureSources('1603.04891', [['cs', 'cs.ML']])
     //state.bibmodel.configureSources('hep-th/9711200', [['hep-th', 'hep-th']])
+    //state.bibmodel.configureSources('1711.04170', [['cs', 'cs.ML']])
 }
 
 // @ts-ignore -- for debugging purposes
