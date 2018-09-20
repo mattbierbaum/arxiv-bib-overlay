@@ -10,10 +10,7 @@
 // from biboverlay.js. So this URL is only relevant when biboverlay is used
 // anyway.
 
-export const URL_ASSET_BASE = ''
 export const URL_PROXY = ''
-
-export const EXTENSION_ASSET_BASE = 'static/'
 
 export const API_ARXIV_METADATA = 'https://export.arxiv.org/api/query?id_list='
 export const API_CROSSREF_CITE = 'https://dx.doi.org/'

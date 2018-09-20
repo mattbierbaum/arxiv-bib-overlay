@@ -1,7 +1,5 @@
 import { URL_PROXY } from './bib_config'
 
-// BDC functions to access arxiv abs page info moved to arxiv_page.ts
-
 export function encodeQueryData(data: {[key: string]: (string | string[] | number)}) {
     const ret: string[] = []    
     for (const key of Object.getOwnPropertyNames(data)) {
@@ -21,13 +19,3 @@ export function urlproxy(url: string) {
     }
     return url
 }
-
-// BDC Doesn't seem used, save to get rid of
-// $().remove() is used in some places
-
-// Array.prototype.remove = function(element){
-//     var index = this.indexOf(element)
-//     if (index > -1) {
-//         this.splice(index, 1)
-//     }
-// }

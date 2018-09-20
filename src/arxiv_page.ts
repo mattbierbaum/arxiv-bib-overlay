@@ -1,25 +1,24 @@
 /** Functions to interact with the arxiv page ex. getting the arXiv ID of the page. */
-import { EXTENSION_ASSET_BASE, URL_ASSET_BASE } from './bib_config'
 
 export const RE_IDENTIFIER = new RegExp(
     '(?:' +                                           // begin OR group
-      '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)' +   // there is a new-form arxiv id
-        '|' +                                             // OR
-      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)' +   // old-form id (not allowed by S2)
-        '|' +
-      '(?:^(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)$)' +   // new-form with no preamble
+      '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)' + // there is a new-form arxiv id
+        '|' +                                               // OR
+      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)' +     // old-form id (not allowed by S2)
+        '|' +                                               // OR
+      '(?:^(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)$)' +     // new-form with no preamble
     ')'                                              // end OR group
 )
 
 export const RE_ARXIVID_URL = new RegExp(
-    '^http(?:s)?://(?:.*\.)?arxiv.org/abs/' +             // we are on an abs page
+    '^http(?:s)?://(?:.*\.)?arxiv.org/abs/' +       // we are on an abs page
     '(?:' +                                           // begin OR group
-      '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)' +       // there is a new-form arxiv id
-        '|' +                                            // OR
-      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)' + // old-form id (not allowed by S2)
+      '(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)' +         // there is a new-form arxiv id
+        '|' +                                             // OR
+      '(?:([a-z\\-]{1,12}\\/\\d{7})(?:v\\d{1,3})?)' +   // old-form id (not allowed by S2)
     ')' +                                             // end OR group
     '(?:#.*)?' +                                 // anchor links on page
-    '(?:\\?.*)?$'                               // query parameter stuff
+    '(?:\\?.*)?$'                                // query parameter stuff
 )
 
 export const RE_CATEGORY_FULL = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g)
@@ -107,19 +106,6 @@ function get_current_article_meta(): string {
 
 export function get_current_article(): string {
     return get_current_article_meta() || get_current_article_url()
-}
-
-//=============================================================
-// article id extraction functions
-export function asset_url(url: string) {
-    let output = ''
-    try {
-        // @ts-ignore
-        output = chrome.extension.getURL(EXTENSION_ASSET_BASE + url)
-    } catch (err) {
-        output = URL_ASSET_BASE + url
-    }
-    return output
 }
 
 //=============================================================
