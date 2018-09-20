@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom'
 import { get_categories } from './arxiv_page'
 import { cookie_load } from './cookies'
 import { state, Status } from './model/State'
-import registerServiceWorker from './registerServiceWorker'
+//import registerServiceWorker from './registerServiceWorker'
 import { BibMain, pageElementMain, pageElementSidebar } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
 
@@ -19,7 +19,7 @@ state.state = active ? Status.INIT : Status.DISABLED
 ReactDOM.render(<BibMain state={state}/>, pageElementMain())
 ReactDOM.render(<Sidebar state={state}/>, pageElementSidebar())
 
-registerServiceWorker()
+//registerServiceWorker()
 if (active) {
     state.bibmodel.configureFromAbtract()
     //state.bibmodel.configureSources('1603.04467', [['cs', 'cs.ML']])
