@@ -7,6 +7,7 @@ import { get_categories, get_current_article } from '../arxiv_page'
 import { state, Status } from './State'
 
 export class BibModel {
+    visitid: string = Math.random().toString().substring(2, 12)
     arxivId: string = ''
     categories: string[][]
 
@@ -91,10 +92,9 @@ export class BibModel {
     }
 
     record_api() {
-        const id = Math.random().toString().substring(2, 12)
         const cats = get_categories().map((i) => i[1]).join(':')
         const active = state.isdisabled ? 'disabled' : 'enabled'
         const ds = state.bibmodel.currentDS ? state.bibmodel.currentDS.shortname : 'none'
-        fetch(`https://arxiv.org/bibex-api?${ds}&${cats}&${active}&id=${id}`)
+        fetch(`https://arxiv.org/bibex-api?${ds}&${cats}&${active}&${this.visitid}`)
     }
 }
