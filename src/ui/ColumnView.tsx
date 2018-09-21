@@ -117,8 +117,8 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
     create_filter_div() {
         return (
             <div className='bib-filter'>
-              <label htmlFor='bib-filter-input' className='bib-filter-label'>Filter: </label>
-              <input type='search' name='bib-filter-input' id='bib-filter-input'
+              <label htmlFor='bib-filter-input--' className='bib-filter-label'>Filter: </label>
+              <input type='search' id='bib-filter-input--'
                 className='bib-filter-input' value={this.filter_text}
                 onChange={(e) => this.filter_text = e.target.value}/>
             </div>
@@ -166,8 +166,8 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
 
         return(
             <div className='bib-sorter'>
-              <label htmlFor='sort_field' className='sort-label'>Sort: </label>
-              <select className='sort_field' id='sort_field' name='sort_field'
+              <label htmlFor='sort_field--' className='sort-label'>Sort: </label>
+              <select className='sort_field' id='sort_field--'
                 onChange={(e) => {this.sort_field = e.target.value}}
                 value={this.sort_field}>
               {this.sort_options(this.props.paperGroup.sorting)}
@@ -277,18 +277,13 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
               <span>
                 <span>Pages:</span>
                 <ul className='bib-page-list'>{page_links}</ul>
-                {this.page_dropdown_select(L)}
+                <label htmlFor='bib-jump-label'>Skip: </label>
+                <select id='bib-jump-label' value={this.page}
+                    onChange={(e) => this.page = parseInt(e.target.value, 10) }>
+                { [...Array(L).keys()].map( i => <option value={i + 1}>{i + 1}</option>)}
+                </select>
               </span>
             </div >
-        )
-    }
-
-    page_dropdown_select(npages: number) {
-        // create the dropdown as well for ease of navigating large lists
-        return (
-            <select value={this.page} onChange={(e) => this.page = parseInt(e.target.value, 10) }>
-            { [...Array(npages).keys()].map( i => <option value={i + 1}>{i + 1}</option>)}
-            </select>
         )
     }
 }

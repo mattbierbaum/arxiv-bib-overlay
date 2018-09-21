@@ -59,6 +59,7 @@ export class BibModel {
         if (this.availableDS.length !== 0) {
             this.setDS(this.availableDS[0])
         }
+        this.record_api()
     }
 
     @action
@@ -67,6 +68,7 @@ export class BibModel {
             this.configureFromAbtract()
         } else {
             this.setDS(this.currentDS)
+            this.record_api()
         }
     }
 
@@ -86,5 +88,13 @@ export class BibModel {
     @action
     populateFromDSError(error: Error): void {
         state.error(error.message)
+    }
+
+    record_api() {
+        const id = Math.random().toString().substring(2, 12)
+        const cats = get_categories().map((i) => i[1]).join(':')
+        const active = state.isdisabled ? 'disabled' : 'enabled'
+        const ds = state.bibmodel.currentDS ? state.bibmodel.currentDS.shortname : 'none'
+        fetch(`https://arxiv.org/bibex-api?${ds}&${cats}&${active}&id=${id}`)
     }
 }
