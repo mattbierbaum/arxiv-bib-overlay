@@ -31,6 +31,7 @@
     "src/setupTests.ts",
     "tools",
     "static",
-    "extension"
+    "extension",
+    "bookmarklet"
   ]
 }

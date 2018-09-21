@@ -101,13 +101,13 @@ It is built in Typescript (TS, superset of Javascript with typing), ReactJS for
 building the UI components, and packages are handled via node. The various
 folders are
 
+* `bookmarklet` -- tools for hosting bibex as a bookmarklet
 * `build` -- where releases are created (transpiled from typescript)
 * `docs` -- you are here now
 * `extension` -- things needed to build a browser extension for bibex
 * `node_modules` -- node packages, there's a lot of them
 * `public` -- the static abs page which is used for developement / testing
 * `src` -- the actual Typescript source
-* `tools` -- python tools for extra processing (build extension, host bookmarklet)
 * `web` -- older materials for uploading the extension to the app store
 
 Therefore, mostly you will spend time in `src` to fix things / add features.
@@ -167,11 +167,11 @@ The command above will remind you, but it is changed in the field `homepage` in
 
 To host the bookmarklet, start the python server with:
 
-    python tools/server.py
+    python bookmarklet/server.py
 
 To build the extension, run:
 
-    python tools/packextension.py
+    python extension/packextension.py
 
 which will populate the `extension` folder so that it can be managed like other
 extensions for chrome or firefox.
