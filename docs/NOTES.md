@@ -163,18 +163,23 @@ This outputs a large number of things into `build`, which we then can host as a
 static asset. Since there are paths of assets implied in our source, you need
 to change the root path whenever the assets will be hosted somewhere different.
 The command above will remind you, but it is changed in the field `homepage` in
-`package.json`.
+`package.json`. However, looking at react documentation, it seems it should
+always be ".".
 
 To host the bookmarklet, start the python server with:
 
     python bookmarklet/server.py
 
-To build the extension, run:
+Then, create the bookmarklet using the text provided in
+`bookmarklet/bookmarklet.txt`.  After visiting an abstract page, click the
+bookmarklet to load bibex.  To build the extension, run:
 
     python extension/packextension.py
 
 which will populate the `extension` folder so that it can be managed like other
-extensions for chrome or firefox.
+extensions for chrome or firefox. For example, in Chrome, go to
+`chrome://extensions`, enable debugging and load the unpacked extension by
+selecting the `extension` folder.
 
 Implementation details
 ----------------------
