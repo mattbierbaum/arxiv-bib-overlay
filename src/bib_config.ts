@@ -1,15 +1,8 @@
-    
-// Note: this URL should be part of config, but I didn't want to set it twice.
-// The bootstrapping starts with biboverlay.js, which needs to have the asset
-// urls in order to grab the rest of the JS. Therefore, biboverlay.js stores
-// these two values and sets them in this module after loading it. Otherwise,
-// configuration would need to be duplicated.
-//
-// Furthermore, this value only should be set in the case of being loaded
-// outside of the extension. In that case, the overlay must be bootstrapped
-// from biboverlay.js. So this URL is only relevant when biboverlay is used
-// anyway.
-
+/*
+ * Configuration options spread throughout the application should be
+ * accumulated here if they are intended to be changed or appear in multiple
+ * places.
+*/
 export const URL_PROXY = ''
 
 export const API_ARXIV_METADATA = 'https://export.arxiv.org/api/query?id_list='

@@ -19,3 +19,6 @@ AFTER S2 RELEASE:
 * WIP error handling (look into react error boundaries)
 * WIP rename document.ts and add docs
 * better understanding of webpack
+
+* no reflow for small screens
+* timeout for API requests

@@ -1,7 +1,7 @@
 import { action, observable } from 'mobx'
-//import { AdsDatasource } from '../api/AdsDatasource'
+import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
-//import { InspireDatasource } from '../api/InspireDatasource'
+import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
 import { state, Status } from './State'
@@ -13,10 +13,10 @@ export class BibModel {
 
     @observable
     allDS: DataSource[] = [
-        //new InspireDatasource(),
-        //new AdsDatasource(),
+        new InspireDatasource(),
+        new AdsDatasource(),
         new S2Datasource()
-    ]
+    ].slice(2, 3)
 
     @observable
     availableDS: DataSource[]
@@ -36,6 +36,9 @@ export class BibModel {
     @action
     setDS(dataSource: DataSource): void {
         state.state = Status.LOADING
+        state.messages = []
+        state.errors = []
+
         this.currentDS = dataSource
         this.currentDS.fetch_all(this.arxivId)
             .then(ds => this.populateFromDSResult(ds))
