@@ -168,10 +168,10 @@ always be ".".
 
 To host the bookmarklet, start the python server with:
 
-    python bookmarklet/server.py
+    python deploy-static/bookmarklet-server.py
 
 Then, create the bookmarklet using the text provided in
-`bookmarklet/bookmarklet.txt`.  After visiting an abstract page, click the
+`deploy-static/bookmarklet.txt`.  After visiting an abstract page, click the
 bookmarklet to load bibex.  To build the extension, run:
 
     python extension/packextension.py
@@ -180,6 +180,29 @@ which will populate the `extension` folder so that it can be managed like other
 extensions for chrome or firefox. For example, in Chrome, go to
 `chrome://extensions`, enable debugging and load the unpacked extension by
 selecting the `extension` folder.
+
+### ABS page deployment
+
+The `/abs` page is a special case of the static deployment. To create the
+files, run the typical:
+
+    npm run build
+
+Then, to actually prepare the static directory that will be deployed, run the
+script which separates out the necessary files via:
+
+    deploy-static/pack-to-deploy.sh
+
+At the time of this writing, there should be 1 javascript file, 1 style sheet,
+and 1 image.  It is a very simple script which grabs the js, css, and an extra
+tracking image file. It's primary purpose is for note-taking to make sure
+nothing is left out.  Once executed, the static assets will reside in
+`deploy-static/deploy`. They should be copied to the appropriate location for
+serving. For now, the assumed location is `/bibex`. If the root directory
+changes, the location of the API tracking asset must be modified in
+`src/bib_config.ts`, changing the variable `API_STATS_IMAGE`. The HTML tags
+associated with the abs page are listed in `deploy-static/htmltags.txt`. They
+should be modified if the root directory where the hosted assets is changed.
 
 Implementation details
 ----------------------
