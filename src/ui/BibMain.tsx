@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
+import { POLICY_ALWAYS_DISPLAY_SECTION } from '../bib_config'
 import { cookies } from '../cookies'
 import { State, Status } from '../model/State'
 import { ColumnView } from './ColumnView'
@@ -18,6 +19,10 @@ export class BibMain extends React.Component<{state: State}, {}> {
 
         if (!bib.availableDS || bib.availableDS.length === 0) {
             return (<div><span>No data provider available</span></div>)
+        }
+
+        if (bib.availableDS.length === 1) {
+            return null
         }
 
         const sources = bib.availableDS.map(
@@ -54,7 +59,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
         const state = this.props.state
         if (state.isdisabled) {
             state.state = Status.INIT
-            state.bibmodel.reconfigureSources()
+            state.bibmodel.reloadSource()
             cookies.active = true
         } else {
             state.state = Status.DISABLED
@@ -94,7 +99,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
             </span>
         )
 
-        if (bib && bib.availableDS && bib.availableDS.length === 0) {
+        if (bib && bib.availableDS && bib.availableDS.length === 0 && !POLICY_ALWAYS_DISPLAY_SECTION) {
             return null
         }
 

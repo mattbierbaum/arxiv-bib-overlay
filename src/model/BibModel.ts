@@ -46,6 +46,11 @@ export class BibModel {
         return get_current_article()
     }
 
+    configureAvailable() {
+        const primary = this.article_category
+        this.availableDS = this.allDS.filter((ds) => ds.categories.has(primary))
+    }
+
     @action
     setDS(dataSource: DataSource): void {
         state.state = Status.LOADING
@@ -60,13 +65,15 @@ export class BibModel {
     }
 
     @action
-    configureFromAbtract() {
-        this.configureSources(this.article_id, this.article_category)
+    loadFromAbtract() {
+        this.loadSource(this.article_id, this.article_category)
     }
 
     @action
-    configureSources(arxivId: string, primary: string): void {
-        this.availableDS = this.allDS.filter((ds) => ds.categories.has(primary))
+    loadSource(arxivId: string, primary: string): void {
+        if (!this.availableDS) {
+            this.configureAvailable()
+        }
 
         if (this.availableDS.length !== 0) {
             const selected = cookies.get_datasource(primary)
@@ -82,9 +89,9 @@ export class BibModel {
     }
 
     @action
-    reconfigureSources(): void {
+    reloadSource(): void {
         if (!this.currentDS) {
-            this.configureFromAbtract()
+            this.loadFromAbtract()
         } else {
             this.setDS(this.currentDS)
             this.record_api()

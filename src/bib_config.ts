@@ -20,4 +20,5 @@ export const API_TIMEOUT = 30 * 1000
 export const POLICY_RECORD_API_STATS = true
 export const POLICY_REMEMBER_DATASOURCE = true
 export const POLICY_DEFAULT_ISACTIVE = false
+export const POLICY_ALWAYS_DISPLAY_SECTION = true
 export const POLICY_DATASOURCE_LIST = ['s2']//, 'ads', 'inspire']

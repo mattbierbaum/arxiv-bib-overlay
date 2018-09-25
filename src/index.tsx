@@ -14,9 +14,10 @@ function initialize() {
     ReactDOM.render(<BibMain state={state}/>, pageElementMain())
     ReactDOM.render(<Sidebar state={state}/>, pageElementSidebar())
 
-    //registerServiceWorker()
+    state.bibmodel.configureAvailable()
+
     if (active) {
-        state.bibmodel.configureFromAbtract()
+        state.bibmodel.loadFromAbtract()
 
         // FIXME -- a bunch of testing pages (to be removed)
         //state.bibmodel.configureSources('1603.04467', [['cs', 'cs.ML']])
