@@ -97,7 +97,7 @@ export class AdsDatasource implements DataSource {
         //const modestr: 'no-cors' = 'no-cors'
         //const headers = {mode: modestr, headers: {Authorization: `Bearer ${this.api_key}`}}
         //const headers = {headers: {Authorization: `Bearer ${this.credentials}`}}
-        const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
+        const headers = {headers: {Authorization: `Bearer ${this.credentials}`}}
 
         return fetch(url, headers)
             .then(resp => error_check(resp))
@@ -107,9 +107,9 @@ export class AdsDatasource implements DataSource {
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
     fetch_all(arxiv_id: string): Promise <AdsDatasource> {
-        /*if (!this.credentials) {
+        if (!this.credentials) {
             return this.get_credentials().then(() => this.fetch_all(arxiv_id))
-        }*/
+        }
 
         if (this.loaded) {
             return new Promise<AdsDatasource>((resolve, reject) => resolve(this))

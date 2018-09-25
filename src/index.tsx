@@ -31,4 +31,5 @@ if (active) {
 }
 
 // @ts-ignore -- for debugging purposes
-document.state = state
+document.bibex_present = true
+//document.state = state
