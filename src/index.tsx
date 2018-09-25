@@ -7,29 +7,40 @@ import { state, Status } from './model/State'
 import { BibMain } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
 
-const active = cookie_load()
-state.state = active ? Status.INIT : Status.DISABLED
+function initialize() {
+    const active = cookie_load()
+    state.state = active ? Status.INIT : Status.DISABLED
 
-ReactDOM.render(<BibMain state={state}/>, pageElementMain())
-ReactDOM.render(<Sidebar state={state}/>, pageElementSidebar())
+    ReactDOM.render(<BibMain state={state}/>, pageElementMain())
+    ReactDOM.render(<Sidebar state={state}/>, pageElementSidebar())
 
-//registerServiceWorker()
-if (active) {
-    state.bibmodel.configureFromAbtract()
+    //registerServiceWorker()
+    if (active) {
+        state.bibmodel.configureFromAbtract()
 
-    // FIXME -- a bunch of testing pages (to be removed)
-    //state.bibmodel.configureSources('1603.04467', [['cs', 'cs.ML']])
-    //state.bibmodel.configureSources(arxivid, categories)
-    //state.bibmodel.configureSources('1703.00001', [['cs', 'cs.ML']])
-    //state.bibmodel.configureSources('1603.04891', [['cs', 'cs.ML']])
-    //state.bibmodel.configureSources('hep-th/9711200', [['hep-th', 'hep-th']])
-    //state.bibmodel.configureSources('1711.04170', [['cs', 'cs.ML']])
-} else {
-    // FIXME -- we want to record potential API hits when disabled as well for
-    // the the testing period. this should be removed after the testing period
-    state.bibmodel.record_api()
+        // FIXME -- a bunch of testing pages (to be removed)
+        //state.bibmodel.configureSources('1603.04467', [['cs', 'cs.ML']])
+        //state.bibmodel.configureSources(arxivid, categories)
+        //state.bibmodel.configureSources('1703.00001', [['cs', 'cs.ML']])
+        //state.bibmodel.configureSources('1603.04891', [['cs', 'cs.ML']])
+        //state.bibmodel.configureSources('hep-th/9711200', [['hep-th', 'hep-th']])
+        //state.bibmodel.configureSources('1711.04170', [['cs', 'cs.ML']])
+    } else {
+        // FIXME -- we want to record potential API hits when disabled as well for
+        // the the testing period. this should be removed after the testing period
+        state.bibmodel.record_api()
+    }
+
+    // @ts-ignore -- for debugging purposes
+    document.bibex_present = true
+
+    // @ts-ignore -- for debugging purposes
+    document.bibex_state = state
 }
 
 // @ts-ignore -- for debugging purposes
-document.bibex_present = true
-//document.state = state
+if (document.bibex_present) {
+   console.log('Bibex already present on page')
+} else {
+    initialize()
+}
