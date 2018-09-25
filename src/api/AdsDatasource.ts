@@ -25,7 +25,8 @@ export class AdsDatasource implements DataSource {
         'nucl-th', 'physics', 'quant-ph'
     ])
 
-    base_url = 'https://devapi.adsabs.harvard.edu'
+    max_count = API_ARTICLE_COUNT
+    base_url = 'https://api.adsabs.harvard.edu'
     homepage = 'https://ui.adsabs.harvard.edu'
     api_url = `${this.base_url}/v1/search/query`
     api_key = '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x'
@@ -97,7 +98,7 @@ export class AdsDatasource implements DataSource {
         //const modestr: 'no-cors' = 'no-cors'
         //const headers = {mode: modestr, headers: {Authorization: `Bearer ${this.api_key}`}}
         //const headers = {headers: {Authorization: `Bearer ${this.credentials}`}}
-        const headers = {headers: {Authorization: `Bearer ${this.credentials}`}}
+        const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
 
         return fetch(url, headers)
             .then(resp => error_check(resp))
@@ -107,9 +108,9 @@ export class AdsDatasource implements DataSource {
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
     fetch_all(arxiv_id: string): Promise <AdsDatasource> {
-        if (!this.credentials) {
+        /*if (!this.credentials) {
             return this.get_credentials().then(() => this.fetch_all(arxiv_id))
-        }
+        }*/
 
         if (this.loaded) {
             return new Promise<AdsDatasource>((resolve, reject) => resolve(this))

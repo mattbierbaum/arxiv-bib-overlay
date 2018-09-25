@@ -12,6 +12,7 @@ export class S2Datasource implements DataSource {
     logo = sourceLogo
     icon = icon
 
+    max_count = 999
     email = 'feedback@semanticscholar.org'
     shortname = 'S2'
     longname = 'Semantic Scholar'

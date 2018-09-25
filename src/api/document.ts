@@ -80,6 +80,9 @@ export interface DataSource {
     /** Icon image, use in TSX like <img src={ds.icon}/> */
     icon: any
 
+    /** Maximum number of articles retrieved for any column */
+    max_count: number
+
     email: string
     shortname: string
     longname: string

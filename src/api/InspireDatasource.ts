@@ -11,6 +11,7 @@ export class InspireDatasource implements DataSource {
 
     data: BasePaper
 
+    max_count = API_ARTICLE_COUNT
     email = 'feedback@inspirehep.net'
     shortname = 'Inspire'
     longname = 'Inspire HEP'
