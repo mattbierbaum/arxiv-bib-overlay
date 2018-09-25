@@ -4,7 +4,7 @@ import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
-import { API_STATS_IMAGE, DATA_PROVIDER_LIST, RECORD_API_STATS } from '../bib_config'
+import { API_STATS_IMAGE, POLICY_DATASOURCE_LIST, POLICY_RECORD_API_STATS } from '../bib_config'
 import { cookies } from '../cookies'
 import { state, Status } from './State'
 
@@ -16,7 +16,7 @@ export class BibModel {
         new InspireDatasource(),
         new AdsDatasource(),
         new S2Datasource()
-    ].filter((i) => DATA_PROVIDER_LIST.indexOf(i.shortname.toLowerCase()) >= 0)
+    ].filter((i) => POLICY_DATASOURCE_LIST.indexOf(i.shortname.toLowerCase()) >= 0)
 
     @observable
     availableDS: DataSource[]
@@ -110,7 +110,7 @@ export class BibModel {
     }
 
     record_api() {
-        if (!RECORD_API_STATS) {
+        if (!POLICY_RECORD_API_STATS) {
             return
         }
 

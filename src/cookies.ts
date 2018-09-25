@@ -1,5 +1,5 @@
 import * as Cookie from 'js-cookie'
-import { COOKIE_PREFIX, DEFAULT_REMEMBER_DATASOURCE, DEFAULT_SETTING_ISACTIVE } from './bib_config'
+import { COOKIE_PREFIX, POLICY_DEFAULT_ISACTIVE, POLICY_REMEMBER_DATASOURCE } from './bib_config'
 
 const enum COOKIE_NAMES {
     ACTIVE = 'active',
@@ -35,7 +35,7 @@ class Cookies {
 
         /* let's define this cookie after the first usage */
         if (active === undefined) {
-            active = DEFAULT_SETTING_ISACTIVE
+            active = POLICY_DEFAULT_ISACTIVE
         }
 
         if (active === 'true') { active = true }
@@ -46,7 +46,7 @@ class Cookies {
     }
 
     get_datasource(category: string): string {
-        if (!DEFAULT_REMEMBER_DATASOURCE) {
+        if (!POLICY_REMEMBER_DATASOURCE) {
             return ''
         }
 
@@ -55,7 +55,7 @@ class Cookies {
     }
 
     set_datasource(category: string, value: string) {
-        if (!DEFAULT_REMEMBER_DATASOURCE) {
+        if (!POLICY_REMEMBER_DATASOURCE) {
             return
         }
 
