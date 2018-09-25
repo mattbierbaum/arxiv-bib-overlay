@@ -12,6 +12,7 @@ export const API_SCHOLAR_SEARCH = 'https://scholar.google.com/scholar'
 export const API_STATS_IMAGE = 'https://arxiv.org/bibex/apistats.png'
 export const RECORD_API_STATS = true
 
+export const DEFAULT_REMEMBER_DATASOURCE = true
 export const DEFAULT_SETTING_ISACTIVE = false
 
 export const COOKIE_PREFIX = 'bibex'
