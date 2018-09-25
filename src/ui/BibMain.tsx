@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
-import { POLICY_ALWAYS_DISPLAY_SECTION } from '../bib_config'
+import { POLICY_ALWAYS_DISPLAY_SECTION, POLICY_SHOW_HELP_LINKS } from '../bib_config'
 import { cookies } from '../cookies'
 import { State, Status } from '../model/State'
 import { ColumnView } from './ColumnView'
@@ -91,13 +91,13 @@ export class BibMain extends React.Component<{state: State}, {}> {
             )
         }
 
-        const help = (
+        const help = POLICY_SHOW_HELP_LINKS ? (
             <span>
             <span>[<a id='biboverlay_toggle' href='javascript:;'
                 onClick={() => this.toggle()}>{state.isdisabled ? 'Enable Bibex' : 'Disable Bibex'}</a></span>
             <span>(<a href='/help/bibex/'>What is Bibex?</a>)]</span>
             </span>
-        )
+        ) : null
 
         if (bib && bib.availableDS && bib.availableDS.length === 0 && !POLICY_ALWAYS_DISPLAY_SECTION) {
             return null

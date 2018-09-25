@@ -1,5 +1,5 @@
 import * as Cookie from 'js-cookie'
-import { COOKIE_PREFIX, POLICY_DEFAULT_ISACTIVE, POLICY_REMEMBER_DATASOURCE } from './bib_config'
+import { COOKIE_PREFIX, POLICY_DEFAULT_ENABLED, POLICY_REMEMBER_DATASOURCE } from './bib_config'
 
 const enum COOKIE_NAMES {
     ACTIVE = 'active',
@@ -35,7 +35,7 @@ class Cookies {
 
         /* let's define this cookie after the first usage */
         if (active === undefined) {
-            active = POLICY_DEFAULT_ISACTIVE
+            active = POLICY_DEFAULT_ENABLED
         }
 
         if (active === 'true') { active = true }

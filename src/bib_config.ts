@@ -17,8 +17,20 @@ export const API_ARTICLE_COUNT = 200
 export const API_TIMEOUT = 30 * 1000
 
 // settings that are determined by policy
+// whether or not to trap the api calls that are made for stats purposes
 export const POLICY_RECORD_API_STATS = true
+
+// whether to track the datasource for each category using cookies
 export const POLICY_REMEMBER_DATASOURCE = true
-export const POLICY_DEFAULT_ISACTIVE = false
+
+// if bibex is enabled or disabled by default
+export const POLICY_DEFAULT_ENABLED = false
+
+// display the "References and citations" section even when there is no datasource
 export const POLICY_ALWAYS_DISPLAY_SECTION = false
+
+// display [ Disable bibex (what is bibex)], turned off for extension
+export const POLICY_SHOW_HELP_LINKS = true
+
+// which data sources are enabled
 export const POLICY_DATASOURCE_LIST = ['s2']//, 'ads', 'inspire']
