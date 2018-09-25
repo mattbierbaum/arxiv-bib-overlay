@@ -50,6 +50,23 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
     @observable
     page = 1
 
+    redrawMathJax() {
+        try {
+            // @ts-ignore -- accessing existing MathJax on page
+            MathJax.Hub.Queue(['Typeset', MathJax.Hub])
+        } catch (e) {
+            console.log('MathJax not found')
+        }
+    }
+
+    componentDidMount() {
+        this.redrawMathJax()
+    }
+
+    componentDidUpdate() {
+        this.redrawMathJax()
+    }
+
     render() {
         const filt = this.fdata
         const group = this.props.paperGroup
