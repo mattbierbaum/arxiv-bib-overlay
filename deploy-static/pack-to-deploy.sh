@@ -3,7 +3,9 @@ if [ ! -d "deploy-static" ]; then
     exit 0
 fi
 
-mkdir -p bookmarklet/deploy
-cp build/static/js/main*.js bookmarklet/deploy/bibex.js
-cp build/static/css/main*.css bookmarklet/deploy/bibex.css
-cp src/assets/apistats.png bookmarklet/deploy/apistats.png
+DIR=deploy-static/deploy
+
+mkdir -p $DIR
+cp build/static/js/main*.js $DIR/bibex.js
+cp build/static/css/main*.css $DIR/bibex.css
+cp src/assets/apistats.png $DIR/apistats.png
