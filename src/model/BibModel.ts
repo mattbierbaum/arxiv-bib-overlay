@@ -10,7 +10,7 @@ import { state, Status } from './State'
 
 export class BibModel {
     arxivId: string = ''
-    category: string = ''
+    primary: string = ''
     visitid: string = Math.random().toString().substring(2, 12)
 
     @observable
@@ -56,8 +56,8 @@ export class BibModel {
         return get_current_article()
     }
 
-    configureAvailable() {
-        this.availableDS = this.allDS.filter((ds) => ds.categories.has(this.article_category))
+    configureAvailable(category: string) {
+        return this.allDS.filter((ds) => ds.categories.has(category))
     }
 
     @action
@@ -75,23 +75,27 @@ export class BibModel {
 
     @action
     loadFromAbtract() {
-        this.loadSource(this.article_id, this.article_category)
+        const arxivId = get_current_article()
+        const categories = get_categories()
+
+        if (categories.length === 0 || categories[0].length === 0) {
+            throw new Error('No categories found for article')
+        }
+
+        this.loadSource(arxivId, categories)
     }
 
     @action
     loadSource(arxivId: string, primary: string, force: boolean = false): void {
         this.arxivId = arxivId
-        this.category = primary
+        this.primary = primary
 
-        if (force || !this.availableDS) {
-            this.configureAvailable()
-        }
-
+        this.availableDS = this.configureAvailable(this.category)
         if (this.availableDS.length !== 0) {
-            const selected = cookies.get_datasource(primary)
+            const savedDS = cookies.get_datasource(primary)
 
-            if (selected) {
-                const source = this.availableDS.filter((i) => i.shortname === selected)
+            if (savedDS) {
+                const source = this.availableDS.filter((i) => i.shortname === savedDS)
                 this.setDS(source[0])
             } else {
                 this.setDS(this.availableDS[0])
