@@ -1,23 +1,58 @@
 import * as Cookie from 'js-cookie'
-import { COOKIE_ACTIVE } from './bib_config'
+import { COOKIE_PREFIX, DEFAULT_SETTING_ISACTIVE } from './bib_config'
 
-const LocalCookies = Cookie
-
-export function cookie_save(active: boolean) {
-    LocalCookies.set(COOKIE_ACTIVE, active)
+const enum COOKIE_NAMES {
+    ACTIVE = 'active',
 }
 
-export function cookie_load(): boolean {
-    let active = LocalCookies.get(COOKIE_ACTIVE)
+class Cookies {
+    localCookies = Cookie
 
-    /* let's define this cookie after the first usage */
-    if (active === undefined) {
-        active = true
+    cname(name: string) {
+        // convert short name to cookie name
+        return `${COOKIE_PREFIX}_${name}`
     }
 
-    if (active === 'true') { active = true }
-    if (active === 'false') { active = false }
+    dsname(name: string) {
+        // convert datasource to cookie name
+        return `ds_${name.toLowerCase()}`
+    }
 
-    LocalCookies.set(COOKIE_ACTIVE, active)
-    return active
+    get_value(name: string) {
+        return this.localCookies.get(this.cname(name))
+    }
+
+    set_value(name: string, value: any) {
+        this.localCookies.set(this.cname(name), value)
+    }
+
+    set active(active: boolean) {
+        this.set_value(COOKIE_NAMES.ACTIVE, active)
+    }
+
+    get active(): boolean {
+        let active = this.get_value(COOKIE_NAMES.ACTIVE)
+
+        /* let's define this cookie after the first usage */
+        if (active === undefined) {
+            active = DEFAULT_SETTING_ISACTIVE
+        }
+
+        if (active === 'true') { active = true }
+        if (active === 'false') { active = false }
+
+        this.set_value(COOKIE_NAMES.ACTIVE, active)
+        return active
+    }
+
+    get_datasource(category: string): string {
+        const val = this.get_value(this.dsname(category))
+        return val || ''
+    }
+
+    set_datasource(category: string, value: string) {
+        this.set_value(this.dsname(category), value)
+    }
 }
+
+export const cookies: Cookies = new Cookies()

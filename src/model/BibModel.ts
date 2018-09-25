@@ -5,12 +5,11 @@ import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
 import { API_STATS_IMAGE, DATA_PROVIDER_LIST, RECORD_API_STATS } from '../bib_config'
+import { cookies } from '../cookies'
 import { state, Status } from './State'
 
 export class BibModel {
     visitid: string = Math.random().toString().substring(2, 12)
-    arxivId: string = ''
-    categories: string[][]
 
     @observable
     allDS: DataSource[] = [
@@ -34,35 +33,50 @@ export class BibModel {
     @observable
     references: PaperGroup
 
+    get article_category() {
+        const cats: string[][] = get_categories()
+        if (cats && cats.length > 0 && cats[0].length > 0) {
+            return cats[0][0]
+        }
+
+        throw new Error('No primary category found')
+    }
+
+    get article_id() {
+        return get_current_article()
+    }
+
     @action
     setDS(dataSource: DataSource): void {
         state.state = Status.LOADING
         state.messages = []
         state.errors = []
 
+        cookies.set_datasource(this.article_category, dataSource.shortname)
         this.currentDS = dataSource
-        this.currentDS.fetch_all(this.arxivId)
+        this.currentDS.fetch_all(this.article_id)
             .then(ds => this.populateFromDSResult(ds))
             .catch(error => this.populateFromDSError(error))
     }
 
     @action
     configureFromAbtract() {
-        const arxivid: string = get_current_article()
-        const categories: string[][] = get_categories()
-        this.configureSources(arxivid, categories)
+        this.configureSources(this.article_id, this.article_category)
     }
 
     @action
-    configureSources(arxivId: string, categories: string[][]): void {
-        const primary = categories[0][0]
-        this.arxivId = arxivId
-        this.categories = categories
-
+    configureSources(arxivId: string, primary: string): void {
         this.availableDS = this.allDS.filter((ds) => ds.categories.has(primary))
 
         if (this.availableDS.length !== 0) {
-            this.setDS(this.availableDS[0])
+            const selected = cookies.get_datasource(primary)
+
+            if (selected) {
+                const source = this.availableDS.filter((i) => i.shortname === selected)
+                this.setDS(source[0])
+            } else {
+                this.setDS(this.availableDS[0])
+            }
         }
         this.record_api()
     }

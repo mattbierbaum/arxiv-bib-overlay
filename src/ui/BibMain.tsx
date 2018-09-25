@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
-import { cookie_save } from '../cookies'
+import { cookies } from '../cookies'
 import { State, Status } from '../model/State'
 import { ColumnView } from './ColumnView'
 import { spinner } from './Spinner'
@@ -55,10 +55,10 @@ export class BibMain extends React.Component<{state: State}, {}> {
         if (state.isdisabled) {
             state.state = Status.INIT
             state.bibmodel.reconfigureSources()
-            cookie_save(true)
+            cookies.active = true
         } else {
             state.state = Status.DISABLED
-            cookie_save(false)
+            cookies.active = false
         }
     }
 

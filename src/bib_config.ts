@@ -12,7 +12,9 @@ export const API_SCHOLAR_SEARCH = 'https://scholar.google.com/scholar'
 export const API_STATS_IMAGE = 'https://arxiv.org/bibex/apistats.png'
 export const RECORD_API_STATS = true
 
-export const COOKIE_ACTIVE = 'biboverlay_active'
+export const DEFAULT_SETTING_ISACTIVE = false
+
+export const COOKIE_PREFIX = 'bibex'
 export const MAX_AUTHORS = 10
 export const PAGE_LENGTH = 10
 export const API_ARTICLE_COUNT = 200

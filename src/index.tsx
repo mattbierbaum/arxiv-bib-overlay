@@ -1,14 +1,14 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { pageElementMain, pageElementSidebar } from './arxiv_page'
-import { cookie_load } from './cookies'
+import { cookies } from './cookies'
 import { state, Status } from './model/State'
 //import registerServiceWorker from './registerServiceWorker'
 import { BibMain } from './ui/BibMain'
 import { Sidebar } from './ui/Sidebar'
 
 function initialize() {
-    const active = cookie_load()
+    const active = cookies.active
     state.state = active ? Status.INIT : Status.DISABLED
 
     ReactDOM.render(<BibMain state={state}/>, pageElementMain())
