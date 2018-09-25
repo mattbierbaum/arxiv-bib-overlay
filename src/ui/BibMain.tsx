@@ -91,7 +91,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
             <span>
             <span>[<a id='biboverlay_toggle' href='javascript:;'
                 onClick={() => this.toggle()}>{state.isdisabled ? 'Enable Bibex' : 'Disable Bibex'}</a></span>
-            <span>(<a href='/help/bibex/'>What is Bibex?</a>)]</span>
+            <span>(<a href='https://labs.arxiv.org/#bibliographic-explorer'>What is Bibex?</a>)]</span>
             </span>
         ) : null
 

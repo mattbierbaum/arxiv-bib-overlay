@@ -9,6 +9,8 @@ import { cookies } from '../cookies'
 import { state, Status } from './State'
 
 export class BibModel {
+    arxivId: string = ''
+    category: string = ''
     visitid: string = Math.random().toString().substring(2, 12)
 
     @observable
@@ -34,6 +36,10 @@ export class BibModel {
     references: PaperGroup
 
     get article_category() {
+        if (this.category) {
+            return this.category
+        }
+
         const cats: string[][] = get_categories()
         if (cats && cats.length > 0 && cats[0].length > 0) {
             return cats[0][0]
@@ -43,12 +49,15 @@ export class BibModel {
     }
 
     get article_id() {
+        if (this.arxivId) {
+            return this.arxivId
+        }
+
         return get_current_article()
     }
 
     configureAvailable() {
-        const primary = this.article_category
-        this.availableDS = this.allDS.filter((ds) => ds.categories.has(primary))
+        this.availableDS = this.allDS.filter((ds) => ds.categories.has(this.article_category))
     }
 
     @action
@@ -70,8 +79,11 @@ export class BibModel {
     }
 
     @action
-    loadSource(arxivId: string, primary: string): void {
-        if (!this.availableDS) {
+    loadSource(arxivId: string, primary: string, force: boolean = false): void {
+        this.arxivId = arxivId
+        this.category = primary
+
+        if (force || !this.availableDS) {
             this.configureAvailable()
         }
 

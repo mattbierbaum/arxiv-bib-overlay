@@ -9,8 +9,8 @@ export const sorter = (arr: Paper[], field: (p: Paper) => number|string, ord: 'u
     return arr.sort((a, b) => {
         if (field(a) > field(b)) { return -1 * sign }
         if (field(a) < field(b)) { return +1 * sign }
-        if (a.title  > b.title) {  return +1 }
-        if (a.title  < b.title) {  return -1 }
+        if (a.simpletitle  > b.simpletitle) {  return +1 }
+        if (a.simpletitle  < b.simpletitle) {  return -1 }
         return 0
     })
   }

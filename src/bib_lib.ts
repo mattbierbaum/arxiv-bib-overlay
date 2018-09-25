@@ -19,3 +19,8 @@ export function urlproxy(url: string) {
     }
     return url
 }
+
+export function remove_puctuation(data: string): string {
+    //return data.replace(/[.,\/#!$%\^&\*;:{}=\-_~()"'\\\[\]]/gmi, '')
+    return data.replace(/[~`!@#$%^&*(){}\[\];:"'<,.>?\/\\|_+=-]/gmi, '')
+}
