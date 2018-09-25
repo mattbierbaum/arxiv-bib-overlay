@@ -32,7 +32,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
             (accu, elem) => accu === null ? elem : (<span>{accu}<span> | </span>{elem}</span>)
         )
 
-        return (<div><span>Select data provider: </span>{sources}</div>)
+        return (<span><span>Select data provider: </span>{sources}</span>)
     }
 
     generate_messages() {
@@ -86,17 +86,28 @@ export class BibMain extends React.Component<{state: State}, {}> {
             )
         }
 
+        const help = (
+            <span>
+            <span>[<a id='biboverlay_toggle' href='javascript:;'
+                onClick={() => this.toggle()}>{state.isdisabled ? 'Enable Bibex' : 'Disable Bibex'}</a></span>
+            <span>(<a href='/help/bibex/'>What is Bibex?</a>)]</span>
+            </span>
+        )
+
+        if (bib && bib.availableDS && bib.availableDS.length === 0) {
+            return null
+        }
+
+        // <h2>References and citations</h2>
+        // <div className='bib-hr'></div>
         return (
             <div className='bib-main'>
               <div className='references-citations'>
                 <h2>References and citations</h2>
                 <div className='references-citations-boxes'>
-                  <div className='bib-sidebar-source'>{this.generate_sources()}</div>
+                  <div className='bib-sidebar-source'>{this.generate_sources()}<span> {help}</span></div>
                   <div className='bib-sidebar-msgs'>{this.generate_messages()}</div>
                 </div>
-                <span>[<a id='biboverlay_toggle' href='javascript:;'
-                    onClick={() => this.toggle()}>{state.isdisabled ? 'Enable' : 'Disable'}</a></span>
-                <span> (<a href='/help/bibex/'>What is this?</a>)]</span>
               </div>
               {body}
             </div>

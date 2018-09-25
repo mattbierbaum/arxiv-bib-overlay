@@ -26,3 +26,4 @@ yarn-error.log*
 *.pem
 extension/js/*
 extension/css/*
+tests/

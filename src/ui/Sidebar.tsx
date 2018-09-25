@@ -19,6 +19,10 @@ export class Sidebar extends React.Component<{state: State}, {}> {
             return OutboundScholar()
         }
 
+        if (bib.currentDS && !bib.currentDS.loaded) {
+            return OutboundScholar()
+        }
+
         const auth_elements = bib.paper.authors.map(
             au => <li key={au.url}><a href={au.url} target='_blank'>{au.name}</a></li>
         )

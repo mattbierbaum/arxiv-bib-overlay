@@ -7,6 +7,7 @@ import {  BasePaper, DataSource, Paper } from './document'
 
 /** Class to fetch references from ADS. */
 export class AdsDatasource implements DataSource {
+    credentials: string = ''
     loaded: boolean = false
     aid: string
 
@@ -24,7 +25,7 @@ export class AdsDatasource implements DataSource {
         'nucl-th', 'physics', 'quant-ph'
     ])
 
-    base_url = 'https://ui.adsabs.harvard.edu'
+    base_url = 'https://devapi.adsabs.harvard.edu'
     homepage = 'https://ui.adsabs.harvard.edu'
     api_url = `${this.base_url}/v1/search/query`
     api_key = '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x'
@@ -76,6 +77,14 @@ export class AdsDatasource implements DataSource {
         this.data = output
     }
 
+    get_credentials(): Promise<void> {
+        const credstr: 'include' = 'include'
+        const options = {credentials: credstr}
+        return fetch('http://abovl.us-east-1.elasticbeanstalk.com/token', options)
+            .then(resp => resp.json())
+            .then(json => {this.credentials = json.token})
+    }
+
     fetch_params(query: string, index: number): string {
         const params = { ...this.api_params }
         params.q = query
@@ -85,6 +94,9 @@ export class AdsDatasource implements DataSource {
     /* Fetch for a query and return a Promise with Object parsed from JSON. */
     fetch_docs(query: string, index: number): Promise <any> {
         const url = `${this.api_url}?${this.fetch_params(query , index)}`
+        //const modestr: 'no-cors' = 'no-cors'
+        //const headers = {mode: modestr, headers: {Authorization: `Bearer ${this.api_key}`}}
+        //const headers = {headers: {Authorization: `Bearer ${this.credentials}`}}
         const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
 
         return fetch(url, headers)
@@ -95,6 +107,10 @@ export class AdsDatasource implements DataSource {
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
     fetch_all(arxiv_id: string): Promise <AdsDatasource> {
+        /*if (!this.credentials) {
+            return this.get_credentials().then(() => this.fetch_all(arxiv_id))
+        }*/
+
         if (this.loaded) {
             return new Promise<AdsDatasource>((resolve, reject) => resolve(this))
         }

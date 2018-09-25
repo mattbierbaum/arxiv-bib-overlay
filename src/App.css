@@ -1,5 +1,5 @@
 .references-citations {
-    margin: 1.5em 0 1.5em 20px;
+    margin: 1.5em;
     font-size: 90%;
     line-height: 1.5em;
 }
@@ -105,7 +105,7 @@
 }
 
 .bib-pager {
-    min-width: 350px;
+    min-width: 120px;
 }
 
 .bib-page-list {
@@ -238,30 +238,6 @@
     min-width: 110px;
     max-width: 111px;
     position: relative;
-    padding-left: 0.3em;
-    margin-left: 0.3em;
-}
-
-.bib-paper-links::before {
-    content: " ";
-    position: absolute;
-    top: calc(50% - 8px);
-    left: 0px;
-    margin-left: -16px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: transparent transparent transparent #aaa ;
-}
-
-.bib-paper-links::after {
-    content: " ";
-    position: absolute;
-    top: calc(50% - 8px);
-    left: -2px;
-    margin-left: -16px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: transparent transparent transparent white;
 }
 
 .bib-paper-links > span {
@@ -388,25 +364,6 @@ h1.bib-header span {
     font-size: 100%;
     font-weight: normal;
     margin-left: 1.5em;
-}
-
-.bib-sidebar-msgs .msg:hover {
-    /*cursor: help;*/
-}
-
-.bib-sidebar-msgs .msg .hover {
-    /*top: -5px;
-    right: 105%;
-    visibility: hidden;
-    color: white;
-    background-color: #444;
-    padding: 1em;
-    position: absolute;
-    z-index: 1;*/
-    /*max-width: 500px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    hyphens: auto;*/
 }
 
 .bib-sidebar-msgs .msg:hover .hover {
@@ -594,73 +551,7 @@ h1.bib-header span {
     cursor: pointer;
 }
 
-@media only screen and (min-width : 1400px) {
-    .bib-paper-overhang {
-        display: flex;
-        flex-grow: 1;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: stretch;
-    }
-
-    .bib-paper-links {
-        flex-direction: column;
-        justify-content: center;
-        border-left: 2px solid #aaa;
-    }
-
-    .bib-paper-links::before {
-        left: 0%;
-        margin-left: -16px;
-        border-color: transparent #aaa transparent transparent;
-    }
-
-    .bib-paper-links::after {
-        left: 0%;
-        margin-left: -14px;
-        border-color: transparent white transparent transparent;
-    }
-
-    .bib-paper-links > span {
-        display: inline;
-    }
-}
-
-@media only screen and (min-width: 810px) and (max-width: 1080px) {
-    .bib-paper-overhang {
-        display: flex;
-        flex-grow: 1;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: stretch;
-    }
-
-    .bib-paper-links {
-        flex-direction: column;
-        justify-content: center;
-        border-left: 2px solid #aaa;
-    }
-
-    .bib-paper-links::before {
-        left: 0%;
-        margin-left: -16px;
-        border-color: transparent #aaa transparent transparent;
-    }
-
-    .bib-paper-links::after {
-        left: 0%;
-        margin-left: -14px;
-        border-color: transparent white transparent transparent;
-    }
-
-    .bib-paper-links > span {
-        display: inline;
-    }
-}
-
-@media only screen and (max-width: 1080px) {
+@media only screen and (max-width: 800px) {
     .bib-col2 {
         flex-direction: column;
     }
@@ -668,4 +559,11 @@ h1.bib-header span {
     .bib-col {
         width: 100%;
     }
+}
+
+.bib-hr {
+    margin-bottom: 1em;
+    border-width: 1px 0 0 0;
+    border-color: #555;
+    border-style: solid;
 }
