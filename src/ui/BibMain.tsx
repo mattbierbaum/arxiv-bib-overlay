@@ -21,10 +21,6 @@ export class BibMain extends React.Component<{state: State}, {}> {
             return (<div><span>No data provider available</span></div>)
         }
 
-        if (bib.availableDS.length === 1) {
-            return null
-        }
-
         const sources = bib.availableDS.map(
             (i): JSX.Element => {
                 if (bib.currentDS === i) {
