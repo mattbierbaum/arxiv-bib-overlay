@@ -26,7 +26,7 @@ export class S2Datasource implements DataSource {
             paper: {name: 'Paper order', func: (i) => i.index},
             influence: {name: 'Influence', func: (i) => i.isInfluential},
             author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname().toLowerCase()},
-            title: {name: 'Title', func: (i) => i.title.toLowerCase()},
+            title: {name: 'Title', func: (i) => i.simpletitle},
             year: {name: 'Year', func: (i) => i.year},
         },
         sorters_order: ['influence', 'title', 'author', 'year'],

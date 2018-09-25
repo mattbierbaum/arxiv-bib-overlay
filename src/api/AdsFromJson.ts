@@ -1,5 +1,5 @@
 import { RE_IDENTIFIER } from '../arxiv_page'
-import { encodeQueryData } from '../bib_lib'
+import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { AdsDatasource } from './AdsDatasource'
 import { Author, Paper } from './document'
 
@@ -111,6 +111,7 @@ export class AdsToPaper {
         newdoc.venue = json.pub || ''
         newdoc.citation_count = json.citation_count
 
+        newdoc.simpletitle = remove_puctuation(newdoc.title.toLocaleLowerCase())
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         return newdoc

@@ -45,7 +45,7 @@ export class AdsDatasource implements DataSource {
             paper: {name: 'Paper order', func: (i) => i.index  },
             citations: {name: 'Citations', func: (i) => i.citation_count},
             influence: {name: 'ADS read count', func: (i) => i.read_count},
-            title: {name: 'Title', func: (i) => i.title.toLocaleLowerCase() },
+            title: {name: 'Title', func: (i) => i.simpletitle},
             author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() },
             year: {name: 'Year', func: (i) => i.year}
         },

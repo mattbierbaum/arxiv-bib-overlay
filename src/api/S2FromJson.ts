@@ -1,5 +1,5 @@
 //import { RE_IDENTIFIER } from '../arxiv_page'
-import { encodeQueryData } from '../bib_lib' 
+import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { Author, Paper } from './document'
 import { S2Datasource } from './S2Datasource'
 
@@ -28,7 +28,8 @@ export class S2ToPaper {
     }
 
     searchline(doc: Paper) {
-        return [doc.title, doc.venue, doc.year].join(' ').toLowerCase()
+        const auths = doc.authors.reduce((acc, au) => acc + au.name +  ' ', '')
+        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase()
     }
 
     outbound_names(ref: Paper) {
@@ -67,6 +68,7 @@ export class S2ToPaper {
 
         newdoc.paperId = json.paperId
 
+        newdoc.simpletitle = remove_puctuation(json.title).toLocaleLowerCase()
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         return newdoc

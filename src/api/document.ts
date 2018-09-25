@@ -29,6 +29,7 @@ export class Paper {
     // Computed from other parts of the Paper object
     url_doi?: string
     url_arxiv?: string
+    simpletitle: string
     searchline: string
     outbound: string[]
     index: number

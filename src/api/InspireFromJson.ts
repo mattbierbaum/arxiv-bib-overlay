@@ -1,5 +1,5 @@
 import { RE_IDENTIFIER } from '../arxiv_page'
-import { encodeQueryData } from '../bib_lib'
+import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { Author, Paper } from './document'
 import { InspireDatasource } from './InspireDatasource'
 
@@ -98,7 +98,7 @@ export class InspireToPaper {
     }
 
     searchline(json: any) {        
-        const auths = json.authors.join(' ')
+        const auths = json.authors.reduce((acc, au) => acc + au.name +  ' ', '')
         return [json.title, auths, json.venue, json.year].join(' ').toLowerCase()
     }
 
@@ -130,6 +130,8 @@ export class InspireToPaper {
         newdoc.arxivId = arxivid
         newdoc.url_doi = json.doi ? 'https://doi.org/' + json.doi : ''
         newdoc.url_arxiv = this.url_arxiv(arxivid)
+
+        newdoc.simpletitle = remove_puctuation(newdoc.title.toLocaleLowerCase())
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         return newdoc
