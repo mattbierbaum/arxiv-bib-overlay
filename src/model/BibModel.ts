@@ -4,6 +4,7 @@ import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
+import { API_STATS_IMAGE } from '../bib_config'
 import { state, Status } from './State'
 
 export class BibModel {
@@ -98,6 +99,6 @@ export class BibModel {
         const cats = get_categories().map((i) => i[1]).join(':')
         const active = state.isdisabled ? 'disabled' : 'enabled'
         const ds = state.bibmodel.currentDS ? state.bibmodel.currentDS.shortname : 'none'
-        fetch(`https://arxiv.org/bibex-api?${ds}&${cats}&${active}&${this.visitid}`)
+        fetch(`${API_STATS_IMAGE}?${ds}&${cats}&${active}&${this.visitid}`)
     }
 }

@@ -32,6 +32,6 @@
     "tools",
     "static",
     "extension",
-    "bookmarklet"
+    "deploy-static"
   ]
 }

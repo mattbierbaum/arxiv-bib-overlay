@@ -8,6 +8,7 @@ export const URL_PROXY = ''
 export const API_ARXIV_METADATA = 'https://export.arxiv.org/api/query?id_list='
 export const API_CROSSREF_CITE = 'https://dx.doi.org/'
 export const API_SCHOLAR_SEARCH = 'https://scholar.google.com/scholar'
+export const API_STATS_IMAGE = 'https://arxiv.org/bibex/apistats.png'
 
 export const COOKIE_ACTIVE = 'biboverlay_active'
 export const MAX_AUTHORS = 10
