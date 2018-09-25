@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import * as React from 'react'
 import { DataSource, Paper, PaperGroup, SorterConfig } from '../api/document'
 import { get_current_article } from '../arxiv_page'
-import { API_ARTICLE_COUNT, PAGE_LENGTH } from '../bib_config'
+import { PAGE_LENGTH } from '../bib_config'
 import { sorter } from './ColumnSorter'
 import { PaperDiv } from './PaperDiv'
 
@@ -73,12 +73,13 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         )
 
         const aside = (
-            `Only displaying the ${API_ARTICLE_COUNT} most cited articles.` +
-            `For all articles, follow this link to ${datasource}.`
+            `Only displaying the ${datasource.max_count} most cited articles. ` +
+            `For all articles, follow this link to ${datasource.longname}.`
         )
         const star = (
-            group.documents.length === API_ARTICLE_COUNT ?
-            <a title={aside} href={group.header_url} target='_blank' className='bib-star'>*</a> : null
+            group.documents.length === datasource.max_count ?
+            <a title={aside} href={group.header_url} target='_blank'
+            className='bib-star' style={{color: 'red'}}>*</a> : null
         )
 
         const utils = (

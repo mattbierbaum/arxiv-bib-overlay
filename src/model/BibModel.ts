@@ -4,7 +4,7 @@ import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
-import { API_STATS_IMAGE } from '../bib_config'
+import { API_STATS_IMAGE, DATA_PROVIDER_LIST, RECORD_API_STATS } from '../bib_config'
 import { state, Status } from './State'
 
 export class BibModel {
@@ -17,7 +17,7 @@ export class BibModel {
         new InspireDatasource(),
         new AdsDatasource(),
         new S2Datasource()
-    ].slice(2, 3)
+    ].filter((i) => DATA_PROVIDER_LIST.indexOf(i.shortname.toLowerCase()) >= 0)
 
     @observable
     availableDS: DataSource[]
@@ -96,6 +96,10 @@ export class BibModel {
     }
 
     record_api() {
+        if (!RECORD_API_STATS) {
+            return
+        }
+
         const cats = get_categories().map((i) => i[1]).join(':')
         const active = state.isdisabled ? 'disabled' : 'enabled'
         const ds = state.bibmodel.currentDS ? state.bibmodel.currentDS.shortname : 'none'
