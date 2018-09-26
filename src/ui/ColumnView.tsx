@@ -1,4 +1,4 @@
-import { computed, observable } from 'mobx'
+import { action, computed, observable } from 'mobx'
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import { DataSource, Paper, PaperGroup, SorterConfig } from '../api/document'
@@ -164,8 +164,10 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
 
     sortPapers(paperGroup: PaperGroup, data: Paper[]): Paper[] {
         if (!paperGroup || ! data) { return [] }
-
-        const field = this.sort_field || paperGroup.sorting.sorters_default
+        if (this.sort_field === '' ) {
+            this.sort_field = paperGroup.sorting.sorters_default
+        }
+        const field = this.sort_field
         const sorters = this.props.paperGroup.sorting.sorters
 
         if (sorters[field] && sorters[field].func) {
@@ -196,7 +198,25 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         return output
     }
 
-    create_sorter_div() {
+    totalPages(): number {
+        return Math.floor((this.fdata.length - 1) / PAGE_LENGTH) + 1
+    }
+
+    @action
+    toggle_sort() {
+        this.sort_order = this.sort_order === 'up' ? 'down' : 'up'
+        this.page = 1
+        //this.page = this.totalPages() - this.page + 1
+    }
+
+    @action
+    change_sort_field(field: string) {
+        this.sort_order = this.props.paperGroup.sorting.sorters_updown[field]
+        this.sort_field = field
+        this.page = 1
+    }
+
+   create_sorter_div() {
         if (!this.props.paperGroup.sorting) {
             return null
         }
@@ -206,11 +226,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             <div className='bib-sorter'>
               <label htmlFor={lblid} className='sort-label'>Sort: </label>
               <select className='sort_field' id={lblid}
-                onChange={(e) => {
-                    this.page = 1
-                    this.sort_field = e.target.value
-                    this.sort_order = this.props.paperGroup.sorting.sorters_updown[e.target.value]
-                }}
+                onChange={(e) => {this.change_sort_field(e.target.value)}}
                 value={this.sort_field}>
               {this.sort_options(this.props.paperGroup.sorting)}
               </select>
@@ -218,8 +234,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
               <span className='bib-sort-arrow sort-label'>
               <a href='javascript:;' onClick={(e) => {
                   e.preventDefault()
-                  this.page = 1
-                  this.sort_order = this.sort_order === 'up' ? 'down' : 'up'
+                  this.toggle_sort()
               }}>
                 <span className={this.sort_order !== 'up' ? 'disabled' : ''}
                   title='Sort ascending'>▲</span>
@@ -267,7 +282,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
 
         const B = 1              /* number of buffer pages on each side of current */
         const P = this.page      /* shortcut to current page */
-        const L = Math.floor((this.fdata.length - 1) / PAGE_LENGTH) + 1  /* total pages */
+        const L = this.totalPages()  /* total pages */
         const S = 2 * B + 2 * 2 + 1  /* number of total links in the pages sections:
                            2*buffer + 2*(first number + dots) + current */
         const[langle, rangle, dots] = ['◀',  '▶', '...']

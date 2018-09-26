@@ -26,7 +26,7 @@ export class Paper {
 
     // Items sometimes constructed, sometimes provided by the data provider
     url: string | undefined // url to paper in external service
-    api: string | undefined // url to get more information via external service 
+    api: string | undefined // url to get more information via external service
 
     // Computed from other parts of the Paper object
     url_doi?: string

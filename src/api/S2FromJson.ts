@@ -67,7 +67,7 @@ export class S2ToPaper {
         newdoc.url_doi = this.url_doi(json)
 
         newdoc.paperId = json.paperId
-        newdoc.isInfluential = json.isInfluential
+        newdoc.isInfluential = json.isInfluential || false
 
         newdoc.simpletitle = remove_puctuation(json.title).toLocaleLowerCase()
         newdoc.searchline = this.searchline(newdoc)
