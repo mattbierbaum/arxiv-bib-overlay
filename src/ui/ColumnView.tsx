@@ -152,7 +152,12 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             <div className='bib-filter'>
               <label htmlFor={lblid} className='bib-filter-label'>Filter: </label>
               <input type='search' id={lblid} className='bib-filter-input' value={this.filter_text}
-                onChange={(e) => this.filter_text = e.target.value}/>
+                onChange={
+                    (e) => {
+                        this.page = 1
+                        this.filter_text = e.target.value
+                    }
+                }/>
             </div>
         )
     }
@@ -202,6 +207,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
               <label htmlFor={lblid} className='sort-label'>Sort: </label>
               <select className='sort_field' id={lblid}
                 onChange={(e) => {
+                    this.page = 1
                     this.sort_field = e.target.value
                     this.sort_order = this.props.paperGroup.sorting.sorters_updown[e.target.value]
                 }}
@@ -210,7 +216,11 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
               </select>
 
               <span className='bib-sort-arrow sort-label'>
-              <a onClick={(_) => this.sort_order = this.sort_order === 'up' ? 'down' : 'up'}>
+              <a href='javascript:;' onClick={(e) => {
+                  e.preventDefault()
+                  this.page = 1
+                  this.sort_order = this.sort_order === 'up' ? 'down' : 'up'
+              }}>
                 <span className={this.sort_order !== 'up' ? 'disabled' : ''}
                   title='Sort ascending'>▲</span>
                 <span className={this.sort_order !== 'down' ? 'disabled' : ''}
@@ -269,8 +279,8 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         const _link = (n: number, txt?: string) => {
             return (
                 <li key={n + (txt || 'none')}>
-                  <a title={`Page ${n}`}
-                     onClick={ (e) => this.page = n }>
+                  <a title={`Page ${n}`} href={`javascript:${n};`}
+                     onClick={(e) => {e.preventDefault(); this.page = n}}>
                     {(txt === undefined) ? n : txt}</a>
                 </li>
             )
