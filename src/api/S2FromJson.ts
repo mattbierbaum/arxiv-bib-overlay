@@ -72,6 +72,7 @@ export class S2ToPaper {
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         newdoc.index = index
+        newdoc.isInfluential = json.isInfluential || false
         return newdoc
     }
 }

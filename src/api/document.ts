@@ -38,7 +38,8 @@ export class Paper {
     // possibly be subclasses for each ADS, S2...
     recid?: string
     paperId?: string
-
+    isInfluential: false
+    
     constructor(arxivId?: string) {
         this.arxivId = arxivId
     }
