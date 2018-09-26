@@ -13,12 +13,16 @@
 * DONE webpack doi icon
 * DONE error handling for no data present S2
 
-AFTER S2 RELEASE:
 * DONE data provider switching animation
 * DONE Remove static directory
+* DONE MathJax not found -- only for the dev b/c not in index.html
+* DONE two children with same key (goes away when not in npm...) -- Brian
+* DONE Bibliographic data
+* DONE primary category to arxiv bibtex
+
+AFTER S2 RELEASE:
 * WIP error handling (look into react error boundaries)
 * WIP rename document.ts and add docs
 * better understanding of webpack
-
 * no reflow for small screens
 * timeout for API requests
