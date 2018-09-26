@@ -110,6 +110,7 @@ export class AdsToPaper {
         newdoc.year = json.year || ''
         newdoc.venue = json.pub || ''
         newdoc.citation_count = json.citation_count
+        newdoc.read_count = json.read_count
 
         newdoc.simpletitle = remove_puctuation(newdoc.title.toLocaleLowerCase())
         newdoc.searchline = this.searchline(newdoc)

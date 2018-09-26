@@ -39,6 +39,7 @@ export class Paper {
     // elements that are specific to a certain datasource, should
     // possibly be subclasses for each ADS, S2...
     isInfluential?: boolean
+    read_count?: number
     recid?: string
     paperId?: string
 

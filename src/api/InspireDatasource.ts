@@ -48,15 +48,13 @@ export class InspireDatasource implements DataSource {
         sorters: {
             paper: {name: 'Paper order', func: (i) => i.index  },
             citations: {name: 'Citations', func: (i) => i.citation_count},
-            influence: {name: 'ADS read count', func: (i) => i.read_count},
             title: {name: 'Title', func: (i) => i.simpletitle},
             author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() },
             year: {name: 'Year', func: (i) => i.year}
         },
-        sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
+        sorters_order: ['citations', 'title', 'author', 'year'],
         sorters_updown: {
             citations: DOWN,
-            influence: DOWN,
             title: UP,
             author: UP,
             year: DOWN
