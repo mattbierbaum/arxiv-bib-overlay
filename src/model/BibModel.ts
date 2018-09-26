@@ -35,11 +35,7 @@ export class BibModel {
     @observable
     references: PaperGroup
 
-    get article_category() {
-        if (this.category) {
-            return this.category
-        }
-
+    get_article_category() {
         const cats: string[][] = get_categories()
         if (cats && cats.length > 0 && cats[0].length > 0) {
             return cats[0][0]
@@ -48,12 +44,12 @@ export class BibModel {
         throw new Error('No primary category found')
     }
 
-    get article_id() {
-        if (this.arxivId) {
-            return this.arxivId
-        }
-
+    get_article_id() {
         return get_current_article()
+    }
+
+    configureAvailableFromAbstract() {
+        this.configureAvailable(this.get_article_category())
     }
 
     configureAvailable(category: string) {
@@ -66,31 +62,26 @@ export class BibModel {
         state.messages = []
         state.errors = []
 
-        cookies.set_datasource(this.article_category, dataSource.shortname)
+        cookies.set_datasource(this.primary, dataSource.shortname)
         this.currentDS = dataSource
-        this.currentDS.fetch_all(this.article_id)
+        this.currentDS.fetch_all(this.arxivId)
             .then(ds => this.populateFromDSResult(ds))
             .catch(error => this.populateFromDSError(error))
     }
 
     @action
     loadFromAbtract() {
-        const arxivId = get_current_article()
-        const categories = get_categories()
-
-        if (categories.length === 0 || categories[0].length === 0) {
-            throw new Error('No categories found for article')
-        }
-
-        this.loadSource(arxivId, categories)
+        const arxivId = this.get_article_id()
+        const primary = this.get_article_category()
+        this.loadSource(arxivId, primary)
     }
 
     @action
-    loadSource(arxivId: string, primary: string, force: boolean = false): void {
+    loadSource(arxivId: string, primary: string): void {
         this.arxivId = arxivId
         this.primary = primary
 
-        this.availableDS = this.configureAvailable(this.category)
+        this.availableDS = this.configureAvailable(this.primary)
         if (this.availableDS.length !== 0) {
             const savedDS = cookies.get_datasource(primary)
 

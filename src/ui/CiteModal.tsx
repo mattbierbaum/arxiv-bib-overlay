@@ -8,6 +8,7 @@ import { Paper } from '../api/document'
 import '../App.css'
 import { pageElementModal } from '../arxiv_page'
 import { API_ARXIV_METADATA, API_CROSSREF_CITE } from '../bib_config'
+import { normalize_whitespace } from '../bib_lib'
 
 // FIXME -- add https://crosscite.org/
 
@@ -123,14 +124,17 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     format_bibtex_arxiv(data: string) {
         const parser = new xmldom.DOMParser()
         const xml = parser.parseFromString(data, 'text/xml')
-        const select = xpath.useNamespaces({atom: 'http://www.w3.org/2005/Atom'})
+        const select = xpath.useNamespaces({
+            atom: 'http://www.w3.org/2005/Atom',
+            arxiv: 'http://arxiv.org/schemas/atom'
+        })
 
         const title = select('string(//atom:entry/atom:title/text())', xml)
         const auths = select('//atom:entry/atom:author/atom:name/text()', xml)
         const year = select('//atom:entry/atom:published/text()', xml)
-        //const primary = select('//atom:entry/atom:published/text()', xml)
+        const primary = select('string(//atom:entry/arxiv:primary_category/@term)', xml)
 
-        const txt_title = title.toString().replace('\n', '')
+        const txt_title = normalize_whitespace(title.toString())
         const txt_auths = auths.map((i) => i.toString()).join(' and ')
         const txt_year = year.toString().split('-')[0]
 
@@ -144,7 +148,8 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     author={${txt_auths}},
     year={${txt_year}},
     eprint={${this.props.paper.arxivId}},
-    archivePrefix={arXiv}
+    archivePrefix={arXiv},
+    primaryClass={${primary}}
 }`
         return output
     }

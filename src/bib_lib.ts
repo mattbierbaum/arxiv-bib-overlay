@@ -20,6 +20,10 @@ export function urlproxy(url: string) {
     return url
 }
 
+export function normalize_whitespace(data: string): string {
+    return data.replace(/\s+/g, ' ')
+}
+
 export function remove_puctuation(data: string): string {
     //return data.replace(/[.,\/#!$%\^&\*;:{}=\-_~()"'\\\[\]]/gmi, '')
     return data.replace(/[~`!@#$%^&*(){}\[\];:"'<,.>?\/\\|_+=-]/gmi, '')
