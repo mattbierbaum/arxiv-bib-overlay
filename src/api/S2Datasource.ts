@@ -82,6 +82,7 @@ export class S2Datasource implements DataSource {
         this.aid = arxiv_id
 
         return fetch(this.url_paper(this.aid))
+            .catch((e) => {throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')})
             .then(resp => error_check(resp))
             .then(resp => resp.json())
             .then(json => {

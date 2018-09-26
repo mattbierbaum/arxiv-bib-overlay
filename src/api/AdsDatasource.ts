@@ -89,6 +89,8 @@ export class AdsDatasource implements DataSource {
         const credstr: 'include' = 'include'
         const options = {credentials: credstr}
         return fetch('http://abovl.us-east-1.elasticbeanstalk.com/token', options)
+            .catch((e) => {throw new Error('Token query prevented by browser -- CORS, firewall, or unknown error')})
+            .then(resp => error_check_token(resp))
             .then(resp => resp.json())
             .then(json => {this.credentials = json.token})
     }
@@ -108,6 +110,7 @@ export class AdsDatasource implements DataSource {
         const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
 
         return fetch(url, headers)
+            .catch((e) => {throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')})
             .then(resp => error_check(resp))
             .then(resp => resp.json())
             .then(json => this.json_to_doc.reformat_documents(json.response.docs))
@@ -145,11 +148,29 @@ function error_check(response: Response) {
     switch (response.status) {
         case 0:
             throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')
+        case 401:
+            throw new Error('Query authentication to ADS failed')
         case 404:
             throw new Error('No data available yet')
         case 500:
             throw new Error('Query error 500: internal server error')
         default:
             throw new Error('Query error ' + response.status)
+    }
+}
+
+function error_check_token(response: Response) {
+    if (response.status === 200) {
+        return response
+    }
+
+    switch (response.status) {
+        case 0:
+            throw new Error('ADS token blocked by browser -- CORS, firewall, or unknown error')
+        case 404:
+            throw new Error('Token server (managed by arXiv) not found')
+        default:
+            console.log(response)
+            throw new Error(`Error retrieving ADS API Token ${response.status}`)
     }
 }
