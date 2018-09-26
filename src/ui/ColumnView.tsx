@@ -256,8 +256,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             return (
                 <li key={n + (txt || 'none')}>
                   <a title={`Page ${n}`}
-                     href={`javascript:${n};`}
-                     onClick={(e) => this.page = n}>
+                     onClick={ (e) => this.page = n }>
                     {(txt === undefined) ? n : txt}</a>
                 </li>
             )
