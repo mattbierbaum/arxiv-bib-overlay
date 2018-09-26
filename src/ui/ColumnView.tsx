@@ -4,6 +4,7 @@ import * as React from 'react'
 import { DataSource, Paper, PaperGroup, SorterConfig } from '../api/document'
 import { get_current_article } from '../arxiv_page'
 import { PAGE_LENGTH } from '../bib_config'
+import { random_id } from '../bib_lib'
 import { PaperDiv } from './PaperDiv'
 
 // Function to sort Papers for ColumnView, sorts the Paper array in place
@@ -289,7 +290,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
 
         const _nolink = (txt: string|number, classname?: string) => {
             classname = (classname === undefined) ? 'disabled' : classname
-            return <li key={txt} className={classname}><span>{txt}</span></li>
+            return <li key={txt + random_id()} className={classname}><span>{txt}</span></li>
         }
         const _link = (n: number, txt?: string) => {
             return (

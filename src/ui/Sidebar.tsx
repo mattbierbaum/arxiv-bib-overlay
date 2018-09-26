@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
-import { MAX_AUTHORS } from '../bib_config'
+import * as CONFIG from '../bib_config'
 import { State } from '../model/State'
 import { Outbound, OutboundCite, OutboundScholar } from './Outbound'
 
@@ -33,8 +33,8 @@ export class Sidebar extends React.Component<{state: State}, {}> {
         }
 
         let auth_list = auth_elements
-        if (auth_list.length > MAX_AUTHORS) {
-            auth_list = auth_list.slice(0, MAX_AUTHORS)
+        if (auth_list.length > CONFIG.MAX_AUTHORS) {
+            auth_list = auth_list.slice(0, CONFIG.MAX_AUTHORS)
             auth_list.push(
                 <li key={bib.paper.url}><a href={bib.paper.url} target='_blank'>...</a></li>
             )
@@ -48,6 +48,7 @@ export class Sidebar extends React.Component<{state: State}, {}> {
               <ul className='bib-sidebar-authors'>{auth_list}</ul>
               <Outbound paper={bib.paper}/>
               <OutboundCite paper={bib.paper}/>
+              <div><span>{CONFIG.POLICY_PROJECT_SHORTNAME}: {bib.currentDS.longname}</span></div>
             </div>
         )
     }

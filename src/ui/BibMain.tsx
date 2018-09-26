@@ -87,13 +87,13 @@ export class BibMain extends React.Component<{state: State}, {}> {
             )
         }
 
+        const name = CONFIG.POLICY_PROJECT_SHORTNAME
         const help = CONFIG.POLICY_SHOW_HELP_LINKS ? (
             <span>
             <span>[<a id='biboverlay_toggle' href='javascript:;'
                 onClick={() => this.toggle()}>{
-                    state.isdisabled ? `Enable ${CONFIG.POLICY_PROJECT_SHORTNAME}` :
-                                       `Disable ${CONFIG.POLICY_PROJECT_SHORTNAME}`}</a></span>
-            <span>(<a href='https://labs.arxiv.org/#bibliographic-explorer'>What is Bibex?</a>)]</span>
+                    state.isdisabled ? `Enable ${name}` : `Disable ${name}`}</a></span>
+            <span>(<a href={CONFIG.POLICY_DESCRIPTION_PAGE}>What is {name}?</a>)]</span>
             </span>
         ) : null
 
@@ -101,8 +101,6 @@ export class BibMain extends React.Component<{state: State}, {}> {
             return null
         }
 
-        // <h2>References and citations</h2>
-        // <div className='bib-hr'></div>
         return (
             <div className='bib-main'>
               <div className='references-citations'>
