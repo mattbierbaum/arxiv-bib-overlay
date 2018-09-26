@@ -108,7 +108,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         const star = (
             group.documents.length === datasource.max_count ?
             <a title={aside} href={group.header_url} target='_blank'
-            className='bib-star' style={{color: 'red'}}>*</a> : null
+            className='bib-col-title bib-star' style={{color: 'red'}}>*</a> : null
         )
 
         const utils = (

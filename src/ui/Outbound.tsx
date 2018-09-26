@@ -12,6 +12,12 @@ import { API_SCHOLAR_SEARCH } from '../bib_config'
 import { encodeQueryData } from '../bib_lib'
 import { cite_modal } from './CiteModal'
 
+function google_scholar_query(paper: Paper) {
+    const query = `${paper.title} ${paper.year}`
+    const encoded = encodeQueryData({q: query})
+    return `${API_SCHOLAR_SEARCH}?${encoded}`
+}
+
 const imgstyle = {height: '18px', width: 'auto'}
 
 const _link = (name: string, desc: string, url: string|undefined, icon: any, external: boolean = true) => {
@@ -47,11 +53,7 @@ const make_link = {
     arxiv(ref: Paper) {return _link('arxiv', 'ArXiv article', ref.url_arxiv, arxivIcon, false)},
     doi(ref: Paper) {return _link('doi', 'Journal article', ref.url_doi, doiIcon)},
     cite(ref: Paper) {return _modal('cite', 'Citation entry', ref, citeIcon)},
-    scholar(ref: Paper) {
-        return _link('scholar', 'Google Scholar',
-                     API_SCHOLAR_SEARCH + '?' + encodeQueryData({q: ref.title}), scholarIcon
-        )
-    },
+    scholar(ref: Paper) {return _link('scholar', 'Google Scholar', google_scholar_query(ref), scholarIcon)}
 }
     
 export class Outbound extends React.Component<{paper: Paper}, {}> {
