@@ -3,6 +3,14 @@ import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { Author, Paper } from './document'
 import { S2Datasource } from './S2Datasource'
 
+function remove_title_dates(title: string): string {
+    // Remove things from S2 titles that look like:
+    //      1 1 A pr 2 01 8
+    //      1 S ep 2 01 6
+    //      2 5 O ct 2 01 6
+    return title.replace(/^(?:\d\s*){1,2}(?:[A-Za-z]\s*){2,4}\s*(?:\d\s*){4,}/, '')
+}
+
 export class S2ToPaper {
     fetchConfig: S2Datasource
 
@@ -53,7 +61,12 @@ export class S2ToPaper {
     reformat_document(json: any, index: number) {
         const newdoc: Paper = new Paper(json.arxivId)
 
-        newdoc.title = json.title
+        if (json.title) {
+            newdoc.title = remove_title_dates(json.title.trim())
+        } else {
+            newdoc.title = 'Unknown title'
+        }
+
         newdoc.year = json.year
         newdoc.venue = json.venue
         newdoc.citation_count = json.citation_count
@@ -69,7 +82,7 @@ export class S2ToPaper {
         newdoc.paperId = json.paperId
         newdoc.isInfluential = json.isInfluential || false
 
-        newdoc.simpletitle = remove_puctuation(json.title).toLocaleLowerCase()
+        newdoc.simpletitle = remove_puctuation(newdoc.title).toLocaleLowerCase()
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
         newdoc.index = index
