@@ -71,6 +71,7 @@ export class S2ToPaper {
         newdoc.simpletitle = remove_puctuation(json.title).toLocaleLowerCase()
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
+        newdoc.index = index
         return newdoc
     }
 }

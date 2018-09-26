@@ -7,7 +7,7 @@ import { Outbound, OutboundCite } from './Outbound'
 export class PaperDiv extends React.Component<{paper: Paper}, {}> {
     render() {
         const paper = this.props.paper
-        let auths = paper.authors.map(au => (<a key={au.url} href={au.url} target='_blank'>{au.name}</a>))
+        let auths = paper.authors.map(au => (<a key={au.url || au.name} href={au.url} target='_blank'>{au.name}</a>))
 
         if (auths.length > MAX_AUTHORS) {
             auths = auths.slice(0, MAX_AUTHORS)
