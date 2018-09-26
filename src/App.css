@@ -61,6 +61,11 @@
     margin: 0px;
 }
 
+.bib-col-title {
+    font-size: large;
+    font-weight: bold;
+}
+
 .bib-col-aside {
     font-size: small;
 }
@@ -68,11 +73,6 @@
 .bib-col-center {
     display: table;
     margin: 0 auto;
-}
-
-.bib-col-center a {
-    font-size: large;
-    font-weight: bold;
 }
 
 .bib-branding {

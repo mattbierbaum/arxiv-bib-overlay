@@ -5,13 +5,14 @@ import { InspireDatasource } from '../api/InspireDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
 import { API_STATS_IMAGE, POLICY_DATASOURCE_LIST, POLICY_RECORD_API_STATS } from '../bib_config'
+import { random_id } from '../bib_lib'
 import { cookies } from '../cookies'
 import { state, Status } from './State'
 
 export class BibModel {
     arxivId: string = ''
     primary: string = ''
-    visitid: string = Math.random().toString().substring(2, 12)
+    visitid: string = random_id()
 
     @observable
     allDS: DataSource[] = [
@@ -53,7 +54,7 @@ export class BibModel {
     }
 
     configureAvailable(category: string) {
-        return this.allDS.filter((ds) => ds.categories.has(category))
+        this.availableDS = this.allDS.filter((ds) => ds.categories.has(category))
     }
 
     @action
@@ -81,7 +82,7 @@ export class BibModel {
         this.arxivId = arxivId
         this.primary = primary
 
-        this.availableDS = this.configureAvailable(this.primary)
+        this.configureAvailable(this.primary)
         if (this.availableDS.length !== 0) {
             const savedDS = cookies.get_datasource(primary)
 

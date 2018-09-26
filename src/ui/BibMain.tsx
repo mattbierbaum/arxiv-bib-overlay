@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
-import { POLICY_ALWAYS_DISPLAY_SECTION, POLICY_SHOW_HELP_LINKS } from '../bib_config'
+import * as CONFIG from '../bib_config'
 import { cookies } from '../cookies'
 import { State, Status } from '../model/State'
 import { ColumnView } from './ColumnView'
@@ -87,15 +87,17 @@ export class BibMain extends React.Component<{state: State}, {}> {
             )
         }
 
-        const help = POLICY_SHOW_HELP_LINKS ? (
+        const help = CONFIG.POLICY_SHOW_HELP_LINKS ? (
             <span>
             <span>[<a id='biboverlay_toggle' href='javascript:;'
-                onClick={() => this.toggle()}>{state.isdisabled ? 'Enable Bibex' : 'Disable Bibex'}</a></span>
+                onClick={() => this.toggle()}>{
+                    state.isdisabled ? `Enable ${CONFIG.POLICY_PROJECT_SHORTNAME}` :
+                                       `Disable ${CONFIG.POLICY_PROJECT_SHORTNAME}`}</a></span>
             <span>(<a href='https://labs.arxiv.org/#bibliographic-explorer'>What is Bibex?</a>)]</span>
             </span>
         ) : null
 
-        if (bib && bib.availableDS && bib.availableDS.length === 0 && !POLICY_ALWAYS_DISPLAY_SECTION) {
+        if (bib && bib.availableDS && bib.availableDS.length === 0 && !CONFIG.POLICY_ALWAYS_DISPLAY_SECTION) {
             return null
         }
 
@@ -104,7 +106,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
         return (
             <div className='bib-main'>
               <div className='references-citations'>
-                <h2>References and citations</h2>
+                <h2>{CONFIG.POLICY_SECTION_HEADER}</h2>
                 <div className='references-citations-boxes'>
                   <div className='bib-sidebar-source'>{this.generate_sources()}<span> {help}</span></div>
                   <div className='bib-sidebar-msgs'>{this.generate_messages()}</div>

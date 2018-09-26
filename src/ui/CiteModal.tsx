@@ -8,7 +8,7 @@ import { Paper } from '../api/document'
 import '../App.css'
 import { pageElementModal } from '../arxiv_page'
 import { API_ARXIV_METADATA, API_CROSSREF_CITE } from '../bib_config'
-import { normalize_whitespace } from '../bib_lib'
+import { normalize_whitespace, random_id } from '../bib_lib'
 
 // FIXME -- add https://crosscite.org/
 
@@ -274,7 +274,7 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
 
 export function cite_modal(paper: Paper) {
     ReactDOM.render(
-        <CiteModal paper={paper} key={paper.api} />,
+        <CiteModal paper={paper} key={random_id()} />,
         pageElementModal()
     )
 }

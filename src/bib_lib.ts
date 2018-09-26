@@ -1,5 +1,9 @@
 import { URL_PROXY } from './bib_config'
 
+export function random_id(): string {
+    return Math.random().toString().substring(2, 12)
+}
+
 export function encodeQueryData(data: {[key: string]: (string | string[] | number)}) {
     const ret: string[] = []    
     for (const key of Object.getOwnPropertyNames(data)) {

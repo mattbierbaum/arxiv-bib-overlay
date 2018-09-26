@@ -24,10 +24,6 @@ export const RE_ARXIVID_URL = new RegExp(
 export const RE_CATEGORY_FULL = new RegExp(/\(([a-z\-]+(:?\.[a-zA-Z\-]+)?)\)/g)
 export const RE_CATEGORY_MAJOR = new RegExp(/([a-z\-]+)(:?\.[a-zA-Z\-]+)?/g)
 
-export function random_id() {
-    return String(Math.random()).substring(2, 12)
-}
-
 function allmatches(str: string , regex: RegExp, index: number): string[] {
     const matches: string[] = []
     let match = regex.exec(str)

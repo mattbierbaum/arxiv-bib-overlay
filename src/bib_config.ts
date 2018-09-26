@@ -17,6 +17,11 @@ export const API_ARTICLE_COUNT = 200
 export const API_TIMEOUT = 30 * 1000
 
 // settings that are determined by policy
+// what the actual abs section is to be called
+export const POLICY_SECTION_HEADER = 'Bibliographic data'
+
+export const POLICY_PROJECT_SHORTNAME = 'Bibex'
+
 // whether or not to trap the api calls that are made for stats purposes
 export const POLICY_RECORD_API_STATS = true
 
