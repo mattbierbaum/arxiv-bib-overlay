@@ -1,7 +1,7 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
 import { encodeQueryData } from '../bib_lib'
-import { BasePaper, DataSource } from './document'
+import { BasePaper, DataSource, DOWN, UP } from './document'
 import { S2ToPaper } from './S2FromJson'
 
 export class S2Datasource implements DataSource {
@@ -30,6 +30,12 @@ export class S2Datasource implements DataSource {
             year: {name: 'Year', func: (i) => i.year},
         },
         sorters_order: ['influence', 'title', 'author', 'year'],
+        sorters_updown: {
+            influence: DOWN,
+            title: UP,
+            author: UP,
+            year: DOWN
+        },
         sorters_default: 'influence',
     }
 

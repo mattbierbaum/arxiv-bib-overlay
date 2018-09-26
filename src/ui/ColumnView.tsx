@@ -4,8 +4,19 @@ import * as React from 'react'
 import { DataSource, Paper, PaperGroup, SorterConfig } from '../api/document'
 import { get_current_article } from '../arxiv_page'
 import { PAGE_LENGTH } from '../bib_config'
-import { sorter } from './ColumnSorter'
 import { PaperDiv } from './PaperDiv'
+
+// Function to sort Papers for ColumnView, sorts the Paper array in place
+const sort_builder = (arr: Paper[], field: (p: Paper) => number|string, ord: 'up'|'down'): Paper[] => {
+    const sign = (ord === 'up') ? -1 : 1
+    return arr.sort((a, b) => {
+        if (field(a) > field(b)) { return -1 * sign }
+        if (field(a) < field(b)) { return +1 * sign }
+        if (a.simpletitle  > b.simpletitle) {  return +1 }
+        if (a.simpletitle  < b.simpletitle) {  return -1 }
+        return 0
+    })
+  }
 
 @observer
 export class ColumnView extends React.Component<{dataSource: DataSource, paperGroup: PaperGroup,
@@ -42,7 +53,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
     sort_field: string = ''
 
     @observable
-    sort_order: 'up' | 'down' = 'up'
+    sort_order: 'up' | 'down' = 'down'
 
     @observable
     filter_text: string = ''
@@ -155,7 +166,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         const sorters = this.props.paperGroup.sorting.sorters
 
         if (sorters[field] && sorters[field].func) {
-            return sorter(data, sorters[field].func, this.sort_order)
+            return sort_builder(data, sorters[field].func, this.sort_order)
         } else {
             console.log(`Could not sort: no sort entry in sorter for '${field}'
                 Check datasource sorting configuration.`)
@@ -192,7 +203,10 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             <div className='bib-sorter'>
               <label htmlFor={lblid} className='sort-label'>Sort: </label>
               <select className='sort_field' id={lblid}
-                onChange={(e) => {this.sort_field = e.target.value}}
+                onChange={(e) => {
+                    this.sort_field = e.target.value
+                    this.sort_order = this.props.paperGroup.sorting.sorters_updown[e.target.value]
+                }}
                 value={this.sort_field}>
               {this.sort_options(this.props.paperGroup.sorting)}
               </select>

@@ -3,7 +3,7 @@ import sourceLogo from '../assets/source-ads.png'
 import { API_ARTICLE_COUNT } from '../bib_config'
 import { encodeQueryData } from '../bib_lib'
 import { AdsToPaper } from './AdsFromJson'
-import {  BasePaper, DataSource, Paper } from './document'
+import {  BasePaper, DataSource, DOWN, Paper, UP } from './document'
 
 /** Class to fetch references from ADS. */
 export class AdsDatasource implements DataSource {
@@ -50,6 +50,13 @@ export class AdsDatasource implements DataSource {
             year: {name: 'Year', func: (i) => i.year}
         },
         sorters_order: ['citations', 'influence', 'title', 'author', 'year'],
+        sorters_updown: {
+            citations: DOWN,
+            influence: DOWN,
+            title: UP,
+            author: UP,
+            year: DOWN
+        },
         sorters_default: 'citations'
     }
 

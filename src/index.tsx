@@ -14,12 +14,12 @@ function initialize() {
     ReactDOM.render(<BibMain state={state}/>, pageElementMain())
     ReactDOM.render(<Sidebar state={state}/>, pageElementSidebar())
 
-    state.bibmodel.configureAvailable()
+    state.bibmodel.configureAvailableFromAbstract()
     if (active) {
-        //state.bibmodel.loadFromAbtract()
+        state.bibmodel.loadFromAbtract()
 
         // FIXME -- a bunch of testing pages (to be removed)
-        state.bibmodel.loadSource('1603.04467', 'cs', true)
+        //state.bibmodel.loadSource('1603.04467', 'cs')
         //state.bibmodel.configureSources(arxivid, categories)
         //state.bibmodel.configureSources('1703.00001', [['cs', 'cs.ML']])
         //state.bibmodel.configureSources('1603.04891', [['cs', 'cs.ML']])

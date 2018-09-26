@@ -1,3 +1,5 @@
+export const UP: 'up' = 'up'
+export const DOWN: 'down' = 'down'
 
 export class Author {
     name: string
@@ -36,6 +38,7 @@ export class Paper {
 
     // elements that are specific to a certain datasource, should
     // possibly be subclasses for each ADS, S2...
+    isInfluential?: boolean
     recid?: string
     paperId?: string
 
@@ -61,6 +64,7 @@ export class BasePaper extends Paper {
 export interface SorterConfig {
     sorters: {[name: string]: Sorter}
     sorters_order: string[]
+    sorters_updown: {[name: string]: 'up' | 'down'}
     sorters_default: string
 }
 
