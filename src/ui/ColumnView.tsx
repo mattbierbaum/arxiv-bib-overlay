@@ -123,9 +123,8 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             <div className='bib-col' id={'col-' + this.props.name.toLocaleLowerCase()}>
               <div className='bib-col-header'>
                 <span className='bib-col-center'>
-                <a className='bib-col-title' href={group.header_url}>
-                {this.props.name} {count_msg} {star}
-                </a>
+                  <a className='bib-col-title' href={group.header_url}>
+                    {this.props.name} {count_msg}</a> {star}
                 </span>
                 <div className='bib-branding bib-col-center'>
                   <div className='bib-col-aside bib-branding-info'>
@@ -141,11 +140,10 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
               </div>
               {utils_div}
               <div>
-                {papers.map(paper => <PaperDiv paper={paper}/>)}
+                {papers.map(paper => <PaperDiv key={paper.index} paper={paper}/> )}
               </div>
             </div>
         )
-                //{papers.map(paper => <PaperDiv key={paper.api || paper.recid || paper.url} paper={paper}/>)}
     }
 
     create_filter_div() {
@@ -266,12 +264,15 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
 
         const _nolink = (txt: string|number, classname?: string) => {
             classname = (classname === undefined) ? 'disabled' : classname
-            return <li className={classname}><span>{txt}</span></li>
+            return <li key={txt} className={classname}><span>{txt}</span></li>
         }
         const _link = (n: number, txt?: string) => {
             return (
-                <li><a title={`Page ${n}`} href={`javascript:${n};`} onClick={(e) => this.page = n}>
-                {(txt === undefined) ? n : txt}</a></li>
+                <li key={n + (txt || 'none')}>
+                  <a title={`Page ${n}`}
+                     onClick={ (e) => this.page = n }>
+                    {(txt === undefined) ? n : txt}</a>
+                </li>
             )
         }
         const _inclink = (dir: -1|1) => { /* << >> links */
@@ -318,7 +319,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
                 <ul className='bib-page-list'>{page_links}</ul>
                 <label htmlFor={lblid}>Skip: </label>
                 <select id={lblid} value={this.page} onChange={(e) => this.page = parseInt(e.target.value, 10) }>
-                { [...Array(L).keys()].map( i => <option value={i + 1}>{i + 1}</option>)}
+                { [...Array(L).keys()].map( i => <option key={i}  value={i + 1}>{i + 1}</option>)}
                 </select>
               </span>
             </div >

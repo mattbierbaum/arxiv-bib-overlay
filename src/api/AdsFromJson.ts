@@ -115,6 +115,7 @@ export class AdsToPaper {
         newdoc.simpletitle = remove_puctuation(newdoc.title.toLocaleLowerCase())
         newdoc.searchline = this.searchline(newdoc)
         newdoc.outbound = this.outbound_names(newdoc)
+        newdoc.index = index
         return newdoc
     }
 

@@ -51,7 +51,7 @@ export class S2Datasource implements DataSource {
 
         if (json.citations) {
             output.citations = {
-                documents: json.citations.map((doc) => this.json_to_doc.reformat_document(doc, 0)),
+                documents: json.citations.map((doc, index) => this.json_to_doc.reformat_document(doc, index)),
                 header: 'Citations',
                 header_url: `${json.url}#citingPapers`,
                 description: 'highly influenced citations',
@@ -62,7 +62,7 @@ export class S2Datasource implements DataSource {
 
         if (json.references) {
             output.references = {
-                documents: json.references.map((doc) => this.json_to_doc.reformat_document(doc, 0)),
+                documents: json.references.map((doc, index) => this.json_to_doc.reformat_document(doc, index)),
                 header: 'References',
                 header_url: `${json.url}#citedPapers`,
                 description: 'highly influenced references',
