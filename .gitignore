@@ -24,6 +24,6 @@ yarn-error.log*
 
 *.crx
 *.pem
-extension/js/*
-extension/css/*
+extension/*.js
+extension/*.css
 tests/
