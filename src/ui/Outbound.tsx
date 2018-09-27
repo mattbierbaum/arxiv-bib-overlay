@@ -13,7 +13,13 @@ import { encodeQueryData } from '../bib_lib'
 import { cite_modal } from './CiteModal'
 
 function google_scholar_query(paper: Paper) {
-    const query = `${paper.title} ${paper.year}`
+    let auth = ''
+
+    if (paper.authors.length > 0) {
+        auth = paper.authors[0].tolastname()
+    }
+
+    const query = `${paper.title} ${auth} ${paper.year}`
     const encoded = encodeQueryData({q: query})
     return `${API_SCHOLAR_SEARCH}?${encoded}`
 }
@@ -87,7 +93,8 @@ export class OutboundCite extends React.Component<{paper: Paper}, {}> {
 
 export function OutboundScholar() {
     const info = get_article_info()
-    const query = encodeQueryData({q: info.title})
+    const line = `${info.title} ${info.author.split(',')[0]} ${info.year}`
+    const query = encodeQueryData({q: line})
     const url = `${API_SCHOLAR_SEARCH}?${query}`
 
     return (

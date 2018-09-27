@@ -109,7 +109,8 @@ export function get_current_article(): string {
 export function get_article_info(): any {
     return {
         title: meta_text('citation_title'),
-        authors: meta_text('citation_authors')
+        author: meta_text('citation_author'),
+        year: meta_text('citation_date').split('/')[0],
     }
 }
 
