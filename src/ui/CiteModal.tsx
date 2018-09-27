@@ -66,6 +66,8 @@ const STOPWORDS = new Set(['a', 'about', 'above', 'above', 'across', 'after',
 
 @observer
 export class CiteModal extends React.Component<{ paper: Paper }, {}> {
+    cache = {}
+
     @observable
     active: boolean = true
 
@@ -87,6 +89,18 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
 
         this.active = true
         this.query()
+    }
+
+    key(): string {
+        return `${this.source}_${this.format}`
+    }
+
+    get cached_value(): string {
+        return this.cache[this.key()]
+    }
+
+    set cached_value(val: string) {
+        this.cache[this.key()] = val
     }
 
     chars_only(data: string): string {
@@ -179,16 +193,27 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     query_arxiv() {
         this.content = ''
 
+        if (this.cached_value) {
+            this.content = this.cached_value
+            return
+        }
+
         const url: string = API_ARXIV_METADATA + this.props.paper.arxivId
         fetch(url)
             .then(resp => resp.text())
             .then(txt => {
                 this.content = this.format_bibtex_arxiv(txt)
+                this.cached_value = this.content
             })
     }
 
     query_doi() {
         this.content = ''
+
+        if (this.cached_value) {
+            this.content = this.cached_value
+            return
+        }
 
         const url: string = API_CROSSREF_CITE + this.props.paper.doi
         const headers = {headers: {Accept: `text/bibliography; style=${this.format}`}}
@@ -197,6 +222,7 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
             .then(resp => resp.text())
             .then(txt => {
                 this.content = this.format_bibtex_doi(txt)
+                this.cached_value = this.content
             })
     }
 
