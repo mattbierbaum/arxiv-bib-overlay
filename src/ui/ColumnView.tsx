@@ -101,9 +101,10 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             get_current_article()
         )
 
+        const header = this.props.name.toLowerCase()
         const aside = (
-            `Only displaying the ${datasource.max_count} most cited articles. ` +
-            `For all articles, follow this link to ${datasource.longname}.`
+            `Of this article's ${header}, only displaying the ${datasource.max_count} ` +
+            `most cited works. For all ${header}, follow this link to ${datasource.longname}.`
         )
         const star = (
             group.documents.length === datasource.max_count ?

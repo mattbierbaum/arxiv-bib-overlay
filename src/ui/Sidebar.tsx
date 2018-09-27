@@ -48,7 +48,10 @@ export class Sidebar extends React.Component<{state: State}, {}> {
               <ul className='bib-sidebar-authors'>{auth_list}</ul>
               <Outbound paper={bib.paper}/>
               <OutboundCite paper={bib.paper}/>
-              <div><span>{CONFIG.POLICY_PROJECT_SHORTNAME}: {bib.currentDS.longname}</span></div>
+              <div>
+                <span>{CONFIG.POLICY_PROJECT_SHORTNAME}: </span>
+                <span className='bib-selected'>{bib.currentDS.longname}</span>
+              </div>
             </div>
         )
     }
