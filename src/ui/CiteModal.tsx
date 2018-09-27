@@ -70,19 +70,19 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     active: boolean = true
 
     @observable
-    source: 'arxiv' | 'doi' = 'arxiv'
+    source: 'arxiv' | 'doi' = 'doi'
 
     @observable
     format: 'bibtex' | 'mla' = 'bibtex'
 
     @observable
-    content: string
+    content: string = ''
 
     constructor(props: any) {
         super(props)
 
-        if (!this.props.paper.arxivId) {
-            this.source = 'doi'
+        if (!this.props.paper.doi) {
+            this.source = 'arxiv'
         }
 
         this.active = true
@@ -121,6 +121,15 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
         return 'unknown'
     }
 
+    fmt_author_list(authors: any[]): string {
+        /*if (authors.length >= 10) {
+            authors = authors.slice(0, 10)
+            authors.push('others')
+        }*/
+
+        return authors.map((i) => i.toString().trim()).join(' and ')
+    }
+
     format_bibtex_arxiv(data: string) {
         const parser = new xmldom.DOMParser()
         const xml = parser.parseFromString(data, 'text/xml')
@@ -135,7 +144,7 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
         const primary = select('string(//atom:entry/arxiv:primary_category/@term)', xml)
 
         const txt_title = normalize_whitespace(title.toString())
-        const txt_auths = auths.map((i) => i.toString()).join(' and ')
+        const txt_auths = this.fmt_author_list(auths)
         const txt_year = year.toString().split('-')[0]
 
         const id_auths = this.fmt_first_last_name(txt_auths).toLocaleLowerCase()
@@ -143,7 +152,7 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
         const txt_id = this.chars_only(`${id_auths}${txt_year}${id_title}`)
 
         const output = 
-`@article{${txt_id},
+`@misc{${txt_id},
     title={${txt_title}},
     author={${txt_auths}},
     year={${txt_year}},
@@ -168,6 +177,8 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     }
 
     query_arxiv() {
+        this.content = ''
+
         const url: string = API_ARXIV_METADATA + this.props.paper.arxivId
         fetch(url)
             .then(resp => resp.text())
@@ -177,6 +188,8 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
     }
 
     query_doi() {
+        this.content = ''
+
         const url: string = API_CROSSREF_CITE + this.props.paper.doi
         const headers = {headers: {Accept: `text/bibliography; style=${this.format}`}}
 
@@ -230,18 +243,18 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
                     <div className='modal-buttons'>
                         <div className='modal-button-group'>
                             <h4>Article to reference:</h4>
-                            <input id='arxiv' type='radio' name='article' value='arxiv'
-                                checked={this.source === 'arxiv'}
-                                onChange={this.change_source.bind(this)}
-                                disabled={!hasarxiv}
-                            />
-                            <label htmlFor='arxiv' className={hasarxiv ? '' : 'disabled'}>arXiv e-print</label> <br/>
                             <input id='doi' type='radio' name='article' value='doi'
                                 checked={this.source === 'doi'}
                                 onChange={this.change_source.bind(this)}
                                 disabled={!hasdoi}
                             />
                             <label htmlFor='doi' className={hasdoi ? '' : 'disabled'}>Journal article</label> <br/>
+                            <input id='arxiv' type='radio' name='article' value='arxiv'
+                                checked={this.source === 'arxiv'}
+                                onChange={this.change_source.bind(this)}
+                                disabled={!hasarxiv}
+                            />
+                            <label htmlFor='arxiv' className={hasarxiv ? '' : 'disabled'}>arXiv e-print</label> <br/>
                         </div>
                         <div className='modal-button-group'>
                             <h4>Reference format:</h4>
@@ -260,7 +273,7 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
                     </div>
                     <div>
                         <h4>Formatted citation:</h4>
-                        <textarea rows={15} cols={75} value={this.content}></textarea>
+                        <textarea rows={15} cols={75} value={this.content || 'loading...'}></textarea>
                     </div>
                     <div>
                         <span>Data provided by: </span>

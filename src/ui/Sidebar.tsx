@@ -55,4 +55,4 @@ export class Sidebar extends React.Component<{state: State}, {}> {
             </div>
         )
     }
-  }
+}
