@@ -1,3 +1,15 @@
+.references-citations {
+    margin: 1.5em;
+    font-size: 90%;
+    line-height: 1.5em;
+}
+
+.references-citations h2 {
+    font-size: 120%;
+    margin: 0 0 .25em 0;
+    font-weight: bold;
+}
+
 .arrow {
   width: 0;
   height: 0;
@@ -16,8 +28,6 @@
 .bib-main {}
 
 .bib-col2 {
-    display: -ms-flex;
-    display: -webkit-flex;
     display: flex;
     justify-content: space-evenly;
     margin: 0px 20px 0px 20px;
@@ -37,7 +47,7 @@
 
 .bib-col {
     margin: 0px 20px 20px 20px;
-    max-width: 450px;
+    max-width: 650px;
     width: 50%;
     padding: 10px;
 }
@@ -51,6 +61,11 @@
     margin: 0px;
 }
 
+.bib-col-title {
+    font-size: large;
+    font-weight: bold;
+}
+
 .bib-col-aside {
     font-size: small;
 }
@@ -60,26 +75,85 @@
     margin: 0 auto;
 }
 
-.bib-col-title {
-    font-size: large;
-    font-weight: bold;
+.bib-branding {
+    display: flex;
+    margin-top: 6px;
+    justify-content: center;
+}
+
+.bib-branding a {
+    text-decoration: underline;
+    color: blue;
+}
+
+.bib-star {
+    color: red;
+}
+
+.bib-branding-logo img {
+    margin-left: 8px
+}
+
+.bib-utils {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    margin-top: 1em;
+    /*display: table;*/
+    margin: 0.7em auto 1.5em auto;
+}
+
+.bib-utils > div {
+    margin-right: 1em;
+    margin-bottom: 0.25em;
+}
+
+.bib-pager {
+    min-width: 300px;
+}
+
+.bib-page-list {
+    list-style: none;
+    padding: 0;
+    display: inline;
+}
+
+.bib-page-list > li {
+    display: inline-block;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    min-width: 1.2em;
+    text-align: center;
 }
 
 .bib-sorter {
     margin-top: 0.25em;
 }
 
+.bib-sorter > label {
+    margin-right: 0.1em;
+}
+
+.bib-sort-arrow {
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+}
+
+.bib-sort-arrow a {
+    text-decoration: none;
+}
+
+.bib-sort-arrow a:hover {
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .bib-filter {
     margin-top: 0.25em;
 }
 
-.bib-filter-label {
-    margin-left: 1em;
-    margin-right: 0.7em;
-}
-
-.lbl {
-    text-align: right;
+.bib-filter > label {
+    margin: 0.1em;
 }
 
 .bib-fiter-input {
@@ -92,22 +166,30 @@
 .bib-paper-container {
     margin-bottom: 1.5em;
     display: flex;
-    justify-content: space-around;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: left;
     align-items: stretch;
 }
 
-.bib-paper-right {
+.bib-paper-overhang {
     display: flex;
-    justify-content: right;
-    align-items: right;
-    flex: 0 0 20px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.bib-cite {
+    min-width: 18px;
+    width: 18px;
+    top: -4px;
+    left: -4px;
+    position: relative;
 }
 
 .bib-paper {
     color: black;
-    margin-bottom: 1.5em;
-    /*height: 50px;
-    overflow: hidden;*/
 }
 
 .bib-paper .jinfo {
@@ -153,22 +235,23 @@
     position: relative;
 }
 
-.bib-paper .influential::before {
-    left: -17px;
-    position: absolute;
-    width: 0px;
-    content: '● ';
-    color: red;
+.bib-paper-links {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 110px;
+    max-width: 111px;
+    position: relative;
 }
 
-/*.bib-paper .unknown::before {
-    left: -17px;
-    position: absolute;
-    width: 0px;
-    content: '● ';
-    color: #ccc;
-    font-size: 0.85em;
-}*/
+.bib-paper-links > span {
+    display: none;
+}
+
+.bib-citation-count {
+    margin-left: 0.7em;
+    font-size: 0.9em;
+}
 
 .bib-authors {
     margin-left: 0.7em;
@@ -188,15 +271,12 @@
     content: '';
 }
 
-.bib-cites {
-    margin-left: 0.7em;
-    font-size: 0.9em;
-    color: #555;
-    margin-right: 0.5em;
+.bib-authors a.nolink {
+    text-decoration: none;
 }
 
 .bib-outbound {
-    margin-left: 0.7em;
+    display: inline-block;
     margin-top: 3px;
 }
 
@@ -220,65 +300,10 @@
     position: relative;
 }
 
-.bib-outbound .shadow {
-    text-shadow:
-        -0.5px -0.5px 0 #444,
-         0.5px -0.5px 0 #444,
-        -0.5px  0.5px 0 #444,
-         0.5px  0.5px 0 #444;
-}
-
-.bib-outbound .arxiv {color: #b31b1b;}
-.bib-outbound .ads {color: #2e78e1;}
-.bib-outbound .bib {color: #286a8e;}
-.bib-outbound .doi {color: #fcb328;}
-
-.bib-lbl {
-    font-size: 12px;
-    color: white;
-    background-color: black;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
 .center {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.bib-utils {
-    margin-top: 1em;
-    display: table;
-    margin: 0.7em auto 1.5em auto;
-}
-
-.bib-page-list {
-    list-style: none;
-    padding: 0;
-    display: inline;
-}
-
-.bib-page-list > li {
-    display: inline-block;
-    margin-left: 0.25em;
-    margin-right: 0.25em;
-    min-width: 1.2em;
-    text-align: center;
-}
-
-.sort-label {
-    margin-left: 1em;
-    margin-right: 0.7em;
-}
-
-.sort-arrow a {
-    text-decoration: none;
-}
-
-.sort-arrow a:hover {
-    text-decoration: none;
-    cursor: pointer;
 }
 
 .disabled {
@@ -327,7 +352,6 @@ h1.bib-header span {
 }
 
 .bib-sidebar-msgs {
-    padding: 0.5em 0em 0.5em 0em;
 }
 
 .bib-sidebar-msgs p {
@@ -336,35 +360,14 @@ h1.bib-header span {
 
 .bib-sidebar-msgs .msgs {
     padding-left: 0px;
-    margin: 0.3em 0em;
+    margin: 0px;
 }
 
 .bib-sidebar-msgs .msg {
     color: black;
     font-size: 100%;
     font-weight: normal;
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black;
-}
-
-.bib-sidebar-msgs .msg:hover {
-    cursor: help;
-}
-
-.bib-sidebar-msgs .msg .hover {
-    top: -5px;
-    right: 105%;
-    visibility: hidden;
-    color: white;
-    background-color: #444;
-    padding: 1em;
-    position: absolute;
-    z-index: 1;
-    /*max-width: 500px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    hyphens: auto;*/
+    margin-left: 1.5em;
 }
 
 .bib-sidebar-msgs .msg:hover .hover {
@@ -385,10 +388,8 @@ h1.bib-header span {
     padding: 0.5em 0 0 0;
 }
 .bib-sidebar-title {}
-.bib-sidebar-title-link {
+.bib-sidebar-title a {
     position: relative;
-    /*top: -6px;*/
-    /*color: black;*/
     font-weight: bold;
     font-size: 14px;
 }
@@ -401,17 +402,7 @@ h1.bib-header span {
     padding-left: 1em;
 }
 
-/*.bib-sidebar-authors li a {
-    font-size: 1.0em;
-    color: #555;
-}*/
-
 .bib-sidebar-source {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
 }
 
 .topborder {
@@ -434,26 +425,9 @@ h1.bib-header span {
 }
 
 .bib-selected {
-    border: 1px solid #d8d8d8;
-    border-radius: 6px;
+    font-weight: bold;
+    color: black;
 }
-
-.bib-selected:hover {
-    border: 1px solid #d8d8d8;
-    border-radius: 6px;
-}
-
-.bib-unselected {
-    border: 1px solid white;
-    border-radius: 6px;
-}
-
-.bib-unselected:hover {
-    border: 1px solid black;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
 
 .bib-pulse-container {
 	display: flex;
@@ -523,54 +497,46 @@ h1.bib-header span {
     border: 1px solid #888;
 }
 
-.modalclose {
+.modal-title h2 {
+    margin-top: 0px;
+    margin-bottom: 0.3em;
+    display: inline-block;
+}
+
+.modal-close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 
-.modalclose:hover,
-.modalclose:focus {
+.modal-close:hover,
+.modal-close:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
 
-.modal-button-container {
+.modal-buttons {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    align-content: stretch;
+    justify-content: left;
 }
 
-.modal-button {
-    display: flex;
-    flex: 1 1 0;
-    color: white;
-    outline: 0;
-    border: 0;
-    padding: 0.5em;
-    margin: 0.25em;
-    font-size: 1.2em;
-    opacity: 0.7;
-    background-color: #b31b1b;
-    justify-content: center;
+.modal-buttons .disabled {
+    color: gray;
 }
 
-.modal-button.typ {
-    background-color: #2485d8;
+.modal h4 {
+    margin-top: 0.3em;
+    margin-bottom: 0em;
 }
 
-.modal-button:hover {
-    opacity: 0.35;
-    cursor: pointer;
+.modal-button-group {
+    padding-right: 5em;
+    padding-bottom: 0.5em;
 }
-
-.modal-button.selected {opacity: 1.0;}
-.modal-button.selected:hover {opacity: 1.0; cursor: default;}
-.modal-button.disabled {background-color: #aaaaaa;}
-.modal-button.disabled:hover {opacity: 0.7; cursor: default;}
 
 .modal-button-close {
     display: flex;
@@ -581,23 +547,27 @@ h1.bib-header span {
     font-size: 2em;
 }
 
-.modal-label {
-    display: flex;
-    flex: 1 1 0;
-    font-size: 1.2em;
-    margin: 0 0.25em 0 0.25em;
-}
-
-.modal-label-blank {
-    display: flex;
-    flex-grow: 0;
-    background-color: white;
-    color: white;
-    padding: 0;
-    font-size: 2em;
-    height: 0px;
+.modal textarea {
+    border-width: 2px;
 }
 
 .cite:hover {
     cursor: pointer;
+}
+
+@media only screen and (max-width: 800px) {
+    .bib-col2 {
+        flex-direction: column;
+    }
+
+    .bib-col {
+        width: 100%;
+    }
+}
+
+.bib-hr {
+    margin-bottom: 1em;
+    border-width: 1px 0 0 0;
+    border-color: #555;
+    border-style: solid;
 }

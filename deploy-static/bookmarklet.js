@@ -1,14 +1,13 @@
 (
     function(){
-        /*function random_id(){
+        function random_id(){
             return String(Math.random()).substring(2,12);
         }
-        var date = random_id();
-        var base = 'http://127.0.0.1:8000/static/';*/
 
-        var date = '20180726-0'
-        var base = 'https://mattbierbaum.github.io/arxiv-bib-overlay/static/';
-        function load(filename){
+        var date = random_id();
+        var base = 'http://127.0.0.1:@{port}/build/';
+
+        function load(filename, callback){
             /*
              This is a bit complicated in order to have deferred, ordered
              processing while maintaining parallel downloading. This should
@@ -41,6 +40,8 @@
                 if (event.type === "load" || ie678){
                     elem.onload = elem.onreadystatechange = elem.onerror = null;
                 }
+                if (callback)
+                    callback();
             }
 
             // see comments in headjs/load.js:475 (loadAsset)
@@ -49,14 +50,6 @@
             head.insertBefore(elem, head.lastChild);
         }
 
-        var filenames = [
-            'style.css',
-            'jquery-3.2.1.min.js',
-            'bib_lib.js',
-            'bib_source_s2.js',
-            'bib_source_inspire.js',
-            'bib_source_ads.js',
-            'bib.js',
-        ].forEach(function(i){load(i);});
+        var filenames = @{filenames}.forEach(function(i){load(i);});
     }
 )();

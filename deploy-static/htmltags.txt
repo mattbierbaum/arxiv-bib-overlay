@@ -1,0 +1,8 @@
+Somewhere near the bottom of the page, for example right after the mathjax script
+tag:
+
+    <script src="/bibex/bibex.js" type="text/javascript" defer></script>
+
+In the head after arXiv.css:
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/bibex/bibex.css">
