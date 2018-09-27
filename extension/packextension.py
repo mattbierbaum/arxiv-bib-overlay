@@ -12,5 +12,5 @@ def find(path, st):
 p0 = os.path.abspath('./build/static')
 p1 = os.path.abspath('./extension')
 
-shutil.copyfile(find(p0, 'js/main.*.js'), j(p1, 'js/main.js'))
-shutil.copyfile(find(p0, 'css/main.*.css'), j(p1, 'css/main.css'))
+shutil.copyfile(find(p0, 'js/main.*.js'), j(p1, 'bibex.js'))
+shutil.copyfile(find(p0, 'css/main.*.css'), j(p1, 'bibex.css'))

@@ -9,8 +9,8 @@
     "content_scripts": [
         {
             "matches": ["https://arxiv.org/abs/*"],
-            "js": ["js/main.js"],
-            "css": ["css/main.css"]
+            "js": ["bibex.js"],
+            "css": ["bibex.css"]
         }
     ],
     "permissions": [
