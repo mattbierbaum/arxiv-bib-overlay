@@ -200,11 +200,13 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
 
         const url: string = API_ARXIV_METADATA + this.props.paper.arxivId
         fetch(url)
+            .then(resp => error_check(resp))
             .then(resp => resp.text())
             .then(txt => {
                 this.content = this.format_bibtex_arxiv(txt)
                 this.cached_value = this.content
             })
+            .catch((e) => this.content = e.message)
     }
 
     query_doi() {
@@ -219,11 +221,13 @@ export class CiteModal extends React.Component<{ paper: Paper }, {}> {
         const headers = {headers: {Accept: `text/bibliography; style=${this.format}`}}
 
         fetch(url, headers)
+            .then(resp => error_check(resp))
             .then(resp => resp.text())
             .then(txt => {
                 this.content = this.format_bibtex_doi(txt)
                 this.cached_value = this.content
             })
+            .catch((e) => this.content = e.message)
     }
 
     query() {
@@ -316,4 +320,21 @@ export function cite_modal(paper: Paper) {
         <CiteModal paper={paper} key={random_id()} />,
         pageElementModal()
     )
+}
+
+function error_check(response: Response) {
+    if (response.status === 200) {
+        return response
+    }
+
+    switch (response.status) {
+        case 0:
+            throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')
+        case 404:
+            throw new Error('Citation entry not found.')
+        case 500:
+            throw new Error('Citation entry returned 500: internal server error')
+        default:
+            throw new Error('Citation error ' + response.status)
+    }
 }
