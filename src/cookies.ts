@@ -14,22 +14,29 @@ class Cookies {
         return `ds_${name.toLowerCase()}`
     }
 
-    get_value(name: string) {
+    get_json() {
         const txtjson = this.localCookies.get(CONFIG.POLICY_COOKIE_NAME)
         if (!txtjson) {
-            return null
+            return {}
         }
 
-        const json = JSON.parse(txtjson)
-        return json[name]
+        try {
+            return JSON.parse(txtjson)
+        } catch (e) {
+            console.log('Malformed settings, reset needed.')
+            return {}
+        }
+    }
+
+    get_value(name: string) {
+        return this.get_json()[name]
     }
 
     set_value(name: string, value: any) {
-        const txtjson = this.localCookies.get(CONFIG.POLICY_COOKIE_NAME)
+        const json = this.get_json()
+        json[name] = value
 
         const attr = {expires: CONFIG.POLICY_COOKIE_EXPIRATION}
-        const json = txtjson ? JSON.parse(txtjson) : {}
-        json[name] = value
         this.localCookies.set(CONFIG.POLICY_COOKIE_NAME, JSON.stringify(json), attr)
     }
 
@@ -40,9 +47,8 @@ class Cookies {
             value = default_value
         }
 
-        //console.log(typeof(value))
-        //if (value === 'true') { value = true }
-        //if (value === 'false') { value = false }
+        if (value === 'true') { value = true }
+        if (value === 'false') { value = false }
 
         this.set_value(name, value)
         return value
