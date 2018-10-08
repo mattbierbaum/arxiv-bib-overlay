@@ -43,4 +43,4 @@ export const POLICY_DATASOURCE_LIST = ['s2']//, 'ads', 'inspire']
 export const POLICY_COOKIE_NAME = 'arxiv_bibex'
 
 // cookie expiration time in days
-export const POLICY_COOKIE_EXPIRATION = 365 * 5
+export const POLICY_COOKIE_EXPIRATION = 365
