@@ -61,6 +61,12 @@ export class BibMain extends React.Component<{state: State}, {}> {
             state.state = Status.DISABLED
             cookies.active = false
         }
+        this.seen()
+    }
+
+    seen() {
+        cookies.seen = true
+        this.props.state.seen = true
     }
 
     render() {
@@ -101,9 +107,25 @@ export class BibMain extends React.Component<{state: State}, {}> {
             return null
         }
 
+        const alertbox = (
+            <div style={{display: 'block', position: 'relative', width: '100px'}}>
+                <span className='tooltiptext'>
+                    <span>Try the Bibliographic Explorer!</span><br/>
+                    <span>(can be disabled at any time)</span><br/>
+                    <div>
+                    <span><a href='javascript:;' onClick={() => this.toggle()} className='green'>Enable</a></span>
+                    <span><a href='javascript:;' onClick={() => this.seen()}>Don't show again.</a></span>
+                    </div>
+                </span>
+            </div>
+        )
+
+        const showalert = state.isdisabled && !this.props.state.seen ? alertbox : null
+
         return (
             <div className='bib-main'>
               <div className='references-citations'>
+                {showalert}
                 <h2>{CONFIG.POLICY_SECTION_HEADER}</h2>
                 <div className='references-citations-boxes'>
                   <div className='bib-sidebar-source'>{this.generate_sources()}<span> {help}</span></div>
