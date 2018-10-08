@@ -110,7 +110,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
         const alertbox = (
             <div style={{display: 'block', position: 'relative', width: '100px'}}>
                 <span className='tooltiptext'>
-                    <span>Try the Bibliographic Explorer!</span><br/>
+                    <span>Try the Bibliographic Explorer</span><br/>
                     <span>(can be disabled at any time)</span><br/>
                     <div>
                     <span><a href='javascript:;' onClick={() => this.toggle()} className='green'>Enable</a></span>
