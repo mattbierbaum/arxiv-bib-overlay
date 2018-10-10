@@ -114,7 +114,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
                     <span>(can be disabled at any time)</span><br/>
                     <div>
                     <span><a href='javascript:;' onClick={() => this.toggle()} className='green'>Enable</a></span>
-                    <span><a href='javascript:;' onClick={() => this.seen()}>Don't show again.</a></span>
+                    <span><a href='javascript:;' onClick={() => this.seen()}>Don't show again</a></span>
                     </div>
                 </span>
             </div>
