@@ -88,11 +88,16 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             return null
         }
 
+        const N = group.documents.length
+        const group_count = (
+            (N === datasource.max_count) ? `${N.toString()}+` : N.toString()
+        )
+
         let count_msg: string = ''
         if (filt.length !== group.count) {
-            count_msg = `(${filt.length}/${group.count})`
+            count_msg = `(${filt.length}/${group_count})`
         } else {
-            count_msg = `(${group.count})`
+            count_msg = `(${group_count})`
         }
 
         const mailto = (
@@ -107,7 +112,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
             `most cited works. For all ${header}, follow this link to ${datasource.longname}.`
         )
         const star = (
-            group.documents.length === datasource.max_count ?
+            N === datasource.max_count ?
             <a title={aside} href={group.header_url} target='_blank'
             className='bib-col-title bib-star' style={{color: 'red'}}>*</a> : null
         )
