@@ -457,7 +457,6 @@ h1.bib-header span {
     -moz-animation-delay: 0.36s;
 }
 
-
 @keyframes pulsate {
     0% {
       transform: scale(.1);
@@ -472,6 +471,51 @@ h1.bib-header span {
     }
 }
 
+
+/* =============================================== */
+.tooltiptext {
+    opacity: 1;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px 0;
+
+    width: 240px;
+    bottom: 150%;
+    left: 90%;
+    margin-left: -90px;
+
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltiptext div {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.tooltiptext a {
+    color: #8080ff;
+}
+
+.tooltiptext a.green {
+    color: #1bcc44;
+}
+
+.tooltiptext::after {
+    opacity: 1;
+    content: " ";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+/* =============================================== */
 
 .modal {
     position: fixed;

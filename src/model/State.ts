@@ -22,6 +22,9 @@ export class State {
     @observable
     state: Status = Status.INIT
 
+    @observable
+    seen: boolean = false
+
     @computed
     get isfailed(): boolean {
         return this.state === Status.FAILED
