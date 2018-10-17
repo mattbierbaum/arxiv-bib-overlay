@@ -1,6 +1,7 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
 import { encodeQueryData } from '../bib_lib'
+import { api_bucket } from '../leaky_bucket'
 import { BasePaper, DataSource, DOWN, UP } from './document'
 import { S2ToPaper } from './S2FromJson'
 
@@ -81,15 +82,17 @@ export class S2Datasource implements DataSource {
 
         this.aid = arxiv_id
 
-        return fetch(this.url_paper(this.aid))
-            .catch((e) => {throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')})
-            .then(resp => error_check(resp))
-            .then(resp => resp.json())
-            .then(json => {
-                this.populate(json)
-                this.loaded = true
-                return this
-            })
+        return api_bucket.throttle(
+            () => fetch(this.url_paper(this.aid))
+                .catch((e) => {throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')})
+                .then(resp => error_check(resp))
+                .then(resp => resp.json())
+                .then(json => {
+                    this.populate(json)
+                    this.loaded = true
+                    return this
+                })
+        ).catch((e) => {throw new Error('Too many requests, throttled')})
     }
 }
 
