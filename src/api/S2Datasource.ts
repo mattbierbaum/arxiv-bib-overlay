@@ -92,7 +92,7 @@ export class S2Datasource implements DataSource {
                     this.loaded = true
                     return this
                 })
-        ).catch((e) => {throw new Error('Too many requests, throttled')})
+        ).catch((e) => {throw new Error('Too many requests, please try again in a few seconds.')})
     }
 }
 

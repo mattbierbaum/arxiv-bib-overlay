@@ -3,8 +3,7 @@ import * as CONFIG from './bib_config'
 
 const enum COOKIE_NAMES {
     ACTIVE = 'active',
-    SEEN = 'seen',
-    LIMITER = 'limiter'
+    SEEN = 'seen'
 }
 
 class Cookies {
@@ -73,14 +72,6 @@ class Cookies {
 
     get seen(): boolean {
         return this.get_boolean(COOKIE_NAMES.SEEN, false)
-    }
-
-    set limiter(vals: any) {
-        this.set_value(COOKIE_NAMES.LIMITER, vals)
-    }
-
-    get limiter(): any {
-        return this.get_value(COOKIE_NAMES.LIMITER)
     }
 
     get_datasource(category: string): string {

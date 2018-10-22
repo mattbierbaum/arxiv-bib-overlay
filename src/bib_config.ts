@@ -44,3 +44,6 @@ export const POLICY_COOKIE_NAME = 'arxiv_bibex'
 
 // cookie expiration time in days
 export const POLICY_COOKIE_EXPIRATION = 365 * 30
+
+// localstorage keyname (for cross-tab rate limiting)
+export const POLICY_LOCALSTORAGE_LIMITER_KEY = 'arxiv_bibex_limiter'

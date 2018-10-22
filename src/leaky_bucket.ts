@@ -17,9 +17,10 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import { cookies } from './cookies'
+import * as FastMutex from 'fast-mutex'
+import * as CONFIG from './bib_config'
 
-export class LeakyBucket {
+export class CrossTabLeakyBucket {
     // CONF: size of the slot where capacity tokens can be used in seconds, defaults to 60
     slotSize: number = 60
 
@@ -47,6 +48,9 @@ export class LeakyBucket {
     // LOCAL: timer which may be set to work the queue
     timer: any = null
 
+    storage: any
+    storename: string = ''
+
     constructor(capacity: number, interval: number = 60, maxWaitingTime: number = 300) {
         this.capacity = capacity
         this.slotSize = interval
@@ -56,74 +60,79 @@ export class LeakyBucket {
         this.left = this.capacity
         this.queue = []
 
-        this.load_globals()
+        this.storename = CONFIG.POLICY_LOCALSTORAGE_LIMITER_KEY
+        this.storage = localStorage || window.localStorage
     }
 
-    load_globals() {
-        const data = cookies.limiter
-        if (!data) {
-            return
+    storage_load() {
+        const txt = this.storage.getItem(this.storename) || ''
+        try {
+            if (!txt) { return }
+
+            const data = JSON.parse(txt)
+            if (!data) { return }
+
+            this.last = data.last
+            this.waitTime = data.waitTime
+            this.left = data.left
+        } catch (e) {
+            console.log(e)
         }
-
-        this.last = data.last
-        this.waitTime = data.waitTime
-        this.left = data.left
     }
 
-    save_globals() {
-        cookies.limiter = {last: this.last, waitTime: this.waitTime, left: this.left}
+    storage_save() {
+        const out = {last: this.last, waitTime: this.waitTime, left: this.left}
+        this.storage.setItem(this.storename, JSON.stringify(out))
     }
 
-    throttle(promise: () => Promise<any>, promise_cost: number = 1) {
-        const cost = promise_cost
-
+    throttle(promise: () => Promise<any>) {
+        const mutex = new FastMutex()
         return new Promise(
             (resolve, reject) => {
-                this._throttle(
-                    (err) => {err ? reject(err) : resolve() },
-                    cost, false
-                )
+                mutex.lock(this.storename)
+                .then(() => this.storage_load())
+                .then(() => this._throttle())
+                .then(() => this.storage_save())
+                .then(() => mutex.release(this.storename))
+                .then(() => resolve())
+                .catch((e) => reject(e))
             }
         ).then(() => promise())
     }
 
-    _throttle(callback: (err: any) => void, cost: number, fromQueue: boolean) {
+    _throttle(fromQueue: boolean = false) {
         let waitTime: number = 0
-        let item = {}
         const now = Date.now()
 
         this.left = Math.min(((now  - this.last) / (1000 * this.refillRate)) + this.left, this.capacity)
         this.last = now
 
-        if (this.left >= cost && (!this.queue.length || fromQueue)) {
-            this.left -= cost
+        if (this.left >= 1 && (!this.queue.length || fromQueue)) {
+            this.left -= 1
 
             if (fromQueue) {
-                this.waitTime -= cost
+                this.waitTime -= 1
             }
 
-            callback(null)
+            return
         } else {
             waitTime = Math.max((this.waitTime * (1000 * this.refillRate) - (now - this.last)) / 1000, 0)
 
             if (waitTime >= this.maxWaitingTime) {
-                callback(new Error(
+                throw new Error(
                     `Timeout exceeded, too many waiting requests! Would take ${waitTime} seconds to complete, ` +
                     `the max waiting time is ${this.maxWaitingTime}.`
-                ))
+                )
             } else {
-                item = {callback, cost}
-                this.waitTime += cost
+                this.waitTime += 1
 
                 if (fromQueue) {
-                    this.queue.unshift(item)
+                    this.queue.unshift(1)
                 } else {
-                    this.queue.push(item)
+                    this.queue.push(1)
                 }
             }
         }
-
-        this.save_globals()
 
         if (this.queue.length && this.timer === null) {
             this.timer = setTimeout(
@@ -131,17 +140,20 @@ export class LeakyBucket {
                     this.timer = null
 
                     if (this.queue.length) {
-                        const queuedItem = this.queue.shift()
-                        this._throttle(queuedItem.callback, queuedItem.cost, true)
+                        this._throttle(true)
                     }
                 },
-                Math.max(Math.ceil((this.queue[0].cost - this.left) * this.refillRate * 1000), 0)
+                Math.max(Math.ceil((1 - this.left) * this.refillRate * 1000), 0)
             )
         }
     }
 }
 
-/*const bucket = new LeakyBucket(1, 1, 1)
+// alternatives to cookies for shared storage amongst tabs
+//https://github.com/chieffancypants/fast-mutex
+//https://github.com/arnellebalane/hermes
+
+/*const bucket = new CrossTabLeakyBucket(1, 1, 0)
 for (let i = 0; i < 10; i++) {
     bucket.throttle(
         () => {
@@ -149,15 +161,42 @@ for (let i = 0; i < 10; i++) {
                 setTimeout(
                     () => {
                         console.log('hi')
-                        reject(new Error('bad'))
+                        //reject(new Error('bad'))
                         resolve()
                     },
                     1000
                 )
-            }).catch((e) => {console.log('Promise errror: ' + e)})
+            })//.catch((e) => {console.log('Promise errror: ' + e)})
         }
     )
     .catch((e) => {console.log('Problem: ' + e)})
 }*/
 
-export const api_bucket = new LeakyBucket(1, 1, 0)
+/*import * as FastMutex from 'fast-mutex'
+const mutex = new FastMutex({timeout: 100000})
+mutex.lock('sessionId')
+    .then(() => {
+        if (localStorage.getItem('sessionId')) {
+            console.log('has value')
+        } else {
+            const sessionId = 'hi'
+            localStorage.setItem('sessionId', sessionId)
+        }
+        return mutex.release('sessionId')
+    }).catch((err) => {console.log(err)})
+
+const mutex2 = new FastMutex({timeout: 100000})
+mutex2.lock('sessionId')
+    .then(() => {
+        if (localStorage.getItem('sessionId')) {
+            console.log('has value')
+        } else {
+            const sessionId = 'hi2'
+            localStorage.setItem('sessionId', sessionId)
+        }
+        return mutex.release('sessionId')
+    }).catch((err) => {
+        console.log(err)
+})*/
+
+export const api_bucket = new CrossTabLeakyBucket(1, 1, 0)
