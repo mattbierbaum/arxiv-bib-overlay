@@ -3,18 +3,18 @@
  * Copyright (C) 2015 Michael van der Weg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
- * and associated documentation files (the "Software"), to deal in the Software without restriction, 
- * including without limitation the rights to use, copy, modify, merge, publish, distribute, 
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is 
+ * and associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or 
+ * The above copyright notice and this permission notice shall be included in all copies or
  * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 import * as FastMutex from 'fast-mutex'
@@ -148,55 +148,5 @@ export class CrossTabLeakyBucket {
         }
     }
 }
-
-// alternatives to cookies for shared storage amongst tabs
-//https://github.com/chieffancypants/fast-mutex
-//https://github.com/arnellebalane/hermes
-
-/*const bucket = new CrossTabLeakyBucket(1, 1, 0)
-for (let i = 0; i < 10; i++) {
-    bucket.throttle(
-        () => {
-            return new Promise((resolve, reject) => {
-                setTimeout(
-                    () => {
-                        console.log('hi')
-                        //reject(new Error('bad'))
-                        resolve()
-                    },
-                    1000
-                )
-            })//.catch((e) => {console.log('Promise errror: ' + e)})
-        }
-    )
-    .catch((e) => {console.log('Problem: ' + e)})
-}*/
-
-/*import * as FastMutex from 'fast-mutex'
-const mutex = new FastMutex({timeout: 100000})
-mutex.lock('sessionId')
-    .then(() => {
-        if (localStorage.getItem('sessionId')) {
-            console.log('has value')
-        } else {
-            const sessionId = 'hi'
-            localStorage.setItem('sessionId', sessionId)
-        }
-        return mutex.release('sessionId')
-    }).catch((err) => {console.log(err)})
-
-const mutex2 = new FastMutex({timeout: 100000})
-mutex2.lock('sessionId')
-    .then(() => {
-        if (localStorage.getItem('sessionId')) {
-            console.log('has value')
-        } else {
-            const sessionId = 'hi2'
-            localStorage.setItem('sessionId', sessionId)
-        }
-        return mutex.release('sessionId')
-    }).catch((err) => {
-        console.log(err)
-})*/
 
 export const api_bucket = new CrossTabLeakyBucket(1, 1, 0)
