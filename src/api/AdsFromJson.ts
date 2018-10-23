@@ -1,3 +1,4 @@
+import * as unidecode from 'unidecode'
 import { RE_IDENTIFIER } from '../arxiv_page'
 import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { AdsDatasource } from './AdsDatasource'
@@ -84,7 +85,8 @@ export class AdsToPaper {
 
     searchline(doc: Paper) {        
         const auths = doc.authors.reduce((acc, au) => acc + au.name +  ' ', '')
-        return [doc.title, auths, doc.venue, doc.year].join(' ').toLocaleLowerCase()
+        const line = [doc.title, auths, doc.venue, doc.year].join(' ').toLocaleLowerCase()
+        return line + ' ' + unidecode(line)
     }
 
     outbound_names(ref: Paper) {

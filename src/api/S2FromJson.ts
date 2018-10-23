@@ -1,4 +1,5 @@
 //import { RE_IDENTIFIER } from '../arxiv_page'
+import * as unidecode from 'unidecode'
 import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { Author, Paper } from './document'
 import { S2Datasource } from './S2Datasource'
@@ -37,7 +38,9 @@ export class S2ToPaper {
 
     searchline(doc: Paper) {
         const auths = doc.authors.reduce((acc, au) => acc + au.name +  ' ', '')
-        return [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase()
+        const line = [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase()
+        return line + ' ' + unidecode(line)
+        // NOTE: check gunter
     }
 
     outbound_names(ref: Paper) {
