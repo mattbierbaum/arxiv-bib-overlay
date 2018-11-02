@@ -60,7 +60,7 @@ export class CrossTabLeakyBucket {
         this.left = this.capacity
         this.queue = []
 
-        this.storename = CONFIG.POLICY_LOCALSTORAGE_LIMITER_KEY
+        this.storename = CONFIG.POLICY_LIMITER_LOCALSTORAGE_KEY
         this.storage = localStorage || window.localStorage
     }
 
@@ -149,4 +149,4 @@ export class CrossTabLeakyBucket {
     }
 }
 
-export const api_bucket = new CrossTabLeakyBucket(1, 1, 0)
+export const api_bucket = new CrossTabLeakyBucket(CONFIG.POLICY_LIMITER_RATE, 1, CONFIG.POLICY_LIMITER_CAPACITY)
