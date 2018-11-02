@@ -6,6 +6,7 @@
   "dependencies": {
     "fast-mutex": "^1.0.2",
     "js-cookie": "^2.2.0",
+    "merge": "^1.2.1",
     "mobx": "^5.1.0",
     "mobx-react": "^5.2.5",
     "mobx-react-devtools": "^6.0.3",
