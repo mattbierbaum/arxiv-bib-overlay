@@ -2,7 +2,7 @@ import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
 import { encodeQueryData } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
-import { BasePaper, DataSource, DOWN, UP } from './document'
+import { BasePaper, DataSource, DOWN, QueryError, UP } from './document'
 import { S2ToPaper } from './S2FromJson'
 
 export class S2Datasource implements DataSource {
@@ -84,7 +84,7 @@ export class S2Datasource implements DataSource {
 
         return api_bucket.throttle(
             () => fetch(this.url_paper(this.aid))
-                .catch((e) => {throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')})
+                .catch((e) => {throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')})
                 .then(resp => error_check(resp))
                 .then(resp => resp.json())
                 .then(json => {
@@ -92,7 +92,13 @@ export class S2Datasource implements DataSource {
                     this.loaded = true
                     return this
                 })
-        ).catch((e) => {throw new Error('Too many requests, please try again in a few seconds.')})
+        ).catch((e) => {
+            if (e instanceof QueryError) {
+                throw e
+            } else {
+                throw new Error('Too many requests, please try again in a few seconds.')
+            }
+        })
     }
 }
 
@@ -103,12 +109,12 @@ function error_check(response: Response) {
 
     switch (response.status) {
         case 0:
-            throw new Error('Query prevented by browser -- CORS, firewall, or unknown error')
+            throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')
         case 404:
-            throw new Error('No data available yet')
+            throw new QueryError('No data available yet')
         case 500:
-            throw new Error('Query error 500: internal server error')
+            throw new QueryError('Query error 500: internal server error')
         default:
-            throw new Error('Query error ' + response.status)
+            throw new QueryError('Query error ' + response.status)
     }
 }
