@@ -94,7 +94,7 @@ export class ColumnView extends React.Component<{dataSource: DataSource, paperGr
         )
 
         let count_msg: string = ''
-        if (filt.length !== group.count) {
+        if (filt.length !== N) {
             count_msg = `(${filt.length}/${group_count})`
         } else {
             count_msg = `(${group_count})`
