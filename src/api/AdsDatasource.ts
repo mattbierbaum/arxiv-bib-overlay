@@ -89,7 +89,7 @@ export class AdsDatasource implements DataSource {
         const credstr: 'include' = 'include'
         const options = {credentials: credstr}
         return fetch('http://abovl.us-east-1.elasticbeanstalk.com/token', options)
-            .catch((e) => {throw new QueryError('Token query prevented by browser -- CORS, firewall, or unknown error')})
+            .catch((e) => {throw new QueryError('Token query prevented by browser - CORS, firewall, or unknown error')})
             .then(resp => error_check_token(resp))
             .then(resp => resp.json())
             .then(json => {this.credentials = json.token})
