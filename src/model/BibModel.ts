@@ -2,6 +2,7 @@ import { action, observable } from 'mobx'
 import { AdsDatasource } from '../api/AdsDatasource'
 import { DataSource, Paper, PaperGroup } from '../api/document'
 import { InspireDatasource } from '../api/InspireDatasource'
+import { ProphyDatasource } from '../api/ProphyDatasource'
 import { S2Datasource } from '../api/S2Datasource'
 import { get_categories, get_current_article } from '../arxiv_page'
 import { API_STATS_IMAGE, POLICY_DATASOURCE_LIST, POLICY_RECORD_API_STATS } from '../bib_config'
@@ -18,7 +19,8 @@ export class BibModel {
     allDS: DataSource[] = [
         new InspireDatasource(),
         new AdsDatasource(),
-        new S2Datasource()
+        new S2Datasource(),
+        new ProphyDatasource()
     ].filter((i) => POLICY_DATASOURCE_LIST.indexOf(i.shortname.toLowerCase()) >= 0)
 
     @observable

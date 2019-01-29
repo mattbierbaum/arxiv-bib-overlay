@@ -6,6 +6,7 @@ import arxivIcon from '../assets/icon-arxiv.png'
 import citeIcon from '../assets/icon-cite.png'
 import doiIcon from '../assets/icon-doi.png'
 import inspireIcon from '../assets/icon-inspire.png'
+import prophyIcon from '../assets/icon-prophy.png'
 import s2Icon from '../assets/icon-s2.png'
 import scholarIcon from '../assets/icon-scholar.png'
 import { API_SCHOLAR_SEARCH } from '../bib_config'
@@ -55,6 +56,7 @@ const _modal = (name: string, desc: string, paper: Paper, icon: any) => {
 const make_link = {
     ads(ref: Paper) {return _link('ads', 'NASA ADS', ref.url, adsIcon )},
     s2(ref: Paper) {return _link('s2', 'Semantic Scholar', ref.url, s2Icon)},
+    prophy(ref: Paper) {return _link('prophy', 'Prophy', ref.url, prophyIcon)},
     inspire(ref: Paper) {return _link('inspire', 'Inspire HEP', ref.url, inspireIcon)},
     arxiv(ref: Paper) {return _link('arxiv', 'ArXiv article', ref.url_arxiv, arxivIcon, false)},
     doi(ref: Paper) {return _link('doi', 'Journal article', ref.url_doi, doiIcon)},
