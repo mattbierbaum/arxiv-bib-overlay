@@ -29,7 +29,7 @@ export class AdsToPaper {
     }
 
     ads_url_bibcode(bib: string) {
-        return `${this.fetchConfig.base_url}/#abs/${bib}`        
+        return `${this.fetchConfig.outbound_url}/#abs/${bib}`
     }
 
     ads_url_arxiv(identifiers: string[]) {

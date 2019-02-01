@@ -28,6 +28,7 @@ export class AdsDatasource implements DataSource {
     max_count = API_ARTICLE_COUNT
     base_url = 'https://api.adsabs.harvard.edu'
     homepage = 'https://ui.adsabs.harvard.edu'
+    outbound_url = 'https://ui.adsabs.harvard.edu'
     api_url = `${this.base_url}/v1/search/query`
     api_key = '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x'
     api_params = {
