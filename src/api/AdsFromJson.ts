@@ -28,7 +28,11 @@ export class AdsToPaper {
         return this.ads_url_part('bibcode', bib)
     }
 
-    ads_url_bibcode(bib: string) {
+    ads_url_api(bib: string) {
+        return `${this.fetchConfig.base_url}/#abs/${bib}`
+    }
+
+    ads_url_outbound(bib: string) {
         return `${this.fetchConfig.outbound_url}/#abs/${bib}`
     }
 
@@ -103,8 +107,8 @@ export class AdsToPaper {
         const newdoc: Paper = new Paper(arxivid)
         newdoc.title = this.reformat_title(json.title)
         newdoc.authors = this.reformat_authors(json.author)
-        newdoc.api = this.ads_url_bibcode(json.bibcode)
-        newdoc.url = newdoc.api
+        newdoc.api = this.ads_url_api(json.bibcode)
+        newdoc.url = this.ads_url_outbound(json.bibcode)
         newdoc.url_arxiv = this.ads_url_arxiv(json.identifier)
         newdoc.doi = (json.doi || [''])[0]
         newdoc.url_doi = this.ads_url_doi(json)
