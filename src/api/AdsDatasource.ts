@@ -61,7 +61,7 @@ export class AdsDatasource implements DataSource {
         sorters_default: 'citations'
     }
 
-    ads_url_ui = `${this.base_url}/#search/`
+    ads_url_ui = `${this.outbound_url}/#search/`
 
     json_to_doc = new AdsToPaper(this)
 
