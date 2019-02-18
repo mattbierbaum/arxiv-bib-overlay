@@ -33,11 +33,11 @@ export const POLICY_DEFAULT_ENABLED = false
 // display the "References and citations" section even when there is no datasource
 export const POLICY_ALWAYS_DISPLAY_SECTION = false
 
-// display [ Disable bibex (what is bibex)], turned off for extension
+// display [ Disable bibex (what is bibex)], turned on for both extension
 export const POLICY_SHOW_HELP_LINKS = true
 
 // which data sources are enabled
-export const POLICY_DATASOURCE_LIST = ['s2']//, 'ads', 'inspire']
+export const POLICY_DATASOURCE_LIST = ['s2']//, 'ads', 'inspire', 'prophy']
 
 // cookie under which all settings are stored
 export const POLICY_COOKIE_NAME = 'arxiv_bibex'

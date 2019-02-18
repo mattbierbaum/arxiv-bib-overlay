@@ -3,7 +3,8 @@ import * as CONFIG from './bib_config'
 
 const enum COOKIE_NAMES {
     ACTIVE = 'active',
-    SEEN = 'seen'
+    SEEN = 'seen',
+    LAST_SEEN_MONTH = 'mo',
 }
 
 class Cookies {
@@ -72,6 +73,15 @@ class Cookies {
 
     get seen(): boolean {
         return this.get_boolean(COOKIE_NAMES.SEEN, false)
+    }
+
+    set last_seen_month(month: number) {
+        this.set_value(COOKIE_NAMES.LAST_SEEN_MONTH, month)
+    }
+
+    get last_seen_month(): number {
+        const val = this.get_value(COOKIE_NAMES.LAST_SEEN_MONTH)
+        return val === undefined ? -1 : val
     }
 
     get_datasource(category: string): string {

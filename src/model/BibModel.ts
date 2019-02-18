@@ -17,9 +17,9 @@ export class BibModel {
 
     @observable
     allDS: DataSource[] = [
+        new S2Datasource(),
         new InspireDatasource(),
         new AdsDatasource(),
-        new S2Datasource(),
         new ProphyDatasource()
     ].filter((i) => POLICY_DATASOURCE_LIST.indexOf(i.shortname.toLowerCase()) >= 0)
 

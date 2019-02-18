@@ -1,5 +1,9 @@
 import { URL_PROXY } from './bib_config'
 
+export function current_month(): number {
+    return (new Date()).getMonth()
+}
+
 export function random_id(): string {
     return Math.random().toString().substring(2, 12)
 }
