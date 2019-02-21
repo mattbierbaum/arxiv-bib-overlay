@@ -1,6 +1,6 @@
 import sourceIcon from '../assets/icon-ads.png'
 import sourceLogo from '../assets/source-ads.png'
-import { API_ARTICLE_COUNT } from '../bib_config'
+import { API_ARTICLE_COUNT, POLICY_ADS_OAUTH_SERVICE } from '../bib_config'
 import { encodeQueryData } from '../bib_lib'
 import { AdsToPaper } from './AdsFromJson'
 import {  BasePaper, DataSource, DOWN, Paper, QueryError, UP } from './document'
@@ -29,8 +29,11 @@ export class AdsDatasource implements DataSource {
     base_url = 'https://api.adsabs.harvard.edu'
     homepage = 'https://ui.adsabs.harvard.edu'
     outbound_url = 'https://ui.adsabs.harvard.edu'
+    token_url = 'https://bibex-ads-token.development.arxiv.org/token'
+    //token_url = 'http://abovl.us-east-1.elasticbeanstalk.com/token'
     api_url = `${this.base_url}/v1/search/query`
     api_key = '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x'
+
     api_params = {
         q: 'a query',
         fl: [
@@ -89,7 +92,7 @@ export class AdsDatasource implements DataSource {
     get_credentials(): Promise<void> {
         const credstr: 'include' = 'include'
         const options = {credentials: credstr}
-        return fetch('http://abovl.us-east-1.elasticbeanstalk.com/token', options)
+        return fetch(this.token_url, options)
             .catch((e) => {throw new QueryError('Token query prevented by browser - CORS, firewall, or unknown error')})
             .then(resp => error_check_token(resp))
             .then(resp => resp.json())
@@ -107,8 +110,8 @@ export class AdsDatasource implements DataSource {
         const url = `${this.api_url}?${this.fetch_params(query , index)}`
         //const modestr: 'no-cors' = 'no-cors'
         //const headers = {mode: modestr, headers: {Authorization: `Bearer ${this.api_key}`}}
-        //const headers = {headers: {Authorization: `Bearer ${this.credentials}`}}
-        const headers = {headers: {Authorization: `Bearer ${this.api_key}`}}
+        const credentials = POLICY_ADS_OAUTH_SERVICE ? this.credentials : this.api_key
+        const headers = {headers: {Authorization: `Bearer ${credentials}`}}
 
         return fetch(url, headers)
             .catch((e) => {throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')})
@@ -119,9 +122,9 @@ export class AdsDatasource implements DataSource {
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
     fetch_all(arxiv_id: string): Promise <AdsDatasource> {
-        /*if (!this.credentials) {
+        if (POLICY_ADS_OAUTH_SERVICE && !this.credentials) {
             return this.get_credentials().then(() => this.fetch_all(arxiv_id))
-        }*/
+        }
 
         if (this.loaded) {
             return new Promise<AdsDatasource>((resolve, reject) => resolve(this))

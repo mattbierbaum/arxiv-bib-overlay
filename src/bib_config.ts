@@ -53,3 +53,6 @@ export const POLICY_LIMITER_RATE = 3
 
 // limiter capacity until it starts to overflow (queue depth)
 export const POLICY_LIMITER_CAPACITY = 3
+
+// employ ADS OAuth token service or use the global token (not good practice)
+export const POLICY_ADS_OAUTH_SERVICE = false
