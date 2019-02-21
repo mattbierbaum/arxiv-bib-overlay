@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx'
+import { POLICY_PERIODICALLY_REMIND_USERS } from '../bib_config'
 import { current_month } from '../bib_lib'
 import { cookies } from '../cookies'
 import { BibModel } from './BibModel'
@@ -70,7 +71,7 @@ export class State {
 
         const month_stored = cookies.last_seen_month
         const month_current = current_month()
-        this.show_alert = (month_current !== month_stored)
+        this.show_alert = POLICY_PERIODICALLY_REMIND_USERS && (month_current !== month_stored)
     }
 
     @action
