@@ -31,7 +31,7 @@ export const POLICY_REMEMBER_DATASOURCE = true
 export const POLICY_DEFAULT_ENABLED = false
 
 // if we should periodically remind users to check out the labs
-export const POLICY_PERIODICALLY_REMIND_USERS = false
+export const POLICY_PERIODICALLY_REMIND_USERS = true
 
 // display the "References and citations" section even when there is no datasource
 export const POLICY_ALWAYS_DISPLAY_SECTION = false
