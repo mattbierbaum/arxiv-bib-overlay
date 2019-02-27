@@ -2,8 +2,7 @@ import { observer } from 'mobx-react'
 import * as React from 'react'
 import '../App.css'
 import * as CONFIG from '../bib_config'
-import { cookies } from '../cookies'
-import { State, Status } from '../model/State'
+import { State } from '../model/State'
 import { ColumnView } from './ColumnView'
 import { spinner } from './Spinner'
 
@@ -51,24 +50,6 @@ export class BibMain extends React.Component<{state: State}, {}> {
         return (<ul className='msgs'>{msgs}</ul>)
     }
 
-    toggle() {
-        const state = this.props.state
-        if (state.isdisabled) {
-            state.state = Status.INIT
-            state.bibmodel.reloadSource()
-            cookies.active = true
-        } else {
-            state.state = Status.DISABLED
-            cookies.active = false
-        }
-        this.seen()
-    }
-
-    seen() {
-        cookies.seen = true
-        this.props.state.seen = true
-    }
-
     render() {
         const state = this.props.state
         const bib = this.props.state.bibmodel
@@ -97,7 +78,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
         const help = CONFIG.POLICY_SHOW_HELP_LINKS ? (
             <span>
             <span>[<a id='biboverlay_toggle' href='javascript:;'
-                onClick={() => this.toggle()}>{
+                onClick={() => state.toggle()}>{
                     state.isdisabled ? `Enable ${name}` : `Disable ${name}`}</a></span>
             <span>(<a href={CONFIG.POLICY_DESCRIPTION_PAGE}>What is {name}?</a>)]</span>
             </span>
@@ -113,14 +94,14 @@ export class BibMain extends React.Component<{state: State}, {}> {
                     <span>Try the Bibliographic Explorer</span><br/>
                     <span>(can be disabled at any time)</span><br/>
                     <div>
-                    <span><a href='javascript:;' onClick={() => this.toggle()} className='green'>Enable</a></span>
-                    <span><a href='javascript:;' onClick={() => this.seen()}>Don't show again</a></span>
+                    <span><a href='javascript:;' onClick={() => state.toggle()} className='green'>Enable</a></span>
+                    <span><a href='javascript:;' onClick={() => state.acknowledge()}>Don't show again</a></span>
                     </div>
                 </span>
             </div>
         )
 
-        const showalert = state.isdisabled && !this.props.state.seen ? alertbox : null
+        const showalert = state.show_alert ? alertbox : null
 
         return (
             <div className='bib-main'>

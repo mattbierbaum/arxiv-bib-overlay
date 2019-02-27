@@ -1,5 +1,5 @@
 //import { RE_IDENTIFIER } from '../arxiv_page'
-import * as unidecode from 'unidecode'
+//import * as unidecode from 'unidecode'
 import { encodeQueryData, remove_puctuation } from '../bib_lib'
 import { Author, Paper } from './document'
 import { ProphyDatasource } from './ProphyDatasource'
@@ -39,7 +39,7 @@ export class ProphyToPaper {
     searchline(doc: Paper) {
         const auths = doc.authors.reduce((acc, au) => acc + au.name +  ' ', '')
         const line = [doc.title, auths, doc.venue, doc.year].join(' ').toLowerCase()
-        return line + ' ' + unidecode(line)
+        return line //+ ' ' + unidecode(line)
         // NOTE: check gunter
     }
 
