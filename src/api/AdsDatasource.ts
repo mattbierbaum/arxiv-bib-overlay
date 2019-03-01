@@ -2,6 +2,8 @@ import sourceIcon from '../assets/icon-ads.png'
 import sourceLogo from '../assets/source-ads.png'
 import { API_ARTICLE_COUNT, POLICY_ADS_OAUTH_SERVICE } from '../bib_config'
 import { encodeQueryData } from '../bib_lib'
+//import { COOKIE_NAMES, cookies } from '../cookies'
+import { api_bucket } from '../leaky_bucket'
 import { AdsToPaper } from './AdsFromJson'
 import {  BasePaper, DataSource, DOWN, Paper, QueryError, UP } from './document'
 
@@ -30,7 +32,6 @@ export class AdsDatasource implements DataSource {
     homepage = 'https://ui.adsabs.harvard.edu'
     outbound_url = 'https://ui.adsabs.harvard.edu'
     token_url = 'https://bibex-ads-token.development.arxiv.org/token'
-    //token_url = 'http://abovl.us-east-1.elasticbeanstalk.com/token'
     api_url = `${this.base_url}/v1/search/query`
     api_key = '3vgYvCGHUS12SsrgoIfbPhTHcULZCByH8pLODY1x'
 
@@ -113,11 +114,19 @@ export class AdsDatasource implements DataSource {
         const credentials = POLICY_ADS_OAUTH_SERVICE ? this.credentials : this.api_key
         const headers = {headers: {Authorization: `Bearer ${credentials}`}}
 
-        return fetch(url, headers)
+        return api_bucket.throttle(
+            () => fetch(url, headers)
             .catch((e) => {throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')})
             .then(resp => error_check(resp))
             .then(resp => resp.json())
             .then(json => this.json_to_doc.reformat_documents(json.response.docs))
+        ).catch((e) => {
+            if (e instanceof QueryError) {
+                throw e
+            } else {
+                throw new Error('Too many requests, please try again in a few seconds.')
+            }
+        })
     }
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
@@ -156,6 +165,8 @@ function error_check(response: Response) {
             throw new QueryError('Query authentication to ADS failed')
         case 404:
             throw new QueryError('No data available yet')
+        case 429:
+            throw new QueryError('Too many requests to ADS, rate limit reached for today.')
         case 500:
             throw new QueryError('Query error 500: internal server error')
         default:
