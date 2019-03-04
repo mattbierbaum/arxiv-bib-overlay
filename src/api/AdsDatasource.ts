@@ -20,11 +20,7 @@ export class AdsDatasource implements DataSource {
     email = 'adshelp@cfa.harvard.edu'
     shortname = 'ADS'
     longname = 'NASA ADS'
-    categories = new Set([
-        'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat',
-        'hep-ph', 'hep-th', 'nlin', 'nucl-ex',
-        'nucl-th', 'physics', 'quant-ph'
-    ])
+    categories = new Set(['astro-ph', 'cond-mat', 'gr-qc'])
 
     max_count = API_ARTICLE_COUNT
     base_url = 'https://api.adsabs.harvard.edu'
