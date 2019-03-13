@@ -4,7 +4,7 @@ import * as CONFIG from './bib_config'
 const enum COOKIE_NAMES {
     ACTIVE = 'active',
     SEEN = 'seen',
-    LAST_SEEN_MONTH = 'mo',
+    LAST_SEEN_TIME = 'tseen',
 }
 
 class Cookies {
@@ -75,12 +75,12 @@ class Cookies {
         return this.get_boolean(COOKIE_NAMES.SEEN, false)
     }
 
-    set last_seen_month(month: number) {
-        this.set_value(COOKIE_NAMES.LAST_SEEN_MONTH, month)
+    set last_seen_time(time: number) {
+        this.set_value(COOKIE_NAMES.LAST_SEEN_TIME, time)
     }
 
-    get last_seen_month(): number {
-        const val = this.get_value(COOKIE_NAMES.LAST_SEEN_MONTH)
+    get last_seen_time(): number {
+        const val = this.get_value(COOKIE_NAMES.LAST_SEEN_TIME)
         return val === undefined ? -1 : val
     }
 

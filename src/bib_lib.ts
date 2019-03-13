@@ -1,7 +1,7 @@
 import { URL_PROXY } from './bib_config'
 
-export function current_month(): number {
-    return (new Date()).getMonth()
+export function current_time(): number {
+    return Math.floor((new Date()).getTime() / 1000)
 }
 
 export function random_id(): string {

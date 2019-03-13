@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx'
-import { POLICY_PERIODICALLY_REMIND_USERS } from '../bib_config'
-import { current_month } from '../bib_lib'
+import { POLICY_PERIODICALLY_REMIND_USERS, POLICY_REMINDER_PERIOD } from '../bib_config'
+import { current_time } from '../bib_lib'
 import { cookies } from '../cookies'
 import { BibModel } from './BibModel'
 
@@ -69,9 +69,11 @@ export class State {
             return
         }
 
-        const month_stored = cookies.last_seen_month
-        const month_current = current_month()
-        this.show_alert = POLICY_PERIODICALLY_REMIND_USERS && (month_current !== month_stored)
+        const time_stored = cookies.last_seen_time
+        const time_current = current_time()
+        this.show_alert = POLICY_PERIODICALLY_REMIND_USERS && (
+            (time_current > time_stored + POLICY_REMINDER_PERIOD) || (time_current < time_stored)
+        )
     }
 
     @action
@@ -90,7 +92,7 @@ export class State {
     @action
     acknowledge() {
         cookies.seen = true
-        cookies.last_seen_month = current_month()
+        cookies.last_seen_time = current_time()
         this.seen = true
         this.show_alert = false
     }
