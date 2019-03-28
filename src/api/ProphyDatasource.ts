@@ -17,7 +17,15 @@ export class ProphyDatasource implements DataSource {
     email = 'feedback@www.prophy.science'
     shortname = 'Prophy'
     longname = 'Prophy'
-    categories = new Set(['math', 'cond-mat'])
+    categories = new Set([
+        'acc-phys', 'adap-org', 'alg-geom', 'ao-sci', 'astro-ph', 'atom-ph',
+        'bayes-an', 'chao-dyn', 'chem-ph', 'cmp-lg', 'comp-gas', 'cond-mat', 'cs',
+        'dg-ga', 'funct-an', 'gr-qc', 'hep-ex', 'hep-lat', 'hep-ph', 'hep-th',
+        'math', 'math-ph', 'mtrl-th', 'nlin', 'nucl-ex', 'nucl-th', 'patt-sol',
+        'physics', 'plasm-ph', 'q-alg', 'q-bio', 'quant-ph', 'solv-int',
+        'supr-con', 'eess', 'econ'
+    ])
+
     homepage = 'https://www.prophy.science'
     api_url = 'https://www.prophy.science/api'
     api_params = {include_unknown_references: 1}
