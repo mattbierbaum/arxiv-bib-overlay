@@ -14,7 +14,7 @@ export class ProphyDatasource implements DataSource {
     icon = icon
 
     max_count = 999
-    email = 'feedback@www.prophy.science'
+    email = 'arxiv@prophy.science'
     shortname = 'Prophy'
     longname = 'Prophy'
     categories = new Set([
