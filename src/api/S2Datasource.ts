@@ -1,6 +1,6 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
-import { encodeQueryData } from '../bib_lib'
+import { CATEGORIES, encodeQueryData } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { BasePaper, DataSource, DOWN, QueryError, UP } from './document'
 import { S2ToPaper } from './S2FromJson'
@@ -17,7 +17,7 @@ export class S2Datasource implements DataSource {
     email = 'feedback@semanticscholar.org'
     shortname = 'S2'
     longname = 'Semantic Scholar'
-    categories = new Set(['cs', 'stat.ML'])
+    categories = CATEGORIES
     homepage = 'https://semanticscholar.org'
     api_url = 'https://api.semanticscholar.org/v1/'
     api_params = {include_unknown_references: 'true'}

@@ -1,5 +1,11 @@
 import { URL_PROXY } from './bib_config'
 
+export const CATEGORIES = new Set([
+  'astro-ph', 'cond-mat', 'cs', 'gr-qc', 'hep-ex', 'hep-lat', 'hep-ph',
+  'hep-th', 'math-ph', 'nlin', 'nucl-ex', 'nucl-th', 'physics', 'quant-ph',
+  'math', 'q-bio', 'q-fin', 'stat', 'eess', 'econ'
+])
+
 export function current_time(): number {
     return Math.floor((new Date()).getTime() / 1000)
 }

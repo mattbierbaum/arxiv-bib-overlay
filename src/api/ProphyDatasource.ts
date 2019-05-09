@@ -1,6 +1,6 @@
 import icon from '../assets/icon-prophy.png'
 import sourceLogo from '../assets/source-prophy.png'
-import { encodeQueryData } from '../bib_lib'
+import { CATEGORIES, encodeQueryData } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { BasePaper, DataSource, DOWN, QueryError, UP } from './document'
 import { ProphyToPaper } from './ProphyFromJson'
@@ -17,18 +17,13 @@ export class ProphyDatasource implements DataSource {
     email = 'arxiv@prophy.science'
     shortname = 'Prophy'
     longname = 'Prophy'
-    categories = new Set([
-        'acc-phys', 'adap-org', 'alg-geom', 'ao-sci', 'astro-ph', 'atom-ph',
-        'bayes-an', 'chao-dyn', 'chem-ph', 'cmp-lg', 'comp-gas', 'cond-mat', 'cs',
-        'dg-ga', 'funct-an', 'gr-qc', 'hep-ex', 'hep-lat', 'hep-ph', 'hep-th',
-        'math', 'math-ph', 'mtrl-th', 'nlin', 'nucl-ex', 'nucl-th', 'patt-sol',
-        'physics', 'plasm-ph', 'q-alg', 'q-bio', 'quant-ph', 'solv-int',
-        'supr-con', 'eess', 'econ'
-    ])
+    categories = CATEGORIES
 
     homepage = 'https://www.prophy.science'
     api_url = 'https://www.prophy.science/api'
-    api_params = {include_unknown_references: 1}
+    api_params = {
+        include_unknown_references: 1,
+    }
 
     sorting = {
         sorters: {
