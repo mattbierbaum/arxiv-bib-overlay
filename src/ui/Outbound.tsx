@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Paper } from '../api/document'
-import { get_article_info } from '../arxiv_page'
 import adsIcon from '../assets/icon-ads.png'
 import arxivIcon from '../assets/icon-arxiv.png'
 import citeIcon from '../assets/icon-cite.png'
@@ -20,7 +19,8 @@ function google_scholar_query(paper: Paper) {
         auth = paper.authors[0].tolastname()
     }
 
-    const query = `${paper.title} ${auth} ${paper.year}`
+    const venue = paper.venue ? paper.venue : ''
+    const query = `${paper.title} ${auth} ${venue} ${paper.year}`
     const encoded = encodeQueryData({q: query})
     return `${API_SCHOLAR_SEARCH}?${encoded}`
 }
@@ -93,14 +93,24 @@ export class OutboundCite extends React.Component<{paper: Paper}, {}> {
     }
 }
 
-export function OutboundScholar() {
-    const info = get_article_info()
-    const line = `${info.title} ${info.author.split(',')[0]} ${info.year}`
-    const query = encodeQueryData({q: line})
-    const url = `${API_SCHOLAR_SEARCH}?${query}`
+function SidebarReference(paper: Paper) {
+    if (!paper.arxivId && !paper.doi) {
+        return (<span></span>)
+    }
+
+    return (<a href='javascript:void(0)' title={paper.arxivId} onClick={() => cite_modal(paper)}>Export citation</a>)
+}
+
+export function OutboundNoData(paper: Paper) {
+    if (!paper) { return (<div></div>) }
+
+    const url = google_scholar_query(paper)
+    const ref = SidebarReference(paper)
 
     return (
         <div className='bib-outbound' style={{margin: '0.3em'}}>
+            {ref}
+            <br/>
             <a href={url} target='_blank'>Google Scholar</a>
         </div>
     )

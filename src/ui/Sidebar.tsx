@@ -3,7 +3,7 @@ import * as React from 'react'
 import '../App.css'
 import * as CONFIG from '../bib_config'
 import { State } from '../model/State'
-import { Outbound, OutboundCite, OutboundScholar } from './Outbound'
+import { Outbound, OutboundCite, OutboundNoData } from './Outbound'
 
 @observer
 export class Sidebar extends React.Component<{state: State}, {}> {
@@ -12,15 +12,15 @@ export class Sidebar extends React.Component<{state: State}, {}> {
         const bib = this.props.state.bibmodel
 
         if (state.isdisabled) {
-            return OutboundScholar()
+            return OutboundNoData(bib.arxiv_paper)
         }
 
         if (!bib || !bib.paper || !bib.paper.authors) {
-            return OutboundScholar()
+            return OutboundNoData(bib.arxiv_paper)
         }
 
         if (bib.currentDS && !bib.currentDS.loaded) {
-            return OutboundScholar()
+            return OutboundNoData(bib.arxiv_paper)
         }
 
         const auth_elements = bib.paper.authors.map(
