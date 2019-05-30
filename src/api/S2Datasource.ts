@@ -1,8 +1,8 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
-import { CATEGORIES, encodeQueryData } from '../bib_lib'
+import { CATEGORIES, encodeQueryData, QueryError, RateLimitError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
-import { BasePaper, DataSource, DOWN, QueryError, UP } from './document'
+import { BasePaper, DataSource, DOWN, PaperGroup, UP } from './document'
 import { S2ToPaper } from './S2FromJson'
 
 export class S2Datasource implements DataSource {
@@ -47,6 +47,24 @@ export class S2Datasource implements DataSource {
         return `${this.api_url}paper/arXiv:${arxivid}?${params}`
     }
 
+    portion_unknown(papers: PaperGroup | undefined) {
+        let total = 0
+        let count = 0
+
+        if (!papers || !papers.documents || papers.documents.length === 0) {
+            return 0
+        }
+
+        for (const p of papers.documents) {
+            if (!p.paperId) {
+                count += 1
+            }
+            total += 1
+        }
+
+        return count  / total
+    }
+
     populate(json: any) {
         const output: BasePaper = this.json_to_doc.reformat_document(json, 0)
 
@@ -72,6 +90,16 @@ export class S2Datasource implements DataSource {
             }
         }
 
+        if (json.citations && json.references && json.citations.length === 0 && json.references.length === 0) {
+            throw new QueryError('No data available from data provider, article may be too recent.')
+        }
+
+        const pref = this.portion_unknown(output.references)
+        const pcit = this.portion_unknown(output.citations)
+        if (pref > 0.9 || pcit > 0.9) {
+            throw new QueryError(`No data available from data provider, article may be too recent. (${pref}, ${pcit})`)
+        }
+
         this.data = output
     }
 
@@ -95,8 +123,10 @@ export class S2Datasource implements DataSource {
         ).catch((e) => {
             if (e instanceof QueryError) {
                 throw e
-            } else {
+            } else if (e instanceof RateLimitError) {
                 throw new Error('Too many requests, please try again in a few seconds.')
+            } else {
+                throw e
             }
         })
     }
@@ -111,7 +141,7 @@ function error_check(response: Response) {
         case 0:
             throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')
         case 404:
-            throw new QueryError('No data available yet')
+            throw new QueryError('No data available from data provider, article may be too recent, 404.')
         case 500:
             throw new QueryError('Query error 500: internal server error')
         default:

@@ -42,3 +42,17 @@ export function remove_puctuation(data: string): string {
     //return data.replace(/[.,\/#!$%\^&\*;:{}=\-_~()"'\\\[\]]/gmi, '')
     return data.replace(/[~`!@#$%^&*(){}\[\];:"'<,.>?\/\\|_+=-]/gmi, '')
 }
+
+export class QueryError extends Error {
+    constructor(m: string) {
+        super(m)
+        Object.setPrototypeOf(this, QueryError.prototype)
+    }
+}
+
+export class RateLimitError extends Error {
+    constructor(m: string) {
+        super(m)
+        Object.setPrototypeOf(this, RateLimitError.prototype)
+    }
+}

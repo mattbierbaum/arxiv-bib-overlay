@@ -103,10 +103,3 @@ export interface DataSource {
 
     fetch_all(arxiv_id: string): Promise<DataSource>
 }
-
-export class QueryError extends Error {
-    constructor(m: string) {
-        super(m)
-        Object.setPrototypeOf(this, QueryError.prototype)
-    }
-}

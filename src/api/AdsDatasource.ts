@@ -1,10 +1,10 @@
 import sourceIcon from '../assets/icon-ads.png'
 import sourceLogo from '../assets/source-ads.png'
 import { API_ARTICLE_COUNT, POLICY_ADS_OAUTH_SERVICE } from '../bib_config'
-import { encodeQueryData } from '../bib_lib'
+import { encodeQueryData, QueryError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { AdsToPaper } from './AdsFromJson'
-import {  BasePaper, DataSource, DOWN, Paper, QueryError, UP } from './document'
+import {  BasePaper, DataSource, DOWN, Paper, UP } from './document'
 
 /** Class to fetch references from ADS. */
 export class AdsDatasource implements DataSource {

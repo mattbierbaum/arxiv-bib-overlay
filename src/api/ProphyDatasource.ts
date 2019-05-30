@@ -1,8 +1,8 @@
 import icon from '../assets/icon-prophy.png'
 import sourceLogo from '../assets/source-prophy.png'
-import { CATEGORIES, encodeQueryData } from '../bib_lib'
+import { CATEGORIES, encodeQueryData, QueryError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
-import { BasePaper, DataSource, DOWN, QueryError, UP } from './document'
+import { BasePaper, DataSource, DOWN, UP } from './document'
 import { ProphyToPaper } from './ProphyFromJson'
 
 export class ProphyDatasource implements DataSource {
