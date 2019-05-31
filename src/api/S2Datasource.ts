@@ -94,10 +94,12 @@ export class S2Datasource implements DataSource {
             throw new QueryError('No data available from data provider, article may be too recent.')
         }
 
-        const pref = this.portion_unknown(output.references)
-        const pcit = this.portion_unknown(output.citations)
-        if (pref > 0.9 || pcit > 0.9) {
-            throw new QueryError(`No data available from data provider, article may be too recent. (${pref}, ${pcit})`)
+        const pref = Number(this.portion_unknown(output.references).toFixed(2))
+        const pcit = Number(this.portion_unknown(output.citations).toFixed(2))
+        if (pref > 0.75 || pcit > 0.75) {
+            throw new QueryError(
+                `No data available from data provider, article may be too recent. (${Math.max(pref, pcit)})`
+            )
         }
 
         this.data = output
