@@ -13,7 +13,7 @@ export class ProphyDatasource implements DataSource {
     logo = sourceLogo
     icon = icon
 
-    max_count = 999
+    max_count = 200
     email = 'arxiv@prophy.science'
     shortname = 'Prophy'
     longname = 'Prophy'
