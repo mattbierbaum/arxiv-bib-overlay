@@ -32,6 +32,7 @@ export class InspireDatasource implements DataSource {
     //
 
     url_paper = 'https://labs.inspirehep.net/literature'
+    url_author = 'https://labs.inspirehep.net/authors'
     api_url = 'https://labs.inspirehep.net/api/literature'
     api_params = {
         sort: 'mostcited',
@@ -43,19 +44,18 @@ export class InspireDatasource implements DataSource {
     sorting = {
         sorters: {
             paper: {name: 'Paper order', func: (i) => i.index  },
-            citations: {name: 'Citations', func: (i) => i.citation_count},
+            //citations: {name: 'Citations', func: (i) => i.citation_count},
             title: {name: 'Title', func: (i) => i.simpletitle},
             author: {name: 'First author', func: (i) => i.authors[0] && i.authors[0].tolastname() },
             year: {name: 'Year', func: (i) => i.year}
         },
-        sorters_order: ['citations', 'title', 'author', 'year'],
+        sorters_order: ['title', 'author', 'year'],
         sorters_updown: {
-            citations: DOWN,
             title: UP,
             author: UP,
             year: DOWN
         },
-        sorters_default: 'citations',
+        sorters_default: 'year'
     }
 
     json_to_doc = new InspireToPaper(this)
@@ -126,12 +126,12 @@ export class InspireDatasource implements DataSource {
         const recid = paper.recid
         return Promise.all([
             this.fetch_query(this.format_url_rest(`${recid}/references`)),
-            this.fetch_query(this.format_url_rest(`${recid}/citations`))
+            this.fetch_query(this.format_url_search(`refersto:recid:${recid}`))
         ])
         .then((results) => {
             const [refs, cites] = results
             const list_refs = this.json_to_doc.json_references_to_papers(refs)
-            const list_cites = this.json_to_doc.json_citations_to_papers(cites)
+            const list_cites = this.json_to_doc.json_refersto_to_papers(cites)
             return [paper, list_cites, list_refs]
         })
         //this.fetch_query(`refersto:recid:${this.recid}`)

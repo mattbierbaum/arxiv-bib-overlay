@@ -1,10 +1,12 @@
 import sourceIcon from '../assets/icon-ads.png'
 import sourceLogo from '../assets/source-ads.png'
-import { API_ARTICLE_COUNT, POLICY_ADS_OAUTH_SERVICE } from '../bib_config'
+import { POLICY_ADS_OAUTH_SERVICE } from '../bib_config'
 import { encodeQueryData, QueryError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { AdsToPaper } from './AdsFromJson'
 import {  BasePaper, DataSource, DOWN, Paper, UP } from './document'
+
+const ADS_API_COUNT = 100
 
 /** Class to fetch references from ADS. */
 export class AdsDatasource implements DataSource {
@@ -22,7 +24,7 @@ export class AdsDatasource implements DataSource {
     longname = 'NASA ADS'
     categories = new Set(['astro-ph', 'cond-mat', 'gr-qc'])
 
-    max_count = API_ARTICLE_COUNT
+    max_count = ADS_API_COUNT
     base_url = 'https://api.adsabs.harvard.edu'
     homepage = 'https://ui.adsabs.harvard.edu'
     outbound_url = 'https://ui.adsabs.harvard.edu'
@@ -36,7 +38,7 @@ export class AdsDatasource implements DataSource {
             'id', 'pub', 'bibcode', 'title', 'author', 'bibstem',
             'year', 'doi', 'citation_count', 'read_count', 'identifier'
         ],
-        rows: API_ARTICLE_COUNT,
+        rows: ADS_API_COUNT,
         sort: 'citation_count desc',
     }
 
@@ -180,7 +182,6 @@ function error_check_token(response: Response) {
         case 404:
             throw new QueryError('Token server (managed by arXiv) not found')
         default:
-            console.log(response)
             throw new QueryError(`Error retrieving ADS API Token ${response.status}`)
     }
 }

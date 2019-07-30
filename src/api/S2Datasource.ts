@@ -65,6 +65,21 @@ export class S2Datasource implements DataSource {
         return count  / total
     }
 
+    title_check(papers: PaperGroup) {
+        const cutoff = 6
+        let count = 0
+        let total = 0
+
+        for (const doc of papers.documents) {
+            if (doc.title && doc.title.length < cutoff) {
+                count += 1
+            }
+            total += 1
+        }
+
+        return count / total
+    }
+
     populate(json: any) {
         const output: BasePaper = this.json_to_doc.reformat_document(json, 0)
 
@@ -77,6 +92,12 @@ export class S2Datasource implements DataSource {
                 count: json.citations.length,
                 sorting: this.sorting,
             }
+            const titles = Number(this.title_check(output.citations).toFixed(2))
+            if (titles > 0.6) {
+                throw new QueryError(
+                    `Few known citation titles from provider (${titles}).`
+                )
+            }
         }
 
         if (json.references) {
@@ -88,17 +109,26 @@ export class S2Datasource implements DataSource {
                 count: json.references.length,
                 sorting: this.sorting,
             }
+
+            const titles = Number(this.title_check(output.references).toFixed(2))
+            if (titles > 0.6) {
+                throw new QueryError(
+                    `Few known reference titles from provider (${titles}).`
+                )
+            }
         }
 
-        if (json.citations && json.references && json.citations.length === 0 && json.references.length === 0) {
-            throw new QueryError('No data available from data provider, article may be too recent.')
+        if (output.references === undefined || (output.references && output.references.count === 0)) {
+            throw new QueryError(
+                'No references available from data provider, article may be too recent.'
+            )
         }
 
         const pref = Number(this.portion_unknown(output.references).toFixed(2))
         const pcit = Number(this.portion_unknown(output.citations).toFixed(2))
-        if (pref > 0.75 || pcit > 0.75) {
+        if (pref > 0.95 || pcit > 0.95) {
             throw new QueryError(
-                `No data available from data provider, article may be too recent. (${Math.max(pref, pcit)})`
+                `Few known references from provider, article may be too recent (unk=${Math.max(pref, pcit)}).`
             )
         }
 

@@ -23,6 +23,10 @@ export class InspireToPaper {
         return arxivid ? 'https://arxiv.org/abs/' + arxivid : undefined
     }
 
+    url_author(id: string) {
+        return this.fetchConfig.url_author + '/' + id
+    }
+
     url_paper(id: string) {
         return this.fetchConfig.url_paper + '/' + id
     }
@@ -53,7 +57,7 @@ export class InspireToPaper {
     }
 
     meta_arxiv_id(json: any) {
-        const eprints = json.arxiv_eprints
+        const eprints = json.arxiv_eprint || json.arxiv_eprints
 
         if (eprints && eprints.length > 1) {
             console.log(eprints)
@@ -85,12 +89,13 @@ export class InspireToPaper {
     meta_authors(json: any) {
         const authors = json.authors
 
-        if (!authors) { return }
+        if (authors === undefined) { return [] }
 
         const to_auth = (item) => {
             const au = new Author()
+            const link = item.record ? item.record.$ref.replace('api/', '') : ''
             au.name = this.reverse_name(item.full_name)
-            au.url = item.record ? item.record.$ref : ''
+            au.url = link ? link : this.url_author(item.recid)
             return au
         }
 
@@ -129,7 +134,10 @@ export class InspireToPaper {
     meta_venue(json: any) {
         const pub = json.publication_info
         if (pub && pub.length > 0) {
-            return pub.journal_title
+            const name = pub[0].journal_title
+            if (name) {
+                return name.replace(/\.([^ ])/g, '. $1')
+            }
         }
     }
 
@@ -153,6 +161,14 @@ export class InspireToPaper {
         return json.hits.hits[0].metadata
     }
 
+    json_search_to_metas(json: any) {
+        if (json.hits.total === 0) {
+            return
+        }
+
+        return json.hits.hits.map((i) => i.metadata)
+    }
+
     json_references_to_papers(json: any): Paper[] {
         const refs = json.metadata.references
         return this.reformat_documents(refs)
@@ -161,6 +177,12 @@ export class InspireToPaper {
     json_citations_to_papers(json: any): Paper[] {
         const cites = json.metadata.citations
         return this.reformat_documents(cites)
+    }
+
+    json_refersto_to_papers(json: any): Paper[] {
+        console.log(json)
+        const refs = this.json_search_to_metas(json)
+        return this.reformat_documents(refs)
     }
 
     metadata_to_paper(json: any, index: number): Paper | undefined {
@@ -183,7 +205,7 @@ export class InspireToPaper {
         paper.url = this.url_paper(recid)
         paper.arxivId = arxivid
         paper.doi = this.meta_doi(json)
-        paper.url_doi = paper.doi ? 'https://doi.org/' + json.doi : ''
+        paper.url_doi = paper.doi ? 'https://doi.org/' + paper.doi : ''
         paper.url_arxiv = this.url_arxiv(arxivid)
 
         paper.simpletitle = remove_puctuation(paper.title.toLocaleLowerCase())
@@ -205,4 +227,16 @@ export class InspireToPaper {
         return output
     }
 
+    reformat_search_results(jsons: any): Paper[] {
+        if (!jsons) { return [] }
+
+        const output: Paper[] = []
+        for (let i = 0; i < jsons.length; i++) {
+            const d = this.metadata_to_paper(jsons[i], i)
+            if (d !== undefined) {
+                output.push(d)
+            }
+        }
+        return output
+    }
 }
