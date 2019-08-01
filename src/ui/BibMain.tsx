@@ -37,6 +37,7 @@ export class BibMain extends React.Component<{state: State}, {}> {
 
     generate_messages() {
         const state = this.props.state
+        const ds = this.props.state.bibmodel.currentDS
 
         if (state.isdisabled) {
             return null
@@ -47,7 +48,24 @@ export class BibMain extends React.Component<{state: State}, {}> {
             (i) => (<li className='msg'>{i.length < 80 ? i : i.slice(0, 80) + '...'}</li>)
         )
 
-        return (<ul className='msgs'>{msgs}</ul>)
+        if (msgs.length > 0) {
+            if (ds) {
+                const email = `mailto:${ds.email}`
+                const helpline = (
+                    <div>
+                    <p>Articles recently added or updated may not have propagated to data providers yet.
+                       If you believe there is an error in the data,
+                       contact <b><a href={email}>{ds.longname}</a></b>.</p>
+                    </div>
+                )
+
+                return (<div><ul className='msgs'>{msgs}</ul>{helpline}</div>)
+            } else {
+                return (<ul className='msgs'>{msgs}</ul>)
+            }
+        } else {
+            return
+        }
     }
 
     render() {

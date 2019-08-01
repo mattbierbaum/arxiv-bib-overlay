@@ -1,5 +1,7 @@
 /** Functions to interact with the arxiv page ex. getting the arXiv ID of the page. */
 
+import { Author, Paper } from './api/document'
+
 export const RE_IDENTIFIER = new RegExp(
     '(?:' +                                           // begin OR group
       '(?:arXiv:)(?:(\\d{4}\\.\\d{4,5})(?:v\\d{1,3})?)' + // there is a new-form arxiv id
@@ -47,6 +49,16 @@ function meta_text(elem_name: string): string {
     return obj ? obj.content : ''
 }
 
+function meta_texts(elem_name: string): string[] {
+    const objs = Array.from(document.head.querySelectorAll(`[name="${elem_name}"]`))
+    const texts: string[] = []
+    for (const obj of objs) {
+        const o = obj as HTMLMetaElement
+        texts.push(o.content)
+    }
+    return texts
+}
+
 //=============================================================
 // category extraction methods
 function minor_to_major(category: string): string {
@@ -76,6 +88,15 @@ export function get_categories(): string[][] {
     return get_minor_categories().map((cat) => [minor_to_major(cat), cat])
 }
 
+export function get_primary_category(): string {
+    const cats: string[][] = get_categories()
+    if (cats && cats.length > 0 && cats[0].length > 0) {
+        return cats[0][0]
+    }
+
+    throw new Error('No primary category found')
+}
+
 //=============================================================
 // article id extraction functions
 function get_current_article_url(): string {
@@ -102,6 +123,10 @@ function get_current_article_meta(): string {
 
 export function get_current_article(): string {
     return get_current_article_meta() || get_current_article_url()
+}
+
+export function get_current_article_doi(): string {
+    return meta_text('citation_doi')
 }
 
 //=============================================================
@@ -142,4 +167,25 @@ export function pageElementSidebar(): HTMLElement {
 
 export function pageElementModal(): HTMLElement {
     return pageElement('bib-modal', 'extra-services', 'bookmarks')
+}
+
+//==============================================================
+// returns the current paper as a Paper object
+export function topaper(): Paper {
+    const out = new Paper()
+    out.title = meta_text('citation_title')
+    out.year = meta_text('citation_date').substr(0, 4)
+    out.venue = 'arXiv'
+    out.doi = meta_text('citation_doi')
+    out.arxivId = get_current_article()
+    out.url = document.location.href
+    out.authors = []
+
+    const authnames = meta_texts('citation_author')
+    for (const auth of authnames) {
+        const a = new Author()
+        a.name = auth
+        out.authors.push(a)
+    }
+    return out
 }
