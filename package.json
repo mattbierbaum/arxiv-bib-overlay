@@ -7,13 +7,13 @@
     "fast-mutex": "^1.0.2",
     "js-cookie": "^2.2.0",
     "merge": "^1.2.1",
-    "mobx": "^5.1.0",
-    "mobx-react": "^5.2.5",
-    "mobx-react-devtools": "^6.0.3",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
-    "react-scripts-ts": "2.17.0",
-    "tslint": "^5.11.0",
+    "mobx": "^5.13.0",
+    "mobx-react": "^6.1.1",
+    "mobx-react-devtools": "^6.1.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts-ts": "^3.1.0",
+    "tslint": "^5.18.0",
     "unidecode": "^0.1.8",
     "xmldom": "^0.1.27",
     "xpath": "^0.0.27"
@@ -25,10 +25,10 @@
     "eject": "react-scripts-ts eject"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.1",
-    "@types/node": "^10.7.1",
-    "@types/react": "^16.4.11",
-    "@types/react-dom": "^16.0.7",
-    "typescript": "^3.0.1"
+    "@types/jest": "^22.0.16",
+    "@types/node": "^12.6.8",
+    "@types/react": "^16.8.23",
+    "@types/react-dom": "^16.8.5",
+    "typescript": "^3.5.3"
   }
 }
