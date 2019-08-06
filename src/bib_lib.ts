@@ -47,6 +47,15 @@ export class QueryError extends Error {
     constructor(m: string) {
         super(m)
         Object.setPrototypeOf(this, QueryError.prototype)
+        this.name = 'QueryError'
+    }
+}
+
+export class DataError extends Error {
+    constructor(m: string) {
+        super(m)
+        Object.setPrototypeOf(this, QueryError.prototype)
+        this.name = 'DataError'
     }
 }
 
@@ -54,5 +63,6 @@ export class RateLimitError extends Error {
     constructor(m: string) {
         super(m)
         Object.setPrototypeOf(this, RateLimitError.prototype)
+        this.name = 'RateLimitError'
     }
 }

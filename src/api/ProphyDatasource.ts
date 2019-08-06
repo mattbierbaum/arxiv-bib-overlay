@@ -1,6 +1,6 @@
 import icon from '../assets/icon-prophy.png'
 import sourceLogo from '../assets/source-prophy.png'
-import { CATEGORIES, encodeQueryData, QueryError } from '../bib_lib'
+import { CATEGORIES, DataError, encodeQueryData, QueryError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { BasePaper, DataSource, DOWN, UP } from './document'
 import { ProphyToPaper } from './ProphyFromJson'
@@ -15,6 +15,7 @@ export class ProphyDatasource implements DataSource {
 
     max_count = 200
     email = 'arxiv@prophy.science'
+    help = `mailto:${this.email}`
     shortname = 'Prophy'
     longname = 'Prophy'
     categories = CATEGORIES
@@ -72,6 +73,12 @@ export class ProphyDatasource implements DataSource {
             }
         }
 
+        const ncites = output.citations ? output.citations.count : 0
+        const nrefs = output.references ? output.references.count : 0
+
+        if (nrefs === 0 || (ncites === 0 && nrefs === 0)) {
+            throw new DataError('No references or citations provided by data provider.')
+        }
         this.data = output
     }
 
@@ -85,24 +92,16 @@ export class ProphyDatasource implements DataSource {
         return api_bucket.throttle(
             () => fetch(this.url_paper(this.aid))
                 .catch((e) => {
-                    console.log(e)
                     throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')}
                 )
                 .then(resp => error_check(resp))
                 .then(resp => resp.json())
                 .then(json => {
-                    console.log(json) 
                     this.populate(json)
                     this.loaded = true
                     return this
                 })
-        ).catch((e) => {
-            if (e instanceof QueryError) {
-                throw e
-            } else {
-                throw new Error('Too many requests, please try again in a few seconds.')
-            }
-        })
+        ).catch((e) => {throw e})
     }
 }
 
@@ -113,10 +112,9 @@ function error_check(response: Response) {
 
     switch (response.status) {
         case 0:
-            console.log(response)
             throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')
         case 404:
-            throw new QueryError('No data available yet')
+            throw new DataError('No data available yet')
         case 500:
             throw new QueryError('Query error 500: internal server error')
         default:

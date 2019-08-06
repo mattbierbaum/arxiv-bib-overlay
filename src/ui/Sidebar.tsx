@@ -29,7 +29,7 @@ export class Sidebar extends React.Component<{state: State}, {}> {
 
         let paper_title = bib.paper.title
         if (paper_title.length > 23) {
-            paper_title = paper_title.substring(0, 20) + '...'
+            paper_title = paper_title.substring(0, 40) + '...'
         }
 
         let auth_list = auth_elements

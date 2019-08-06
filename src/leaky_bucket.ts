@@ -120,10 +120,11 @@ export class CrossTabLeakyBucket {
             waitTime = Math.max((this.waitTime * (1000 * this.refillRate) - (now - this.last)) / 1000, 0)
 
             if (waitTime >= this.maxWaitingTime) {
-                throw new RateLimitError(
+                console.log(
                     `Timeout exceeded, too many waiting requests! Would take ${waitTime} seconds to complete, ` +
                     `the max waiting time is ${this.maxWaitingTime}.`
                 )
+                throw new RateLimitError('Too many requests, please try again in a few seconds.')
             } else {
                 this.waitTime += 1
 

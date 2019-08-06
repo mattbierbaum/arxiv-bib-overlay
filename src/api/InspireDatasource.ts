@@ -16,6 +16,7 @@ export class InspireDatasource implements DataSource {
 
     max_count = MAXCOUNT
     email = 'feedback@inspirehep.net'
+    help = `mailto:${this.email}`
     shortname = 'Inspire'
     longname = 'Inspire HEP'
     categories = new Set(['hep-th', 'hep-ex', 'hep-ph', 'hep-lat', 'gr-qc'])

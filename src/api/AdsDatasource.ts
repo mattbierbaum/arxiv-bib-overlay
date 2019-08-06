@@ -1,7 +1,7 @@
 import sourceIcon from '../assets/icon-ads.png'
 import sourceLogo from '../assets/source-ads.png'
 import { POLICY_ADS_OAUTH_SERVICE } from '../bib_config'
-import { encodeQueryData, QueryError } from '../bib_lib'
+import { DataError, encodeQueryData, QueryError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { AdsToPaper } from './AdsFromJson'
 import {  BasePaper, DataSource, DOWN, Paper, UP } from './document'
@@ -20,6 +20,7 @@ export class AdsDatasource implements DataSource {
     logo = sourceLogo
 
     email = 'adshelp@cfa.harvard.edu'
+    help = `mailto:${this.email}`
     shortname = 'ADS'
     longname = 'NASA ADS'
     categories = new Set(['astro-ph', 'cond-mat', 'gr-qc'])
@@ -84,6 +85,14 @@ export class AdsDatasource implements DataSource {
             count: references.length,
             sorting: this.sorting
         }
+
+        const ncites = output.citations.count
+        const nrefs = output.references.count
+
+        if (nrefs === 0 || (ncites === 0 && nrefs === 0)) {
+            throw new DataError('No references or citations provided by data provider.')
+        }
+
         this.data = output
     }
 
@@ -117,13 +126,7 @@ export class AdsDatasource implements DataSource {
             .then(resp => error_check(resp))
             .then(resp => resp.json())
             .then(json => this.json_to_doc.reformat_documents(json.response.docs))
-        ).catch((e) => {
-            if (e instanceof QueryError) {
-                throw e
-            } else {
-                throw new Error('Too many requests, please try again in a few seconds.')
-            }
-        })
+        ).catch((e) => {throw e})
     }
 
     /* Fetches base, citations and references, then populates this InspireDatasource. */
@@ -161,7 +164,7 @@ function error_check(response: Response) {
         case 401:
             throw new QueryError('Query authentication to ADS failed')
         case 404:
-            throw new QueryError('No data available yet')
+            throw new DataError('No data available yet')
         case 429:
             throw new QueryError('Too many requests to ADS, rate limit reached for today.')
         case 500:

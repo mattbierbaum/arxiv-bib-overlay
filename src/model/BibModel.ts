@@ -113,8 +113,8 @@ export class BibModel {
     }
 
     @action
-    populateFromDSError(error: Error): void {
-        state.error(error.message)
+    populateFromDSError(error: any): void {
+        state.error(error)
     }
 
     record_api() {

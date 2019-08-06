@@ -90,6 +90,7 @@ export interface DataSource {
     max_count: number
 
     email: string
+    help: string
     shortname: string
     longname: string
     homepage: string

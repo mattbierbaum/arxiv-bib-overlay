@@ -43,19 +43,28 @@ export class BibMain extends React.Component<{state: State}, {}> {
             return null
         }
 
-        const msglist = state.errors ? state.errors : state.messages
+        let dataerror = false
+        let msglist: string[] = []
+
+        if (state.errors) {
+            msglist = state.errors.map((i) => i.message)
+            dataerror = state.errors.some((i) => i.name === 'DataError')
+        } else {
+            msglist = state.messages
+            dataerror = false
+        }
+
         const msgs = msglist.map(
             (i) => (<li className='msg'>{i.length < 80 ? i : i.slice(0, 80) + '...'}</li>)
         )
 
         if (msgs.length > 0) {
-            if (ds) {
-                const email = `mailto:${ds.email}`
+            if (ds && dataerror) {
                 const helpline = (
                     <div>
                     <p>Articles recently added or updated may not have propagated to data providers yet.
-                       If you believe there is an error in the data,
-                       contact <b><a href={email}>{ds.longname}</a></b>.</p>
+                       If you believe there is an error,
+                       contact <b><a href={ds.help}>{ds.longname}</a></b>.</p>
                     </div>
                 )
 

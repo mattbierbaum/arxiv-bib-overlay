@@ -20,7 +20,7 @@ export class State {
     messages: string[] = []
 
     @observable
-    errors: string[] = []
+    errors: any[] = []
 
     @observable
     state: Status = Status.INIT
@@ -103,9 +103,8 @@ export class State {
     }
 
     @action
-    error(msg: string, exception: any = null) {
-        console.log(msg)
-        this.errors.push(msg)
+    error(err: any, exception: any = null) {
+        this.errors.push(err)
         this.state = Status.FAILED
     }
 }
