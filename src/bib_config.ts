@@ -19,7 +19,7 @@ export const API_TIMEOUT = 30 * 1000
 // what the actual abs section is to be called
 export const POLICY_SECTION_HEADER = 'Bibliographic data'
 export const POLICY_PROJECT_SHORTNAME = 'Bibex'
-export const POLICY_DESCRIPTION_PAGE = 'https://labs.arxiv.org/projects/bibexplorer'
+export const POLICY_DESCRIPTION_PAGE = 'https://labs.arxiv.org'
 
 // whether or not to trap the api calls that are made for stats purposes
 export const POLICY_RECORD_API_STATS = true
