@@ -62,3 +62,7 @@ export const POLICY_LIMITER_CAPACITY = 3
 
 // employ ADS OAuth token service or use the global token (not good practice)
 export const POLICY_ADS_OAUTH_SERVICE = true
+
+// S2 API key, This needs to be replaced at build time with
+// the key from AWS SM: arxiv-bib-overlay/S2/x-api-key
+export const S2_API_KEY = 'changeMe'

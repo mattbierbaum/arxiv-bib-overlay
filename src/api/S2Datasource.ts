@@ -1,5 +1,6 @@
 import icon from '../assets/icon-s2.png'
 import sourceLogo from '../assets/source-s2.png'
+import { S2_API_KEY } from '../bib_config'
 import { CATEGORIES, DataError, encodeQueryData, QueryError, RateLimitError } from '../bib_lib'
 import { api_bucket } from '../leaky_bucket'
 import { BasePaper, DataSource, DOWN, PaperGroup, UP } from './document'
@@ -20,7 +21,7 @@ export class S2Datasource implements DataSource {
     longname = 'Semantic Scholar'
     categories = CATEGORIES
     homepage = 'https://semanticscholar.org'
-    api_url = 'https://api.semanticscholar.org/v1/'
+    api_url =  'https://partner.semanticscholar.org'
     api_params = {include_unknown_references: 'true'}
 
     sorting = {
@@ -45,7 +46,7 @@ export class S2Datasource implements DataSource {
 
     url_paper(arxivid: string) {
         const params = encodeQueryData(this.api_params)
-        return `${this.api_url}paper/arXiv:${arxivid}?${params}`
+        return `${this.api_url}/arXiv:${arxivid}?${params}`
     }
 
     portion_unknown(papers: PaperGroup | undefined) {
@@ -144,7 +145,13 @@ export class S2Datasource implements DataSource {
         this.aid = arxiv_id
 
         return api_bucket.throttle(
-            () => fetch(this.url_paper(this.aid))
+            () => fetch(this.url_paper(this.aid), {
+                mode: 'cors',
+                headers: {
+                    'x-api-key': '6VzaAKS9aL8Q7L4qwuZyc1vFy2KCsdMSmICmjgNb'
+                },
+                redirect: 'follow',
+            })
                 .catch((e) => {throw new QueryError('Query prevented by browser -- CORS, firewall, or unknown error')})
                 .then(resp => error_check(resp))
                 .then(resp => resp.json())
